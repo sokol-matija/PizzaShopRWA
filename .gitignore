@@ -1,0 +1,72 @@
+# Ignore Visual Studio specific files
+.vs/
+
+# Ignore build outputs
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore JetBrains Rider specific files
+.idea/
+
+# Ignore macOS specific files
+.DS_Store
+
+# Ignore package dependencies
+packages/
+
+# Ignore NuGet packages and restore folders
+*.nupkg
+project.lock.json
+project.assets.json
+
+# Ignore publish output
+wwwroot/
+
+# Ignore log and temporary files
+logs/
+*.log
+
+# Ignore secrets and configuration files
+appsettings.Development.json
+secrets.json
+
+# Ignore generated files
+GeneratedFiles/
+
+# Ignore ReSharper files
+_ReSharper.Caches/
+
+# Ignore Azure and IIS artifacts
+Azure/*
+*.Publish.xml
+
+# Ignore database files
+*.mdf
+*.ldf
+
+# Ignore Node modules (if using npm or Yarn)
+node_modules/
+
+# Ignore Python virtual environment (if applicable)
+venv/
+
+# Ignore coverage results
+coverage/
+
+# Ignore Rider and VS Code settings
+*.code-workspace
+.vscode/
+.idea/
+
+# Ignore other system-specific files
+Thumbs.db
+Desktop.ini
+
+# Ignore environment-specific settings
+.env
