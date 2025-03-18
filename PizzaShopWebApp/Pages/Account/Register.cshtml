@@ -1,7 +1,7 @@
 @page
-@model PizzaShopWebApp.Pages.Account.LoginModel
+@model PizzaShopWebApp.Pages.Account.RegisterModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Register";
     Layout = "_LoginLayout";
 }
 
@@ -10,44 +10,72 @@
 </div>
 
 <div class="login-container">
-    <div class="login-box">
+    <div class="login-box register-box">
         <div class="logo-container">
             <img src="~/images/pizza-logo.svg" alt="Pizza Shop Logo" class="logo" />
             <h1>Pizza Shop</h1>
         </div>
         
         <div class="login-form">
-            <h2>Welcome back</h2>
-            <p class="login-subtitle">Please log in to your account</p>
+            <h2>Create Account</h2>
+            <p class="login-subtitle">Sign up to order your favorite pizza</p>
             
             <form method="post">
                 <div asp-validation-summary="All" class="validation-summary-errors" style="display:@(ViewData.ModelState.ErrorCount > 0 ? "block" : "none")"></div>
                 
                 <div class="form-group">
                     <label asp-for="Input.Username">Username</label>
-                    <input type="text" class="form-control" asp-for="Input.Username" placeholder="Enter your username" required />
+                    <input type="text" class="form-control" asp-for="Input.Username" placeholder="Choose a username" required />
                     <span asp-validation-for="Input.Username" class="field-validation-error"></span>
                 </div>
                 
                 <div class="form-group">
+                    <label asp-for="Input.Email">Email</label>
+                    <input type="email" class="form-control" asp-for="Input.Email" placeholder="Enter your email" required />
+                    <span asp-validation-for="Input.Email" class="field-validation-error"></span>
+                </div>
+                
+                <div class="form-group">
                     <label asp-for="Input.Password">Password</label>
-                    <input type="password" class="form-control" asp-for="Input.Password" placeholder="Enter your password" required />
+                    <input type="password" class="form-control" asp-for="Input.Password" placeholder="Create a password" required />
                     <span asp-validation-for="Input.Password" class="field-validation-error"></span>
-                    <div class="forgot-password">
-                        <a href="#">Forgot password?</a>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+                    <input type="password" class="form-control" asp-for="Input.ConfirmPassword" placeholder="Confirm your password" required />
+                    <span asp-validation-for="Input.ConfirmPassword" class="field-validation-error"></span>
+                </div>
+                
+                <div class="optional-info">
+                    <h3>Optional Information</h3>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label asp-for="Input.FirstName">First Name</label>
+                            <input type="text" class="form-control" asp-for="Input.FirstName" placeholder="First name" />
+                        </div>
+                        <div class="form-group half">
+                            <label asp-for="Input.LastName">Last Name</label>
+                            <input type="text" class="form-control" asp-for="Input.LastName" placeholder="Last name" />
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label asp-for="Input.PhoneNumber">Phone Number</label>
+                        <input type="tel" class="form-control" asp-for="Input.PhoneNumber" placeholder="Your phone number" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label asp-for="Input.Address">Address</label>
+                        <input type="text" class="form-control" asp-for="Input.Address" placeholder="Your delivery address" />
                     </div>
                 </div>
                 
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" asp-for="Input.RememberMe" />
-                    <label class="form-check-label" asp-for="Input.RememberMe">Remember me</label>
-                </div>
-                
-                <button type="submit" class="btn btn-primary login-button">Log in</button>
+                <button type="submit" class="btn btn-primary login-button">Create Account</button>
             </form>
             
             <div class="register-link">
-                Don't have an account? <a asp-page="/Account/Register">Sign up</a>
+                Already have an account? <a asp-page="/Account/Login">Log in</a>
             </div>
         </div>
     </div>
