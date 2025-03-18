@@ -1,0 +1,200 @@
+@page
+@model PizzaShopWebApp.Pages.Dashboard.OrderModel
+@{
+    ViewData["Title"] = "Order";
+    Layout = "_DashboardLayout";
+}
+
+<div class="restaurant-header">
+    <div class="restaurant-info">
+        <h1 class="restaurant-name">Jaegar Resto</h1>
+        <p class="restaurant-date">Tuesday, 2 Feb 2021</p>
+    </div>
+    
+    <div class="search-bar">
+        <i class="bx bx-search"></i>
+        <input type="text" placeholder="Search for food, coffee, etc.." />
+    </div>
+</div>
+
+<div class="category-tabs">
+    <button class="category-tab active">Hot Dishes</button>
+    <button class="category-tab">Cold Dishes</button>
+    <button class="category-tab">Soup</button>
+    <button class="category-tab">Grill</button>
+    <button class="category-tab">Appetizer</button>
+    <button class="category-tab">Dessert</button>
+</div>
+
+<div class="restaurant-content">
+    <section class="food-section">
+        <div class="section-header">
+            <h2 class="section-title">Choose Dishes</h2>
+            <div class="view-options">
+                <button class="view-option-btn active">
+                    <i class='bx bx-grid-alt'></i>
+                </button>
+                <button class="view-option-btn">
+                    <i class='bx bx-list-ul'></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="food-grid">
+            <!-- Food Item 1 -->
+            <div class="food-card" data-id="1" data-category="hot-dishes">
+                <img src="~/Images/basic_food_image.png" alt="Spicy seasoned seafood noodles" class="food-image">
+                <h3 class="food-name">Spicy seasoned seafood noodles</h3>
+                <p class="food-price">$2.29</p>
+                <p class="food-availability">20 Bowls available</p>
+            </div>
+            
+            <!-- Food Item 2 -->
+            <div class="food-card" data-id="2" data-category="hot-dishes">
+                <img src="~/Images/basic_food_image.png" alt="Salted Pasta with mushroom sauce" class="food-image">
+                <h3 class="food-name">Salted Pasta with mushroom sauce</h3>
+                <p class="food-price">$2.69</p>
+                <p class="food-availability">11 Bowls available</p>
+            </div>
+            
+            <!-- Food Item 3 -->
+            <div class="food-card" data-id="3" data-category="hot-dishes">
+                <img src="~/Images/basic_food_image.png" alt="Beef dumpling in hot and sour soup" class="food-image">
+                <h3 class="food-name">Beef dumpling in hot and sour soup</h3>
+                <p class="food-price">$2.99</p>
+                <p class="food-availability">16 Bowls available</p>
+            </div>
+            
+            <!-- Food Item 4 -->
+            <div class="food-card" data-id="4" data-category="hot-dishes">
+                <img src="~/Images/basic_food_image.png" alt="Healthy noodle with spinach leaf" class="food-image">
+                <h3 class="food-name">Healthy noodle with spinach leaf</h3>
+                <p class="food-price">$3.29</p>
+                <p class="food-availability">22 Bowls available</p>
+            </div>
+            
+            <!-- Food Item 5 -->
+            <div class="food-card" data-id="5" data-category="hot-dishes">
+                <div class="food-badge">Hot</div>
+                <img src="~/Images/basic_food_image.png" alt="Hot spicy fried rice with omelet" class="food-image">
+                <h3 class="food-name">Hot spicy fried rice with omelet</h3>
+                <p class="food-price">$3.49</p>
+                <p class="food-availability">13 Bowls available</p>
+            </div>
+            
+            <!-- Food Item 6 -->
+            <div class="food-card" data-id="6" data-category="hot-dishes">
+                <img src="~/Images/basic_food_image.png" alt="Spicy instant noodle with special omelette" class="food-image">
+                <h3 class="food-name">Spicy instant noodle with special omelette</h3>
+                <p class="food-price">$3.59</p>
+                <p class="food-availability">17 Bowls available</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Order Section (Right Side) -->
+<div class="order-section">
+    <div class="order-header">
+        <h2 class="order-title">Orders #34562</h2>
+        
+        <div class="order-type">
+            <button class="order-type-option active">Dine In</button>
+            <button class="order-type-option">To Go</button>
+            <button class="order-type-option">Delivery</button>
+        </div>
+    </div>
+    
+    <div class="order-item-header">
+        <div style="width: 40%; padding-left: 10px;">Item</div>
+        <div style="width: 25%; text-align: center;">Qty</div>
+        <div style="width: 25%; text-align: right;">Price</div>
+        <div style="width: 10%;"></div>
+    </div>
+    
+    <div class="order-items">
+        <!-- Order Item 1 -->
+        <div class="order-item">
+            <img src="~/Images/basic_food_image.png" alt="Spicy seasoned seafood noodles" class="order-item-image">
+            <div class="order-item-details">
+                <h4 class="order-item-name">Spicy seasoned seafood noodles</h4>
+                <p class="order-item-price">$2.29</p>
+            </div>
+            <div class="quantity-control">
+                <span class="quantity-value">2</span>
+            </div>
+            <div class="order-item-total">$4.58</div>
+            <button class="btn-remove">
+                <i class="bx bx-trash"></i>
+            </button>
+        </div>
+        
+        <!-- Order Item 2 -->
+        <div class="order-item">
+            <img src="~/Images/basic_food_image.png" alt="Salted Pasta with mushroom sauce" class="order-item-image">
+            <div class="order-item-details">
+                <h4 class="order-item-name">Salted Pasta with mushroom sauce</h4>
+                <p class="order-item-price">$2.69</p>
+            </div>
+            <div class="quantity-control">
+                <span class="quantity-value">1</span>
+            </div>
+            <div class="order-item-total">$2.69</div>
+            <button class="btn-remove">
+                <i class="bx bx-trash"></i>
+            </button>
+        </div>
+        
+        <!-- Order Item 3 -->
+        <div class="order-item">
+            <img src="~/Images/basic_food_image.png" alt="Spicy instant noodle with special omelette" class="order-item-image">
+            <div class="order-item-details">
+                <h4 class="order-item-name">Spicy instant noodle with special omelette</h4>
+                <p class="order-item-price">$3.49</p>
+            </div>
+            <div class="quantity-control">
+                <span class="quantity-value">3</span>
+            </div>
+            <div class="order-item-total">$10.47</div>
+            <button class="btn-remove">
+                <i class="bx bx-trash"></i>
+            </button>
+        </div>
+        
+        <!-- Order Item 4 -->
+        <div class="order-item">
+            <img src="~/Images/basic_food_image.png" alt="Healthy noodle with spinach leaf" class="order-item-image">
+            <div class="order-item-details">
+                <h4 class="order-item-name">Healthy noodle with spinach leaf</h4>
+                <p class="order-item-price">$3.29</p>
+            </div>
+            <div class="quantity-control">
+                <span class="quantity-value">1</span>
+            </div>
+            <div class="order-item-total">$3.29</div>
+            <button class="btn-remove">
+                <i class="bx bx-trash"></i>
+            </button>
+        </div>
+        
+        <!-- Order Note -->
+        <textarea class="order-note" placeholder="Order Note...">Please, just a little bit spicy only.</textarea>
+    </div>
+    
+    <div class="order-summary">
+        <div class="summary-item">
+            <span>Discount</span>
+            <span>$0</span>
+        </div>
+        <div class="summary-item">
+            <span>Sub total</span>
+            <span>$21.03</span>
+        </div>
+        <div class="summary-item total">
+            <span>Total</span>
+            <span>$21.03</span>
+        </div>
+        
+        <button class="btn-payment">Continue to Payment</button>
+    </div>
+</div> 

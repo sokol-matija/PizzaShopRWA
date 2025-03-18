@@ -1,0 +1,261 @@
+@page
+@model PizzaShopWebApp.Pages.Orders.IndexModel
+@{
+    ViewData["Title"] = "Your Orders";
+}
+
+<div class="container fade-in">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1">Your Orders</h2>
+                <p class="text-muted">Track and manage all your orders</p>
+            </div>
+            <a href="/Menu/Index" class="btn btn-primary">
+                <i class='bx bx-plus me-2'></i> New Order
+            </a>
+        </div>
+    </div>
+
+    <!-- Order Tabs -->
+    <ul class="nav nav-pills mb-4" id="orderTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="active-tab" data-bs-toggle="pill" data-bs-target="#active" type="button" role="tab" aria-controls="active" aria-selected="true">
+                Active Orders <span class="badge bg-primary ms-2">@Model.ActiveOrders.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="completed-tab" data-bs-toggle="pill" data-bs-target="#completed" type="button" role="tab" aria-controls="completed" aria-selected="false">
+                Completed <span class="badge bg-secondary ms-2">@Model.CompletedOrders.Count</span>
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="orderTabContent">
+        <!-- Active Orders Tab -->
+        <div class="tab-pane fade show active" id="active" role="tabpanel" aria-labelledby="active-tab">
+            @if (Model.ActiveOrders.Count == 0)
+            {
+                <div class="empty-state text-center py-5">
+                    <i class='bx bx-package bx-lg text-muted'></i>
+                    <h3 class="mt-3">No active orders</h3>
+                    <p class="text-muted">You don't have any active orders at the moment.</p>
+                    <a href="/Menu/Index" class="btn btn-primary mt-3">
+                        <i class='bx bx-food-menu me-2'></i> Order Now
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var order in Model.ActiveOrders)
+                    {
+                        <div class="col-md-6 mb-4">
+                            <div class="card order-card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-0">Order #@order.OrderNumber</h5>
+                                        <small class="text-muted">@order.OrderDate.ToString("MMM dd, yyyy h:mm tt")</small>
+                                    </div>
+                                    <span class="badge @GetStatusBadgeClass(order.Status)">@order.Status</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="order-items mb-3">
+                                        @foreach (var item in order.Items.Take(3))
+                                        {
+                                            <div class="order-item d-flex align-items-center mb-2">
+                                                <div class="order-item-quantity me-2">@item.Quantity x</div>
+                                                <div class="order-item-name">@item.Name</div>
+                                                <div class="ms-auto">$@((item.Price * item.Quantity).ToString("0.00"))</div>
+                                            </div>
+                                        }
+                                        @if (order.Items.Count > 3)
+                                        {
+                                            <div class="text-muted small">+ @(order.Items.Count - 3) more items</div>
+                                        }
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <div class="order-total">
+                                            <div class="text-muted small">Total</div>
+                                            <div class="fw-bold">$@order.Total.ToString("0.00")</div>
+                                        </div>
+                                        <div class="order-actions">
+                                            <a href="/Orders/Details/@order.Id" class="btn btn-sm btn-outline-primary me-2">
+                                                <i class='bx bx-detail'></i> Details
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#cancelOrderModal" 
+                                                    data-order-id="@order.Id"
+                                                    data-order-number="@order.OrderNumber">
+                                                <i class='bx bx-x'></i> Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (order.Status == "In Progress" || order.Status == "Ready")
+                                {
+                                    <div class="card-footer p-0">
+                                        <div class="order-tracker">
+                                            <div class="order-tracker-step @(order.Status != "Placed" ? "completed" : "active")">
+                                                <div class="step-icon"><i class='bx bx-check'></i></div>
+                                                <div class="step-label">Placed</div>
+                                            </div>
+                                            <div class="order-tracker-step @(order.Status == "In Progress" || order.Status == "Ready" ? "active" : "")">
+                                                <div class="step-icon"><i class='bx bx-time'></i></div>
+                                                <div class="step-label">Preparing</div>
+                                            </div>
+                                            <div class="order-tracker-step @(order.Status == "Ready" ? "active" : "")">
+                                                <div class="step-icon"><i class='bx bx-package'></i></div>
+                                                <div class="step-label">Ready</div>
+                                            </div>
+                                            <div class="order-tracker-step">
+                                                <div class="step-icon"><i class='bx bx-check-circle'></i></div>
+                                                <div class="step-label">Completed</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Completed Orders Tab -->
+        <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+            @if (Model.CompletedOrders.Count == 0)
+            {
+                <div class="empty-state text-center py-5">
+                    <i class='bx bx-check-circle bx-lg text-muted'></i>
+                    <h3 class="mt-3">No completed orders</h3>
+                    <p class="text-muted">You don't have any completed orders yet.</p>
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Date</th>
+                                        <th>Items</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model.CompletedOrders)
+                                    {
+                                        <tr>
+                                            <td><strong>@order.OrderNumber</strong></td>
+                                            <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
+                                            <td>
+                                                @string.Join(", ", order.Items.Take(2).Select(i => i.Name))
+                                                @if (order.Items.Count > 2)
+                                                {
+                                                    <span>+ @(order.Items.Count - 2) more</span>
+                                                }
+                                            </td>
+                                            <td>$@order.Total.ToString("0.00")</td>
+                                            <td><span class="badge @GetStatusBadgeClass(order.Status)">@order.Status</span></td>
+                                            <td>
+                                                <a href="/Orders/Details/@order.Id" class="btn btn-sm btn-outline-primary">
+                                                    <i class='bx bx-detail'></i> Details
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-primary ms-2" title="Reorder" data-order-id="@order.Id">
+                                                    <i class='bx bx-refresh'></i> Reorder
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Order Modal -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelOrderModalLabel">Cancel Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel order #<span id="cancelOrderNumber"></span>?</p>
+                <p class="text-muted small">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Order</button>
+                <button type="button" class="btn btn-danger" id="confirmCancel">Cancel Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Handle cancel order modal
+        const cancelOrderModal = document.getElementById('cancelOrderModal');
+        let orderIdToCancel = null;
+        
+        if (cancelOrderModal) {
+            cancelOrderModal.addEventListener('show.bs.modal', event => {
+                const button = event.relatedTarget;
+                orderIdToCancel = button.getAttribute('data-order-id');
+                const orderNumber = button.getAttribute('data-order-number');
+                document.getElementById('cancelOrderNumber').textContent = orderNumber;
+            });
+        }
+        
+        // Handle order cancellation
+        document.getElementById('confirmCancel')?.addEventListener('click', function() {
+            if (orderIdToCancel) {
+                // Here you would call your API to cancel the order
+                // For now, just reload the page
+                alert('Order cancelled successfully.');
+                location.reload();
+            }
+        });
+        
+        // Handle reorder functionality
+        document.querySelectorAll('button[data-order-id]').forEach(button => {
+            button.addEventListener('click', function() {
+                const orderId = this.getAttribute('data-order-id');
+                
+                // Here you would call your API to reorder the items
+                alert('Items from order #' + orderId + ' have been added to your cart.');
+                
+                // Redirect to cart
+                // window.location.href = '/Cart/Index';
+            });
+        });
+    </script>
+}
+
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Placed" => "bg-info",
+            "In Progress" => "bg-warning",
+            "Ready" => "bg-success",
+            "Completed" => "bg-success",
+            "Cancelled" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+} 

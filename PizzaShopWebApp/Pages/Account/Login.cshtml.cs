@@ -97,7 +97,8 @@ namespace PizzaShopWebApp.Pages.Account
                             
                             _logger.LogInformation("User {Username} logged in successfully", Input.Username);
                             
-                            return LocalRedirect(returnUrl);
+                            // Always redirect to the root/dashboard page after successful login
+                            return RedirectToPage("/Index");
                         }
                     }
                     else

@@ -14,9 +14,20 @@ namespace PizzaShopWebApp.Pages
 
 		public IActionResult OnGet()
 		{
-			// For now, always redirect to login page
-			// Later, this can check if the user is authenticated
-			return RedirectToPage("/Account/Login");
+			// Check if user is authenticated
+			var authToken = HttpContext.Session.GetString("AuthToken");
+			
+			if (string.IsNullOrEmpty(authToken))
+			{
+				_logger.LogInformation("User not authenticated, redirecting to login");
+				return RedirectToPage("/Account/Login");
+			}
+			
+			// Set the title for the page
+			ViewData["Title"] = "Dashboard";
+			
+			// User is authenticated, show the dashboard
+			return Page();
 		}
 	}
 }

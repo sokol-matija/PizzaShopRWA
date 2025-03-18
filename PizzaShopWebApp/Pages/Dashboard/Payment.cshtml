@@ -1,0 +1,397 @@
+@page
+@model PizzaShopWebApp.Pages.Dashboard.PaymentModel
+@{
+    ViewData["Title"] = "Payment";
+    Layout = "_DashboardLayout";
+}
+
+<div class="payment-page">
+    <div class="payment-content">
+        <!-- Left Side - Order Confirmation -->
+        <div class="payment-left">
+            <div class="payment-header">
+                <button class="payment-back-btn">
+                    <i class='bx bx-chevron-left'></i>
+                </button>
+                <div>
+                    <h2 class="payment-title">Confirmation</h2>
+                    <p class="payment-order-id">Orders #34562</p>
+                </div>
+                <button class="payment-add-btn">
+                    <i class='bx bx-plus'></i>
+                </button>
+            </div>
+            
+            <div class="order-items">
+                <!-- Order Item 1 -->
+                <div class="order-item">
+                    <img src="~/Images/basic_food_image.png" alt="Spicy seasoned seafood noodles" class="order-item-image">
+                    <div class="order-item-details">
+                        <h4 class="order-item-name">Spicy seasoned seafood noodles</h4>
+                        <p class="order-item-price">$2.29</p>
+                    </div>
+                    <div class="quantity-control">
+                        <span class="quantity-value">2</span>
+                    </div>
+                    <div class="order-item-total">$4.58</div>
+                    <button class="btn-remove">
+                        <i class="bx bx-trash"></i>
+                    </button>
+                </div>
+                
+                <!-- Order Note -->
+                <textarea class="order-note" placeholder="Order Note...">Please, just a little bit spicy only.</textarea>
+                
+                <!-- Order Item 2 -->
+                <div class="order-item">
+                    <img src="~/Images/basic_food_image.png" alt="Salted pasta with mushroom sauce" class="order-item-image">
+                    <div class="order-item-details">
+                        <h4 class="order-item-name">Salted pasta with mushroom sauce</h4>
+                        <p class="order-item-price">$2.69</p>
+                    </div>
+                    <div class="quantity-control">
+                        <span class="quantity-value">1</span>
+                    </div>
+                    <div class="order-item-total">$2.69</div>
+                    <button class="btn-remove">
+                        <i class="bx bx-trash"></i>
+                    </button>
+                </div>
+                
+                <!-- Order Note 2 -->
+                <textarea class="order-note" placeholder="Order Note..."></textarea>
+                
+                <!-- Order Item 3 -->
+                <div class="order-item">
+                    <img src="~/Images/basic_food_image.png" alt="Spicy instant noodle" class="order-item-image">
+                    <div class="order-item-details">
+                        <h4 class="order-item-name">Spicy instant noodle with special omelette</h4>
+                        <p class="order-item-price">$3.49</p>
+                    </div>
+                    <div class="quantity-control">
+                        <span class="quantity-value">3</span>
+                    </div>
+                    <div class="order-item-total">$10.47</div>
+                    <button class="btn-remove">
+                        <i class="bx bx-trash"></i>
+                    </button>
+                </div>
+                
+                <!-- Order Note 3 -->
+                <textarea class="order-note" placeholder="Order Note..."></textarea>
+                
+                <!-- Order Item 4 -->
+                <div class="order-item">
+                    <img src="~/Images/basic_food_image.png" alt="Healthy noodle" class="order-item-image">
+                    <div class="order-item-details">
+                        <h4 class="order-item-name">Healthy noodle with spinach leaf</h4>
+                        <p class="order-item-price">$3.29</p>
+                    </div>
+                    <div class="quantity-control">
+                        <span class="quantity-value">1</span>
+                    </div>
+                    <div class="order-item-total">$3.29</div>
+                    <button class="btn-remove">
+                        <i class="bx bx-trash"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="order-summary">
+                <div class="summary-item">
+                    <span>Discount</span>
+                    <span>$0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Sub total</span>
+                    <span>$21.03</span>
+                </div>
+                <div class="summary-item total">
+                    <span>Total</span>
+                    <span>$21.03</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Payment Methods -->
+        <div class="payment-right">
+            <h2 class="payment-section-title">Payment</h2>
+            <p class="payment-methods-available">3 payment methods available</p>
+            
+            <div class="payment-method-section">
+                <h3 class="payment-method-title">Payment Method</h3>
+                
+                <div class="payment-methods">
+                    <div class="payment-method-option active">
+                        <i class='bx bx-credit-card payment-method-icon'></i>
+                        <div class="payment-method-name">Credit Card</div>
+                    </div>
+                    <div class="payment-method-option">
+                        <i class='bx bxl-paypal payment-method-icon'></i>
+                        <div class="payment-method-name">Paypal</div>
+                    </div>
+                    <div class="payment-method-option">
+                        <i class='bx bx-wallet payment-method-icon'></i>
+                        <div class="payment-method-name">Cash</div>
+                    </div>
+                </div>
+                
+                <div class="payment-form">
+                    <div class="payment-form-group">
+                        <label class="payment-form-label">Cardholder Name</label>
+                        <input type="text" class="payment-form-input" value="Levi Ackerman">
+                    </div>
+                    
+                    <div class="payment-form-group">
+                        <label class="payment-form-label">Card Number</label>
+                        <input type="text" class="payment-form-input" value="2564 1421 0897 1244">
+                    </div>
+                    
+                    <div class="payment-form-row">
+                        <div class="payment-form-group">
+                            <label class="payment-form-label">Expiration Date</label>
+                            <input type="text" class="payment-form-input" value="02/2022">
+                        </div>
+                        
+                        <div class="payment-form-group">
+                            <label class="payment-form-label">CVV</label>
+                            <input type="text" class="payment-form-input" value="●●●">
+                        </div>
+                    </div>
+                    
+                    <div class="payment-form-row">
+                        <div class="payment-form-group">
+                            <label class="payment-form-label">Order Type</label>
+                            <div class="payment-select">
+                                <span>Dine In</span>
+                                <i class='bx bx-chevron-down'></i>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-form-group">
+                            <label class="payment-form-label">Table no.</label>
+                            <input type="text" class="payment-form-input" value="140">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="payment-actions">
+                    <button class="btn-cancel">Cancel</button>
+                    <button class="btn-confirm">Confirm Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .payment-page {
+        padding: 0;
+        height: calc(100vh - 48px);
+        overflow: hidden;
+    }
+    
+    .payment-content {
+        display: flex;
+        height: 100%;
+        background-color: var(--secondary-bg-color);
+    }
+    
+    .payment-left {
+        flex: 3;
+        padding: 24px;
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .payment-right {
+        flex: 2;
+        padding: 24px;
+        overflow-y: auto;
+    }
+    
+    .payment-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    
+    .payment-back-btn {
+        background: none;
+        border: none;
+        color: var(--text-color);
+        font-size: 24px;
+        cursor: pointer;
+        margin-right: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .payment-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+    
+    .payment-order-id {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+    
+    .payment-add-btn {
+        margin-left: auto;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background-color: var(--accent-color);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        cursor: pointer;
+    }
+    
+    .order-items {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 24px;
+    }
+    
+    .payment-section-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    
+    .payment-methods-available {
+        color: var(--text-muted);
+        margin-bottom: 32px;
+    }
+    
+    .payment-method-section {
+        background-color: var(--dark-bg-color);
+        border-radius: 16px;
+        padding: 24px;
+    }
+    
+    .payment-method-title {
+        font-size: 20px;
+        font-weight: 500;
+        margin-bottom: 16px;
+    }
+    
+    .payment-methods {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .payment-method-option {
+        flex: 1;
+        padding: 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .payment-method-option.active {
+        background-color: rgba(234, 124, 105, 0.1);
+        border-color: var(--accent-color);
+    }
+    
+    .payment-method-icon {
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+    
+    .payment-method-name {
+        font-size: 14px;
+        font-weight: 500;
+    }
+    
+    .payment-form {
+        margin-bottom: 24px;
+    }
+    
+    .payment-form-group {
+        margin-bottom: 16px;
+    }
+    
+    .payment-form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+    
+    .payment-form-input {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--secondary-bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-color);
+        font-size: 14px;
+    }
+    
+    .payment-form-row {
+        display: flex;
+        gap: 16px;
+    }
+    
+    .payment-form-row .payment-form-group {
+        flex: 1;
+    }
+    
+    .payment-select {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--secondary-bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-color);
+        font-size: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+    }
+    
+    .payment-actions {
+        display: flex;
+        gap: 16px;
+    }
+    
+    .btn-cancel {
+        flex: 1;
+        padding: 14px;
+        background-color: transparent;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-color);
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+    
+    .btn-confirm {
+        flex: 1;
+        padding: 14px;
+        background-color: var(--accent-color);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+</style> 

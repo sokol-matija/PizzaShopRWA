@@ -1,0 +1,326 @@
+@page
+@model PizzaShopWebApp.Pages.Cart.IndexModel
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<div class="container fade-in">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-4">Your Cart</h2>
+            <p class="text-muted">Review your items and proceed to checkout when ready.</p>
+        </div>
+    </div>
+
+    @if (Model.CartItems.Count == 0)
+    {
+        <div class="empty-cart text-center py-5">
+            <i class='bx bx-cart bx-lg text-muted'></i>
+            <h3 class="mt-3">Your cart is empty</h3>
+            <p class="text-muted">Add some delicious items from our menu!</p>
+            <a href="/Menu/Index" class="btn btn-primary mt-3">
+                <i class='bx bx-food-menu me-2'></i> Browse Menu
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Cart Items (@Model.CartItems.Count)</h5>
+                        <button class="btn btn-sm btn-outline-danger" id="clearCartBtn">
+                            <i class='bx bx-trash'></i> Clear Cart
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.CartItems)
+                                    {
+                                        <tr class="cart-item" data-item-id="@item.Id">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="cart-item-img me-3">
+                                                        <img src="@item.ImageUrl" alt="@item.Name">
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">@item.Name</h6>
+                                                        @if (!string.IsNullOrEmpty(item.Customizations))
+                                                        {
+                                                            <small class="text-muted">@item.Customizations</small>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>$@item.Price.ToString("0.00")</td>
+                                            <td>
+                                                <div class="quantity-control">
+                                                    <button class="quantity-btn minus" data-item-id="@item.Id">-</button>
+                                                    <input type="number" class="quantity-input" value="@item.Quantity" min="1" max="10" data-item-id="@item.Id">
+                                                    <button class="quantity-btn plus" data-item-id="@item.Id">+</button>
+                                                </div>
+                                            </td>
+                                            <td class="item-total">$@((item.Price * item.Quantity).ToString("0.00"))</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-danger remove-item" data-item-id="@item.Id">
+                                                    <i class='bx bx-x'></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card order-summary">
+                    <div class="card-header">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <span id="subtotal">$@Model.Subtotal.ToString("0.00")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax (8%)</span>
+                            <span id="tax">$@Model.Tax.ToString("0.00")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Delivery Fee</span>
+                            <span id="deliveryFee">$@Model.DeliveryFee.ToString("0.00")</span>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between mb-4">
+                            <strong>Total</strong>
+                            <strong id="total">$@Model.Total.ToString("0.00")</strong>
+                        </div>
+                        
+                        <form asp-page-handler="Checkout" method="post" id="checkoutForm">
+                            <div class="mb-3">
+                                <label class="form-label">Delivery Method</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="deliveryMethod" id="deliveryOption" value="delivery" checked>
+                                    <label class="form-check-label" for="deliveryOption">
+                                        Delivery
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="deliveryMethod" id="pickupOption" value="pickup">
+                                    <label class="form-check-label" for="pickupOption">
+                                        Pickup (Save $3.99)
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Promo Code</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="promoCode" placeholder="Enter code">
+                                    <button class="btn btn-outline-primary" type="button" id="applyPromo">Apply</button>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class='bx bx-credit-card me-2'></i> Proceed to Checkout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Remove Item Confirmation Modal -->
+<div class="modal fade" id="removeItemModal" tabindex="-1" aria-labelledby="removeItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="removeItemModalLabel">Remove Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to remove this item from your cart?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmRemove">Remove</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Clear Cart Confirmation Modal -->
+<div class="modal fade" id="clearCartModal" tabindex="-1" aria-labelledby="clearCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="clearCartModalLabel">Clear Cart</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to clear all items from your cart?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmClear">Clear All</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Handle removing items from cart
+        let itemToRemove = null;
+        
+        // Setup remove item confirmation
+        const removeItemModal = new bootstrap.Modal(document.getElementById('removeItemModal'));
+        document.querySelectorAll('.remove-item').forEach(button => {
+            button.addEventListener('click', function() {
+                itemToRemove = this.getAttribute('data-item-id');
+                removeItemModal.show();
+            });
+        });
+        
+        // Confirm item removal
+        document.getElementById('confirmRemove')?.addEventListener('click', function() {
+            if (itemToRemove) {
+                // Here you would call your API to remove the item
+                // For now, just remove the item from the DOM
+                const itemRow = document.querySelector(`.cart-item[data-item-id="${itemToRemove}"]`);
+                if (itemRow) {
+                    itemRow.remove();
+                    updateTotals();
+                }
+                
+                // Check if cart is empty
+                const cartItems = document.querySelectorAll('.cart-item');
+                if (cartItems.length === 0) {
+                    location.reload(); // Reload to show empty cart state
+                }
+                
+                removeItemModal.hide();
+            }
+        });
+        
+        // Setup clear cart confirmation
+        const clearCartModal = new bootstrap.Modal(document.getElementById('clearCartModal'));
+        document.getElementById('clearCartBtn')?.addEventListener('click', function() {
+            clearCartModal.show();
+        });
+        
+        // Confirm clear cart
+        document.getElementById('confirmClear')?.addEventListener('click', function() {
+            // Here you would call your API to clear the cart
+            // For now, just reload the page
+            location.reload();
+        });
+        
+        // Handle quantity changes
+        document.querySelectorAll('.quantity-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-item-id');
+                const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+                
+                if (input) {
+                    let value = parseInt(input.value);
+                    
+                    if (this.classList.contains('minus') && value > 1) {
+                        input.value = --value;
+                    } else if (this.classList.contains('plus') && value < 10) {
+                        input.value = ++value;
+                    }
+                    
+                    updateItemTotal(itemId, value);
+                    updateTotals();
+                }
+            });
+        });
+        
+        // Update item total when quantity changes
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const itemId = this.getAttribute('data-item-id');
+                let value = parseInt(this.value);
+                
+                // Ensure value is between 1 and 10
+                if (value < 1) value = 1;
+                if (value > 10) value = 10;
+                this.value = value;
+                
+                updateItemTotal(itemId, value);
+                updateTotals();
+            });
+        });
+        
+        // Update a single item's total
+        function updateItemTotal(itemId, quantity) {
+            const itemRow = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+            if (itemRow) {
+                const priceText = itemRow.querySelector('td:nth-child(2)').textContent;
+                const price = parseFloat(priceText.replace('$', ''));
+                const total = price * quantity;
+                itemRow.querySelector('.item-total').textContent = `$${total.toFixed(2)}`;
+            }
+        }
+        
+        // Update all totals in the order summary
+        function updateTotals() {
+            // Calculate subtotal
+            let subtotal = 0;
+            document.querySelectorAll('.item-total').forEach(element => {
+                subtotal += parseFloat(element.textContent.replace('$', ''));
+            });
+            
+            // Calculate tax and delivery fee
+            const isDelivery = document.getElementById('deliveryOption').checked;
+            const deliveryFee = isDelivery ? 3.99 : 0;
+            const tax = subtotal * 0.08;
+            const total = subtotal + tax + deliveryFee;
+            
+            // Update the displayed totals
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('deliveryFee').textContent = `$${deliveryFee.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+        }
+        
+        // Update totals when delivery method changes
+        document.querySelectorAll('input[name="deliveryMethod"]').forEach(input => {
+            input.addEventListener('change', updateTotals);
+        });
+        
+        // Handle promo code
+        document.getElementById('applyPromo')?.addEventListener('click', function() {
+            const promoCode = document.getElementById('promoCode').value.trim().toUpperCase();
+            
+            if (promoCode === 'PIZZA10') {
+                alert('Promo code applied! 10% off your order.');
+                // Here you would apply the discount in your actual implementation
+            } else if (promoCode === '') {
+                alert('Please enter a promo code.');
+            } else {
+                alert('Invalid promo code. Please try again.');
+            }
+        });
+    </script>
+} 

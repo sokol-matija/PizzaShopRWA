@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Jaegar Resto</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="dashboard-page">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class='bx bx-store' style="color: #EA7C69; font-size: 28px;"></i>
+                </div>
+            </div>
+            
+            <div class="sidebar-content">
+                <ul class="sidebar-nav">
+                    <li class="sidebar-item">
+                        <a href="/Dashboard" class="sidebar-link @((Context.Request.Path.Value?.Equals("/Dashboard") == true || Context.Request.Path.Value?.Equals("/Dashboard/Index") == true) ? "active" : "")">
+                            <i class='bx bx-home-alt'></i>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/Dashboard/Order" class="sidebar-link @(Context.Request.Path.Value?.Contains("/Dashboard/Order") == true ? "active" : "")">
+                            <i class='bx bx-food-menu'></i>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/Dashboard/Menu" class="sidebar-link @(Context.Request.Path.Value?.Contains("/Dashboard/Menu") == true ? "active" : "")">
+                            <i class='bx bx-pie-chart-alt'></i>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/Dashboard/Payment" class="sidebar-link @(Context.Request.Path.Value?.Contains("/Dashboard/Payment") == true ? "active" : "")">
+                            <i class='bx bx-credit-card'></i>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/Dashboard/Notifications" class="sidebar-link @(Context.Request.Path.Value?.Contains("/Dashboard/Notifications") == true ? "active" : "")">
+                            <i class='bx bx-bell'></i>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/Dashboard/Settings" class="sidebar-link @(Context.Request.Path.Value?.Contains("/Dashboard/Settings") == true ? "active" : "")">
+                            <i class='bx bx-cog'></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-footer">
+                <a href="/Account/Logout" class="sidebar-link">
+                    <i class='bx bx-log-out'></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="dashboard-container">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <script src="~/js/dashboard.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html> 
