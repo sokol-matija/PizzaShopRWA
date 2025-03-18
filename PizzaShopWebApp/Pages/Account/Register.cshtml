@@ -94,6 +94,8 @@
                 '/images/mushroom.svg'
             ];
             
+            const animationTypes = ['float-up', 'float-diagonal', 'float-zigzag'];
+            
             // Create 15 pizza elements
             for (let i = 0; i < 15; i++) {
                 createPizzaElement();
@@ -105,6 +107,10 @@
             function createPizzaElement() {
                 const pizza = document.createElement('div');
                 pizza.className = 'pizza-icon';
+                
+                // Add a random animation type
+                const animationType = animationTypes[Math.floor(Math.random() * animationTypes.length)];
+                pizza.classList.add(animationType);
                 
                 // Randomly select a pizza image
                 const randomImage = pizzaImages[Math.floor(Math.random() * pizzaImages.length)];

@@ -13,6 +13,8 @@ namespace PizzaShopWebApp.Pages.Account
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<RegisterModel> _logger;
+        // API base URL
+        private const string ApiBaseUrl = "https://localhost:7137";
 
         public RegisterModel(IHttpClientFactory httpClientFactory, ILogger<RegisterModel> logger)
         {
@@ -105,7 +107,7 @@ namespace PizzaShopWebApp.Pages.Account
                     "application/json");
                 
                 // Make API request
-                var response = await client.PostAsync("http://localhost:5000/api/Auth/register", content);
+                var response = await client.PostAsync($"{ApiBaseUrl}/api/Auth/register", content);
                 
                 if (response.IsSuccessStatusCode)
                 {

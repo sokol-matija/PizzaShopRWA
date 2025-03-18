@@ -13,6 +13,8 @@ namespace PizzaShopWebApp.Pages.Account
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<LoginModel> _logger;
+        // API base URL
+        private const string ApiBaseUrl = "https://localhost:7137";
 
         public LoginModel(IHttpClientFactory httpClientFactory, ILogger<LoginModel> logger)
         {
@@ -76,8 +78,8 @@ namespace PizzaShopWebApp.Pages.Account
                         Encoding.UTF8,
                         "application/json");
                     
-                    // Make API request
-                    var response = await client.PostAsync("http://localhost:5000/api/Auth/login", content);
+                    // Make API request to the correct endpoint
+                    var response = await client.PostAsync($"{ApiBaseUrl}/api/Auth/login", content);
                     
                     if (response.IsSuccessStatusCode)
                     {
