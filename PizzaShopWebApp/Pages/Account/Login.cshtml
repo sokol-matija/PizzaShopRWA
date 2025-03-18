@@ -1,0 +1,46 @@
+@page
+@model PizzaShopWebApp.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_LoginLayout";
+}
+
+<div class="login-container">
+    <div class="login-box">
+        <div class="logo-container">
+            <img src="~/images/pizza-logo.svg" alt="Pizza Shop Logo" class="logo" />
+            <h1>Pizza Shop</h1>
+        </div>
+        
+        <div class="login-form">
+            <h2>Welcome back</h2>
+            <p class="login-subtitle">Please log in to your account</p>
+            
+            <form method="post">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" name="Email" placeholder="Enter your email" required />
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="Password" placeholder="Enter your password" required />
+                    <div class="forgot-password">
+                        <a href="#">Forgot password?</a>
+                    </div>
+                </div>
+                
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="rememberMe" name="RememberMe" />
+                    <label class="form-check-label" for="rememberMe">Remember me</label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary login-button">Log in</button>
+            </form>
+            
+            <div class="register-link">
+                Don't have an account? <a href="/Account/Register">Sign up</a>
+            </div>
+        </div>
+    </div>
+</div> 

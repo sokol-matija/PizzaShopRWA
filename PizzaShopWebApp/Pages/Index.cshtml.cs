@@ -12,9 +12,11 @@ namespace PizzaShopWebApp.Pages
 			_logger = logger;
 		}
 
-		public void OnGet()
+		public IActionResult OnGet()
 		{
-
+			// For now, always redirect to login page
+			// Later, this can check if the user is authenticated
+			return RedirectToPage("/Account/Login");
 		}
 	}
 }
