@@ -5,21 +5,26 @@
     Layout = "_DashboardLayout";
 }
 
-<div class="restaurant-header">
-    <div class="restaurant-info">
-        <h1 class="restaurant-name">Dashboard</h1>
-        <p class="restaurant-date">@Model.CurrentDate</p>
+<div class="dashboard-header">
+    <div class="header-content">
+        <h1>Dashboard Overview</h1>
+        <p class="date">@Model.CurrentDate</p>
     </div>
-    
-    <div class="search-bar">
-        <i class="bx bx-search"></i>
-        <input type="text" placeholder="Search for food, coffee, etc.." />
+    <div class="header-actions">
+        <div class="search-bar">
+            <i class="bx bx-search"></i>
+            <input type="text" placeholder="Search orders, customers..." />
+        </div>
+        <button class="refresh-btn">
+            <i class="bx bx-refresh"></i>
+            Refresh
+        </button>
     </div>
 </div>
 
 <!-- Stats Cards -->
 <div class="stats-grid">
-    <!-- Revenue Card -->
+    <!-- Today's Revenue -->
     <div class="stats-card">
         <div class="stats-header">
             <div class="stats-icon revenue">
@@ -30,11 +35,11 @@
                 <i class='bx @(Model.RevenueChangePercent >= 0 ? "bx-up-arrow-alt" : "bx-down-arrow-alt")'></i>
             </div>
         </div>
-        <div class="stats-value">$@Model.TotalRevenue.ToString("N2")</div>
-        <div class="stats-label">Total Revenue</div>
+        <div class="stats-value">$@Model.TodayRevenue.ToString("N2")</div>
+        <div class="stats-label">Today's Revenue</div>
     </div>
     
-    <!-- Orders Card -->
+    <!-- Today's Orders -->
     <div class="stats-card">
         <div class="stats-header">
             <div class="stats-icon orders">
@@ -45,11 +50,11 @@
                 <i class='bx @(Model.OrdersChangePercent >= 0 ? "bx-up-arrow-alt" : "bx-down-arrow-alt")'></i>
             </div>
         </div>
-        <div class="stats-value">@Model.TotalDishesOrdered</div>
-        <div class="stats-label">Total Dish Ordered</div>
+        <div class="stats-value">@Model.TodayOrders</div>
+        <div class="stats-label">Today's Orders</div>
     </div>
     
-    <!-- Customers Card -->
+    <!-- Today's Customers -->
     <div class="stats-card">
         <div class="stats-header">
             <div class="stats-icon customers">
@@ -60,123 +65,242 @@
                 <i class='bx @(Model.CustomersChangePercent >= 0 ? "bx-up-arrow-alt" : "bx-down-arrow-alt")'></i>
             </div>
         </div>
-        <div class="stats-value">@Model.TotalCustomers</div>
-        <div class="stats-label">Total Customer</div>
+        <div class="stats-value">@Model.TodayCustomers</div>
+        <div class="stats-label">Today's Customers</div>
     </div>
 </div>
 
-<!-- Order Report Section -->
-<div class="order-report">
-    <div class="order-report-header">
-        <h2 class="order-report-title">Order Report</h2>
-        <button class="filter-order-btn">
-            <i class='bx bx-filter'></i>
-            Filter Order
-        </button>
-    </div>
-    
-    <table class="order-table">
-        <thead>
-            <tr>
-                <th class="order-table-header">Customer</th>
-                <th class="order-table-header">Menu</th>
-                <th class="order-table-header">Total Payment</th>
-                <th class="order-table-header">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model.RecentOrders != null && Model.RecentOrders.Any())
-            {
-                @foreach (var order in Model.RecentOrders)
-                {
-                    <tr class="order-table-row">
-                        <td class="order-table-cell">
-                            <div class="customer-info">
-                                <img src="~/Images/basic_food_image.png" alt="Customer" class="customer-avatar">
-                                <span class="customer-name">Order #@order.OrderNumber</span>
-                            </div>
-                        </td>
-                        <td class="order-table-cell">
-                            @if (order.Items.Any())
-                            {
-                                @order.Items.First().FoodName
-                                @if (order.Items.Count > 1)
-                                {
-                                    <span> and @(order.Items.Count - 1) more item(s)</span>
-                                }
-                            }
-                            else
-                            {
-                                <span>No items</span>
-                            }
-                        </td>
-                        <td class="order-table-cell">$@order.TotalAmount.ToString("0.00")</td>
-                        <td class="order-table-cell">
-                            <span class="order-status @Model.GetStatusClass(order.Status)">@order.Status</span>
-                        </td>
-                    </tr>
-                }
-            }
-            else
-            {
-                <tr class="order-table-row">
-                    <td class="order-table-cell" colspan="4">No recent orders found.</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
-
-<!-- Most Ordered Section -->
-<div class="most-ordered">
-    <div class="most-ordered-header">
-        <h2 class="most-ordered-title">Most Ordered</h2>
-        <div class="most-ordered-filter">
-            <span>Today</span>
-            <i class='bx bx-chevron-down'></i>
+<!-- Charts Grid -->
+<div class="charts-grid">
+    <!-- Weekly Sales Trend -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3>Weekly Sales Trend</h3>
+            <div class="chart-actions">
+                <button class="chart-action-btn active">Week</button>
+                <button class="chart-action-btn">Month</button>
+                <button class="chart-action-btn">Year</button>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="weeklySalesChart"></canvas>
         </div>
     </div>
-    
-    <div class="most-ordered-items">
-        @if (Model.MostOrderedItems != null && Model.MostOrderedItems.Any())
-        {
+
+    <!-- Order Type Distribution -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3>Order Type Distribution</h3>
+            <div class="chart-actions">
+                <button class="chart-action-btn active">Today</button>
+                <button class="chart-action-btn">Week</button>
+                <button class="chart-action-btn">Month</button>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="orderTypeChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders & Popular Items Grid -->
+<div class="orders-popular-grid">
+    <!-- Recent Orders -->
+    <div class="orders-card">
+        <div class="card-header">
+            <h3>Recent Orders</h3>
+            <button class="view-all-btn">View All</button>
+        </div>
+        <div class="orders-table-container">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.RecentOrders)
+                    {
+                        <tr>
+                            <td>#@order.OrderNumber</td>
+                            <td>
+                                @if (order.Items.Any())
+                                {
+                                    @order.Items.First().FoodName
+                                    @if (order.Items.Count > 1)
+                                    {
+                                        <span class="more-items">+@(order.Items.Count - 1)</span>
+                                    }
+                                }
+                            </td>
+                            <td>$@order.TotalAmount.ToString("N2")</td>
+                            <td>
+                                <span class="status-badge @Model.GetStatusClass(order.Status)">
+                                    @order.Status
+                                </span>
+                            </td>
+                            <td>@order.OrderDate.ToString("HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Popular Items -->
+    <div class="popular-items-card">
+        <div class="card-header">
+            <h3>Most Popular Items</h3>
+            <button class="view-all-btn">View All</button>
+        </div>
+        <div class="popular-items-list">
             @foreach (var item in Model.MostOrderedItems)
             {
-                <div class="most-ordered-item">
-                    <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/Images/basic_food_image.png" : item.ImageUrl)" 
-                         alt="@item.Name" class="most-ordered-image">
-                    <div class="most-ordered-details">
-                        <h3 class="most-ordered-name">@item.Name</h3>
-                        <p class="most-ordered-count">@(new Random().Next(50, 300)) dishes ordered</p>
+                <div class="popular-item">
+                    <div class="item-image">
+                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/Images/basic_food_image.png" : item.ImageUrl)" 
+                             alt="@item.Name">
+                    </div>
+                    <div class="item-info">
+                        <h4>@item.Name</h4>
+                        <p>@item.Description</p>
+                        <div class="item-meta">
+                            <span class="price">$@item.Price.ToString("N2")</span>
+                            <span class="category">@item.FoodCategoryName</span>
+                        </div>
                     </div>
                 </div>
             }
-        }
-        else
-        {
-            <div class="most-ordered-item">
-                <p>No popular dishes found.</p>
-            </div>
-        }
-    </div>
-    
-    <button class="view-all-btn">View All</button>
-</div>
-
-<!-- Most Type of Order Section -->
-<div class="most-ordered">
-    <div class="most-ordered-header">
-        <h2 class="most-ordered-title">Most Type of Order</h2>
-        <div class="most-ordered-filter">
-            <span>Today</span>
-            <i class='bx bx-chevron-down'></i>
         </div>
     </div>
-    
-    <!-- This would be a chart in a real app, using placeholder text for now -->
-    <div style="height: 200px; display: flex; align-items: center; justify-content: center; margin: 20px 0;">
-        <p style="color: var(--text-muted);">Dine In: 200 customers</p>
-        <p style="color: var(--text-muted); margin: 0 20px;">To Go: 122 customers</p>
-        <p style="color: var(--text-muted);">Delivery: 264 customers</p>
+</div>
+
+<!-- Order Status & Time Distribution Grid -->
+<div class="status-time-grid">
+    <!-- Order Status Distribution -->
+    <div class="status-card">
+        <div class="card-header">
+            <h3>Order Status Distribution</h3>
+            <button class="view-all-btn">View Details</button>
+        </div>
+        <div class="status-list">
+            @foreach (var status in Model.OrderStatusDistribution)
+            {
+                <div class="status-item">
+                    <div class="status-info">
+                        <span class="status-name">@status.Key</span>
+                        <span class="status-count">@status.Value orders</span>
+                    </div>
+                    <div class="status-bar">
+                        <div class="status-progress" style="width: @(status.Value * 100 / Model.OrderStatusDistribution.Values.Max())%"></div>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
-</div> 
+
+    <!-- Orders by Time of Day -->
+    <div class="time-distribution-card">
+        <div class="card-header">
+            <h3>Orders by Time of Day</h3>
+            <button class="view-all-btn">View Details</button>
+        </div>
+        <div class="time-distribution-list">
+            @foreach (var timeSlot in Model.OrdersByTimeOfDay)
+            {
+                <div class="time-slot-item">
+                    <div class="time-slot-info">
+                        <span class="time-slot-name">@timeSlot.Key</span>
+                        <span class="time-slot-count">@timeSlot.Value orders</span>
+                    </div>
+                    <div class="time-slot-bar">
+                        <div class="time-slot-progress" style="width: @(timeSlot.Value * 100 / Model.OrdersByTimeOfDay.Values.Max())%"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Weekly Sales Chart
+        const weeklySalesCtx = document.getElementById('weeklySalesChart').getContext('2d');
+        new Chart(weeklySalesCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.WeeklySalesTrend.Keys)),
+                datasets: [{
+                    label: 'Daily Revenue',
+                    data: @Html.Raw(Json.Serialize(Model.WeeklySalesTrend.Values)),
+                    borderColor: '#EA7C69',
+                    backgroundColor: 'rgba(234, 124, 105, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#ABBBC2'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#ABBBC2'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Order Type Distribution Chart
+        const orderTypeCtx = document.getElementById('orderTypeChart').getContext('2d');
+        new Chart(orderTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.OrderTypeDistribution.Keys)),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.OrderTypeDistribution.Values)),
+                    backgroundColor: [
+                        '#EA7C69',
+                        '#6BE2BE',
+                        '#9290FE'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#ABBBC2'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+} 

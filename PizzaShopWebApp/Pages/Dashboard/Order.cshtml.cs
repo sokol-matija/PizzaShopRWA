@@ -9,18 +9,18 @@ using System.Threading.Tasks;
 
 namespace PizzaShopWebApp.Pages.Dashboard
 {
-    public class OrderModel : PageModel
+    public class OrderPageModel : PageModel
     {
         private readonly IFoodService _foodService;
         private readonly ICartService _cartService;
         private readonly IUserService _userService; 
-        private readonly ILogger<OrderModel> _logger;
+        private readonly ILogger<OrderPageModel> _logger;
 
-        public OrderModel(
+        public OrderPageModel(
             IFoodService foodService,
             ICartService cartService,
             IUserService userService,
-            ILogger<OrderModel> logger)
+            ILogger<OrderPageModel> logger)
         {
             _foodService = foodService;
             _cartService = cartService;
