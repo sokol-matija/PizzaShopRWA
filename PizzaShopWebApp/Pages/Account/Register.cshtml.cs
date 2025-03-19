@@ -14,7 +14,7 @@ namespace PizzaShopWebApp.Pages.Account
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<RegisterModel> _logger;
         // API base URL
-        private const string ApiBaseUrl = "https://localhost:7137";
+        private const string ApiBaseUrl = "http://localhost:5156";
 
         public RegisterModel(IHttpClientFactory httpClientFactory, ILogger<RegisterModel> logger)
         {

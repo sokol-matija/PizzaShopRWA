@@ -11,6 +11,7 @@ CREATE TABLE FoodCategory (
     Description NVARCHAR(500) NULL
 );
 
+
 -- Create Food table (primary entity)
 CREATE TABLE Food (
     Id INT PRIMARY KEY IDENTITY(1,1),
@@ -147,6 +148,8 @@ INSERT INTO OrderItem (OrderId, FoodId, Quantity, Price) VALUES
 (1, 7, 1, 5.99);  -- One Chocolate Cake
 
 
+
+
 select * from dbo.Food
 select * from [User]
 
@@ -253,3 +256,16 @@ INSERT INTO OrderItem (OrderId, FoodId, Quantity, Price) VALUES
 -- Order 15 (admin)
 (15, 3, 1, 9.99),  -- One Cheeseburger
 (15, 6, 1, 8.99);  -- One Caesar Salad
+
+
+select * from Allergen
+
+select * from [Order]
+
+select * from [User]
+
+select * from food 
+
+select * from dbo.FoodCategory
+
+select * from [Order]
