@@ -70,3 +70,7 @@ Desktop.ini
 
 # Ignore environment-specific settings
 .env
+
+ClaudeApi/
+
+ClaudeWebApp/
