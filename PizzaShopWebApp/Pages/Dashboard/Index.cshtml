@@ -1,5 +1,5 @@
 @page
-@model PizzaShopWebApp.Pages.Dashboard.IndexModel
+@model PizzaShopWebApp.Pages.Dashboard.DashboardIndexModel
 @{
     ViewData["Title"] = "Dashboard";
     Layout = "_DashboardLayout";
@@ -8,7 +8,7 @@
 <div class="restaurant-header">
     <div class="restaurant-info">
         <h1 class="restaurant-name">Dashboard</h1>
-        <p class="restaurant-date">Tuesday 2 Feb, 2021</p>
+        <p class="restaurant-date">@Model.CurrentDate</p>
     </div>
     
     <div class="search-bar">
@@ -25,11 +25,12 @@
             <div class="stats-icon revenue">
                 <i class='bx bx-dollar'></i>
             </div>
-            <div class="stats-change positive">
-                +32.40% <i class='bx bx-up-arrow-alt'></i>
+            <div class="stats-change @(Model.RevenueChangePercent >= 0 ? "positive" : "negative")">
+                @(Model.RevenueChangePercent >= 0 ? "+" : "")@Model.RevenueChangePercent.ToString("0.00")% 
+                <i class='bx @(Model.RevenueChangePercent >= 0 ? "bx-up-arrow-alt" : "bx-down-arrow-alt")'></i>
             </div>
         </div>
-        <div class="stats-value">$10,243.00</div>
+        <div class="stats-value">$@Model.TotalRevenue.ToString("N2")</div>
         <div class="stats-label">Total Revenue</div>
     </div>
     
@@ -39,11 +40,12 @@
             <div class="stats-icon orders">
                 <i class='bx bx-receipt'></i>
             </div>
-            <div class="stats-change negative">
-                -12.40% <i class='bx bx-down-arrow-alt'></i>
+            <div class="stats-change @(Model.OrdersChangePercent >= 0 ? "positive" : "negative")">
+                @(Model.OrdersChangePercent >= 0 ? "+" : "")@Model.OrdersChangePercent.ToString("0.00")% 
+                <i class='bx @(Model.OrdersChangePercent >= 0 ? "bx-up-arrow-alt" : "bx-down-arrow-alt")'></i>
             </div>
         </div>
-        <div class="stats-value">23,456</div>
+        <div class="stats-value">@Model.TotalDishesOrdered</div>
         <div class="stats-label">Total Dish Ordered</div>
     </div>
     
@@ -53,11 +55,12 @@
             <div class="stats-icon customers">
                 <i class='bx bx-user'></i>
             </div>
-            <div class="stats-change positive">
-                +2.40% <i class='bx bx-up-arrow-alt'></i>
+            <div class="stats-change @(Model.CustomersChangePercent >= 0 ? "positive" : "negative")">
+                @(Model.CustomersChangePercent >= 0 ? "+" : "")@Model.CustomersChangePercent.ToString("0.00")% 
+                <i class='bx @(Model.CustomersChangePercent >= 0 ? "bx-up-arrow-alt" : "bx-down-arrow-alt")'></i>
             </div>
         </div>
-        <div class="stats-value">1,234</div>
+        <div class="stats-value">@Model.TotalCustomers</div>
         <div class="stats-label">Total Customer</div>
     </div>
 </div>
@@ -82,71 +85,44 @@
             </tr>
         </thead>
         <tbody>
-            <tr class="order-table-row">
-                <td class="order-table-cell">
-                    <div class="customer-info">
-                        <img src="~/Images/basic_food_image.png" alt="Eren Jaegar" class="customer-avatar">
-                        <span class="customer-name">Eren Jaegar</span>
-                    </div>
-                </td>
-                <td class="order-table-cell">Spicy seasoned seafood noodles</td>
-                <td class="order-table-cell">$125</td>
-                <td class="order-table-cell">
-                    <span class="order-status completed">Completed</span>
-                </td>
-            </tr>
-            <tr class="order-table-row">
-                <td class="order-table-cell">
-                    <div class="customer-info">
-                        <img src="~/Images/basic_food_image.png" alt="Reiner Braunn" class="customer-avatar">
-                        <span class="customer-name">Reiner Braunn</span>
-                    </div>
-                </td>
-                <td class="order-table-cell">Salted Pasta with mushroom sauce</td>
-                <td class="order-table-cell">$145</td>
-                <td class="order-table-cell">
-                    <span class="order-status preparing">Preparing</span>
-                </td>
-            </tr>
-            <tr class="order-table-row">
-                <td class="order-table-cell">
-                    <div class="customer-info">
-                        <img src="~/Images/basic_food_image.png" alt="Levi Ackerman" class="customer-avatar">
-                        <span class="customer-name">Levi Ackerman</span>
-                    </div>
-                </td>
-                <td class="order-table-cell">Beef dumpling in hot and sour soup</td>
-                <td class="order-table-cell">$105</td>
-                <td class="order-table-cell">
-                    <span class="order-status pending">Pending</span>
-                </td>
-            </tr>
-            <tr class="order-table-row">
-                <td class="order-table-cell">
-                    <div class="customer-info">
-                        <img src="~/Images/basic_food_image.png" alt="Historia Reiss" class="customer-avatar">
-                        <span class="customer-name">Historia Reiss</span>
-                    </div>
-                </td>
-                <td class="order-table-cell">Hot spicy fried rice with omelet</td>
-                <td class="order-table-cell">$45</td>
-                <td class="order-table-cell">
-                    <span class="order-status completed">Completed</span>
-                </td>
-            </tr>
-            <tr class="order-table-row">
-                <td class="order-table-cell">
-                    <div class="customer-info">
-                        <img src="~/Images/basic_food_image.png" alt="Hanji Zoe" class="customer-avatar">
-                        <span class="customer-name">Hanji Zoe</span>
-                    </div>
-                </td>
-                <td class="order-table-cell">Hot spicy fried rice with omelet</td>
-                <td class="order-table-cell">$245</td>
-                <td class="order-table-cell">
-                    <span class="order-status completed">Completed</span>
-                </td>
-            </tr>
+            @if (Model.RecentOrders != null && Model.RecentOrders.Any())
+            {
+                @foreach (var order in Model.RecentOrders)
+                {
+                    <tr class="order-table-row">
+                        <td class="order-table-cell">
+                            <div class="customer-info">
+                                <img src="~/Images/basic_food_image.png" alt="Customer" class="customer-avatar">
+                                <span class="customer-name">Order #@order.OrderNumber</span>
+                            </div>
+                        </td>
+                        <td class="order-table-cell">
+                            @if (order.Items.Any())
+                            {
+                                @order.Items.First().FoodName
+                                @if (order.Items.Count > 1)
+                                {
+                                    <span> and @(order.Items.Count - 1) more item(s)</span>
+                                }
+                            }
+                            else
+                            {
+                                <span>No items</span>
+                            }
+                        </td>
+                        <td class="order-table-cell">$@order.TotalAmount.ToString("0.00")</td>
+                        <td class="order-table-cell">
+                            <span class="order-status @Model.GetStatusClass(order.Status)">@order.Status</span>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr class="order-table-row">
+                    <td class="order-table-cell" colspan="4">No recent orders found.</td>
+                </tr>
+            }
         </tbody>
     </table>
 </div>
@@ -162,29 +138,26 @@
     </div>
     
     <div class="most-ordered-items">
-        <div class="most-ordered-item">
-            <img src="~/Images/basic_food_image.png" alt="Spicy seasoned seafood noodles" class="most-ordered-image">
-            <div class="most-ordered-details">
-                <h3 class="most-ordered-name">Spicy seasoned seafood noodles</h3>
-                <p class="most-ordered-count">200 dishes ordered</p>
+        @if (Model.MostOrderedItems != null && Model.MostOrderedItems.Any())
+        {
+            @foreach (var item in Model.MostOrderedItems)
+            {
+                <div class="most-ordered-item">
+                    <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/Images/basic_food_image.png" : item.ImageUrl)" 
+                         alt="@item.Name" class="most-ordered-image">
+                    <div class="most-ordered-details">
+                        <h3 class="most-ordered-name">@item.Name</h3>
+                        <p class="most-ordered-count">@(new Random().Next(50, 300)) dishes ordered</p>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="most-ordered-item">
+                <p>No popular dishes found.</p>
             </div>
-        </div>
-        
-        <div class="most-ordered-item">
-            <img src="~/Images/basic_food_image.png" alt="Salted pasta with mushroom sauce" class="most-ordered-image">
-            <div class="most-ordered-details">
-                <h3 class="most-ordered-name">Salted pasta with mushroom sauce</h3>
-                <p class="most-ordered-count">120 dishes ordered</p>
-            </div>
-        </div>
-        
-        <div class="most-ordered-item">
-            <img src="~/Images/basic_food_image.png" alt="Beef dumpling in hot and sour soup" class="most-ordered-image">
-            <div class="most-ordered-details">
-                <h3 class="most-ordered-name">Beef dumpling in hot and sour soup</h3>
-                <p class="most-ordered-count">80 dishes ordered</p>
-            </div>
-        </div>
+        }
     </div>
     
     <button class="view-all-btn">View All</button>

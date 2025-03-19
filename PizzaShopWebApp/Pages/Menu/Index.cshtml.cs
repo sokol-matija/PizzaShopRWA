@@ -1,46 +1,94 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using PizzaShopWebApp.Models;
+using PizzaShopWebApp.Services;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PizzaShopWebApp.Pages.Menu
 {
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
+        private readonly IFoodService _foodService;
+        private readonly IUserService _userService;
 
-        public IndexModel(ILogger<IndexModel> logger)
+        public IndexModel(
+            ILogger<IndexModel> logger,
+            IFoodService foodService,
+            IUserService userService)
         {
             _logger = logger;
+            _foodService = foodService;
+            _userService = userService;
         }
 
-        public List<MenuItem> Pizzas { get; set; } = new List<MenuItem>();
-        public List<MenuItem> Sides { get; set; } = new List<MenuItem>();
-        public List<MenuItem> Drinks { get; set; } = new List<MenuItem>();
-        public List<MenuItem> Desserts { get; set; } = new List<MenuItem>();
+        public List<MenuItemModel> Pizzas { get; set; } = new List<MenuItemModel>();
+        public List<MenuItemModel> Sides { get; set; } = new List<MenuItemModel>();
+        public List<MenuItemModel> Drinks { get; set; } = new List<MenuItemModel>();
+        public List<MenuItemModel> Desserts { get; set; } = new List<MenuItemModel>();
+        public List<CategoryModel> Categories { get; set; } = new List<CategoryModel>();
 
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
             // Check authentication
-            var authToken = HttpContext.Session.GetString("AuthToken");
-            if (string.IsNullOrEmpty(authToken))
+            if (!_userService.IsAuthenticated())
             {
                 _logger.LogInformation("User not authenticated, redirecting to login");
                 return RedirectToPage("/Account/Login");
             }
 
-            // Initialize with sample data
-            // In a real application, this would come from an API or database
-            LoadSampleData();
+            try
+            {
+                // Load categories
+                Categories = (await _foodService.GetAllCategoriesAsync()).ToList();
+                
+                // Define category IDs for each food type
+                // These should match your actual category IDs in the database
+                var pizzaCategoryId = Categories.FirstOrDefault(c => c.Name.Contains("Pizza"))?.Id ?? 1;
+                var sidesCategoryId = Categories.FirstOrDefault(c => c.Name.Contains("Burger") || c.Name.Contains("Side"))?.Id ?? 2;
+                var drinksCategoryId = Categories.FirstOrDefault(c => c.Name.Contains("Drink") || c.Name.Contains("Beverage"))?.Id ?? 5;
+                var dessertsCategoryId = Categories.FirstOrDefault(c => c.Name.Contains("Dessert"))?.Id ?? 5;
+                
+                // Load food by categories
+                var pizzaTask = _foodService.GetFoodByCategoryAsync(pizzaCategoryId);
+                var sidesTask = _foodService.GetFoodByCategoryAsync(sidesCategoryId);
+                var drinksTask = _foodService.GetFoodByCategoryAsync(drinksCategoryId);
+                var dessertsTask = _foodService.GetFoodByCategoryAsync(dessertsCategoryId);
+                
+                // Wait for all tasks to complete
+                await Task.WhenAll(pizzaTask, sidesTask, drinksTask, dessertsTask);
+                
+                // Assign results
+                Pizzas = pizzaTask.Result.ToList();
+                Sides = sidesTask.Result.ToList();
+                Drinks = drinksTask.Result.ToList();
+                Desserts = dessertsTask.Result.ToList();
+                
+                // If no data was retrieved, use sample data as fallback
+                if (!Pizzas.Any() && !Sides.Any() && !Drinks.Any() && !Desserts.Any())
+                {
+                    _logger.LogWarning("No food data retrieved from API, using sample data as fallback");
+                    LoadSampleData();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading menu data");
+                LoadSampleData();
+            }
             
             return Page();
         }
         
+        // Keep the sample data method as fallback
         private void LoadSampleData()
         {
             // Sample pizzas
-            Pizzas = new List<MenuItem>
+            Pizzas = new List<MenuItemModel>
             {
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 1,
                     Name = "Margherita",
@@ -50,7 +98,7 @@ namespace PizzaShopWebApp.Pages.Menu
                     IsVegetarian = true,
                     IsPopular = true
                 },
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 2,
                     Name = "Pepperoni",
@@ -59,7 +107,7 @@ namespace PizzaShopWebApp.Pages.Menu
                     ImageUrl = "/images/food/pepperoni.jpg",
                     IsPopular = true
                 },
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 3,
                     Name = "Vegetarian Supreme",
@@ -68,7 +116,7 @@ namespace PizzaShopWebApp.Pages.Menu
                     ImageUrl = "/images/food/vegetarian.jpg",
                     IsVegetarian = true
                 },
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 4,
                     Name = "Meat Lovers",
@@ -76,7 +124,7 @@ namespace PizzaShopWebApp.Pages.Menu
                     Price = 16.99m,
                     ImageUrl = "/images/food/meat-lovers.jpg"
                 },
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 5,
                     Name = "Hawaiian",
@@ -84,7 +132,7 @@ namespace PizzaShopWebApp.Pages.Menu
                     Price = 14.99m,
                     ImageUrl = "/images/food/hawaiian.jpg"
                 },
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 6,
                     Name = "BBQ Chicken",
@@ -95,9 +143,9 @@ namespace PizzaShopWebApp.Pages.Menu
             };
             
             // Sample sides
-            Sides = new List<MenuItem>
+            Sides = new List<MenuItemModel>
             {
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 101,
                     Name = "Garlic Bread",
@@ -107,7 +155,7 @@ namespace PizzaShopWebApp.Pages.Menu
                     IsVegetarian = true,
                     IsPopular = true
                 },
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 102,
                     Name = "Chicken Wings",
@@ -115,7 +163,7 @@ namespace PizzaShopWebApp.Pages.Menu
                     Price = 8.99m,
                     ImageUrl = "/images/food/chicken-wings.jpg"
                 },
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 103,
                     Name = "Mozzarella Sticks",
@@ -124,7 +172,7 @@ namespace PizzaShopWebApp.Pages.Menu
                     ImageUrl = "/images/food/mozzarella-sticks.jpg",
                     IsVegetarian = true
                 },
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 104,
                     Name = "Caesar Salad",
@@ -136,9 +184,9 @@ namespace PizzaShopWebApp.Pages.Menu
             };
             
             // Sample drinks
-            Drinks = new List<MenuItem>
+            Drinks = new List<MenuItemModel>
             {
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 201,
                     Name = "Soda",
@@ -146,7 +194,7 @@ namespace PizzaShopWebApp.Pages.Menu
                     Price = 2.49m,
                     ImageUrl = "/images/food/soda.jpg"
                 },
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 202,
                     Name = "Iced Tea",
@@ -154,7 +202,7 @@ namespace PizzaShopWebApp.Pages.Menu
                     Price = 2.49m,
                     ImageUrl = "/images/food/iced-tea.jpg"
                 },
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 203,
                     Name = "Bottled Water",
@@ -162,7 +210,7 @@ namespace PizzaShopWebApp.Pages.Menu
                     Price = 1.99m,
                     ImageUrl = "/images/food/water.jpg"
                 },
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 204,
                     Name = "Craft Beer",
@@ -173,9 +221,9 @@ namespace PizzaShopWebApp.Pages.Menu
             };
             
             // Sample desserts
-            Desserts = new List<MenuItem>
+            Desserts = new List<MenuItemModel>
             {
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 301,
                     Name = "Chocolate Chip Cookie",
@@ -185,7 +233,7 @@ namespace PizzaShopWebApp.Pages.Menu
                     IsVegetarian = true,
                     IsPopular = true
                 },
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 302,
                     Name = "Brownie",
@@ -194,7 +242,7 @@ namespace PizzaShopWebApp.Pages.Menu
                     ImageUrl = "/images/food/brownie.jpg",
                     IsVegetarian = true
                 },
-                new MenuItem
+                new MenuItemModel
                 {
                     Id = 303,
                     Name = "Cinnamon Sticks",
@@ -205,17 +253,5 @@ namespace PizzaShopWebApp.Pages.Menu
                 }
             };
         }
-    }
-    
-    // Menu item model class
-    public class MenuItem
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public decimal Price { get; set; }
-        public string ImageUrl { get; set; } = string.Empty;
-        public bool IsVegetarian { get; set; }
-        public bool IsPopular { get; set; }
     }
 } 

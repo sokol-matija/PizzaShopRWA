@@ -1,200 +1,163 @@
 @page
 @model PizzaShopWebApp.Pages.Dashboard.OrderModel
 @{
-    ViewData["Title"] = "Order";
+    ViewData["Title"] = "Order Food";
     Layout = "_DashboardLayout";
 }
 
-<div class="restaurant-header">
-    <div class="restaurant-info">
-        <h1 class="restaurant-name">Jaegar Resto</h1>
-        <p class="restaurant-date">Tuesday, 2 Feb 2021</p>
+<div class="order-container">
+    <div class="order-content">
+        <div class="order-header">
+            <h1>Place Order</h1>
+            
+            <div class="search-filter-container">
+                <form method="get" class="search-form">
+                    <div class="search-bar">
+                        <i class="bx bx-search"></i>
+                        <input type="text" name="searchTerm" value="@Model.SearchTerm" placeholder="Search for food, coffee, etc.." />
+                    </div>
+                    
+                    <div class="filter-dropdown">
+                        <select name="categoryId" onchange="this.form.submit()">
+                            <option value="">All Categories</option>
+                            @foreach (var category in Model.Categories)
+                            {
+                                <option value="@category.Id" selected="@(Model.SelectedCategoryId == category.Id)">@category.Name</option>
+                            }
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="category-tabs">
+            <button class="category-tab active">All</button>
+            @foreach (var category in Model.Categories.Take(4)) // Limit to 4 for UI
+            {
+                <button class="category-tab" onclick="window.location.href='?categoryId=@category.Id'">@category.Name</button>
+            }
+        </div>
+        
+        <div class="menu-grid">
+            @if (Model.Foods.Any())
+            {
+                @foreach (var food in Model.Foods)
+                {
+                    <div class="menu-item">
+                        <div class="menu-item-image">
+                            <img src="@(string.IsNullOrEmpty(food.ImageUrl) ? "/Images/basic_food_image.png" : food.ImageUrl)" alt="@food.Name">
+                        </div>
+                        <div class="menu-item-content">
+                            <h3 class="menu-item-name">@food.Name</h3>
+                            <p class="menu-item-price">$@food.Price.ToString("0.00")</p>
+                            <p class="menu-item-available">@(food.IsPopular ? "Popular!" : "Available")</p>
+                        </div>
+                        <form method="post" asp-page-handler="AddToCart">
+                            <input type="hidden" name="foodId" value="@food.Id" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <button type="submit" class="add-to-cart-btn">Add to Cart</button>
+                        </form>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-items-message">
+                    <p>No items found. Try adjusting your search or filter.</p>
+                </div>
+            }
+        </div>
     </div>
     
-    <div class="search-bar">
-        <i class="bx bx-search"></i>
-        <input type="text" placeholder="Search for food, coffee, etc.." />
+    <div class="order-sidebar">
+        <div class="cart-header">
+            <h2>Current Order</h2>
+            @if (Model.CartItems.Any())
+            {
+                <form method="post" asp-page-handler="ClearCart">
+                    <button type="submit" class="clear-cart-btn">Clear All</button>
+                </form>
+            }
+        </div>
+        
+        <div class="cart-items">
+            @if (Model.CartItems.Any())
+            {
+                @foreach (var item in Model.CartItems)
+                {
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <h3 class="cart-item-name">@item.Name</h3>
+                            <p class="cart-item-price">$@item.Price.ToString("0.00")</p>
+                        </div>
+                        
+                        <div class="cart-item-actions">
+                            <div class="quantity-controls">
+                                <form method="post" asp-page-handler="UpdateCart" class="update-cart-form">
+                                    <input type="hidden" name="itemId" value="@item.Id" />
+                                    <button type="submit" name="quantity" value="@(item.Quantity - 1)" class="quantity-btn">-</button>
+                                    <span class="quantity">@item.Quantity</span>
+                                    <button type="submit" name="quantity" value="@(item.Quantity + 1)" class="quantity-btn">+</button>
+                                </form>
+                            </div>
+                            
+                            <form method="post" asp-page-handler="RemoveFromCart">
+                                <input type="hidden" name="itemId" value="@item.Id" />
+                                <button type="submit" class="remove-item-btn">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-cart">
+                    <p>Your cart is empty.</p>
+                    <p>Add some delicious items!</p>
+                </div>
+            }
+        </div>
+        
+        <div class="cart-summary">
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>$@Model.GetCartTotal().ToString("0.00")</span>
+            </div>
+            <div class="summary-row">
+                <span>Discount</span>
+                <span>-$0.00</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span>$@Model.GetCartTotal().ToString("0.00")</span>
+            </div>
+        </div>
+        
+        @if (Model.CartItems.Any())
+        {
+            <a href="/Dashboard/Payment" class="checkout-btn">
+                Continue to Payment
+            </a>
+        }
+        else
+        {
+            <button class="checkout-btn disabled" disabled>Continue to Payment</button>
+        }
     </div>
 </div>
 
-<div class="category-tabs">
-    <button class="category-tab active">Hot Dishes</button>
-    <button class="category-tab">Cold Dishes</button>
-    <button class="category-tab">Soup</button>
-    <button class="category-tab">Grill</button>
-    <button class="category-tab">Appetizer</button>
-    <button class="category-tab">Dessert</button>
-</div>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
 
-<div class="restaurant-content">
-    <section class="food-section">
-        <div class="section-header">
-            <h2 class="section-title">Choose Dishes</h2>
-            <div class="view-options">
-                <button class="view-option-btn active">
-                    <i class='bx bx-grid-alt'></i>
-                </button>
-                <button class="view-option-btn">
-                    <i class='bx bx-list-ul'></i>
-                </button>
-            </div>
-        </div>
-        
-        <div class="food-grid">
-            <!-- Food Item 1 -->
-            <div class="food-card" data-id="1" data-category="hot-dishes">
-                <img src="~/Images/basic_food_image.png" alt="Spicy seasoned seafood noodles" class="food-image">
-                <h3 class="food-name">Spicy seasoned seafood noodles</h3>
-                <p class="food-price">$2.29</p>
-                <p class="food-availability">20 Bowls available</p>
-            </div>
-            
-            <!-- Food Item 2 -->
-            <div class="food-card" data-id="2" data-category="hot-dishes">
-                <img src="~/Images/basic_food_image.png" alt="Salted Pasta with mushroom sauce" class="food-image">
-                <h3 class="food-name">Salted Pasta with mushroom sauce</h3>
-                <p class="food-price">$2.69</p>
-                <p class="food-availability">11 Bowls available</p>
-            </div>
-            
-            <!-- Food Item 3 -->
-            <div class="food-card" data-id="3" data-category="hot-dishes">
-                <img src="~/Images/basic_food_image.png" alt="Beef dumpling in hot and sour soup" class="food-image">
-                <h3 class="food-name">Beef dumpling in hot and sour soup</h3>
-                <p class="food-price">$2.99</p>
-                <p class="food-availability">16 Bowls available</p>
-            </div>
-            
-            <!-- Food Item 4 -->
-            <div class="food-card" data-id="4" data-category="hot-dishes">
-                <img src="~/Images/basic_food_image.png" alt="Healthy noodle with spinach leaf" class="food-image">
-                <h3 class="food-name">Healthy noodle with spinach leaf</h3>
-                <p class="food-price">$3.29</p>
-                <p class="food-availability">22 Bowls available</p>
-            </div>
-            
-            <!-- Food Item 5 -->
-            <div class="food-card" data-id="5" data-category="hot-dishes">
-                <div class="food-badge">Hot</div>
-                <img src="~/Images/basic_food_image.png" alt="Hot spicy fried rice with omelet" class="food-image">
-                <h3 class="food-name">Hot spicy fried rice with omelet</h3>
-                <p class="food-price">$3.49</p>
-                <p class="food-availability">13 Bowls available</p>
-            </div>
-            
-            <!-- Food Item 6 -->
-            <div class="food-card" data-id="6" data-category="hot-dishes">
-                <img src="~/Images/basic_food_image.png" alt="Spicy instant noodle with special omelette" class="food-image">
-                <h3 class="food-name">Spicy instant noodle with special omelette</h3>
-                <p class="food-price">$3.59</p>
-                <p class="food-availability">17 Bowls available</p>
-            </div>
-        </div>
-    </section>
-</div>
-
-<!-- Order Section (Right Side) -->
-<div class="order-section">
-    <div class="order-header">
-        <h2 class="order-title">Orders #34562</h2>
-        
-        <div class="order-type">
-            <button class="order-type-option active">Dine In</button>
-            <button class="order-type-option">To Go</button>
-            <button class="order-type-option">Delivery</button>
-        </div>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
     </div>
-    
-    <div class="order-item-header">
-        <div style="width: 40%; padding-left: 10px;">Item</div>
-        <div style="width: 25%; text-align: center;">Qty</div>
-        <div style="width: 25%; text-align: right;">Price</div>
-        <div style="width: 10%;"></div>
-    </div>
-    
-    <div class="order-items">
-        <!-- Order Item 1 -->
-        <div class="order-item">
-            <img src="~/Images/basic_food_image.png" alt="Spicy seasoned seafood noodles" class="order-item-image">
-            <div class="order-item-details">
-                <h4 class="order-item-name">Spicy seasoned seafood noodles</h4>
-                <p class="order-item-price">$2.29</p>
-            </div>
-            <div class="quantity-control">
-                <span class="quantity-value">2</span>
-            </div>
-            <div class="order-item-total">$4.58</div>
-            <button class="btn-remove">
-                <i class="bx bx-trash"></i>
-            </button>
-        </div>
-        
-        <!-- Order Item 2 -->
-        <div class="order-item">
-            <img src="~/Images/basic_food_image.png" alt="Salted Pasta with mushroom sauce" class="order-item-image">
-            <div class="order-item-details">
-                <h4 class="order-item-name">Salted Pasta with mushroom sauce</h4>
-                <p class="order-item-price">$2.69</p>
-            </div>
-            <div class="quantity-control">
-                <span class="quantity-value">1</span>
-            </div>
-            <div class="order-item-total">$2.69</div>
-            <button class="btn-remove">
-                <i class="bx bx-trash"></i>
-            </button>
-        </div>
-        
-        <!-- Order Item 3 -->
-        <div class="order-item">
-            <img src="~/Images/basic_food_image.png" alt="Spicy instant noodle with special omelette" class="order-item-image">
-            <div class="order-item-details">
-                <h4 class="order-item-name">Spicy instant noodle with special omelette</h4>
-                <p class="order-item-price">$3.49</p>
-            </div>
-            <div class="quantity-control">
-                <span class="quantity-value">3</span>
-            </div>
-            <div class="order-item-total">$10.47</div>
-            <button class="btn-remove">
-                <i class="bx bx-trash"></i>
-            </button>
-        </div>
-        
-        <!-- Order Item 4 -->
-        <div class="order-item">
-            <img src="~/Images/basic_food_image.png" alt="Healthy noodle with spinach leaf" class="order-item-image">
-            <div class="order-item-details">
-                <h4 class="order-item-name">Healthy noodle with spinach leaf</h4>
-                <p class="order-item-price">$3.29</p>
-            </div>
-            <div class="quantity-control">
-                <span class="quantity-value">1</span>
-            </div>
-            <div class="order-item-total">$3.29</div>
-            <button class="btn-remove">
-                <i class="bx bx-trash"></i>
-            </button>
-        </div>
-        
-        <!-- Order Note -->
-        <textarea class="order-note" placeholder="Order Note...">Please, just a little bit spicy only.</textarea>
-    </div>
-    
-    <div class="order-summary">
-        <div class="summary-item">
-            <span>Discount</span>
-            <span>$0</span>
-        </div>
-        <div class="summary-item">
-            <span>Sub total</span>
-            <span>$21.03</span>
-        </div>
-        <div class="summary-item total">
-            <span>Total</span>
-            <span>$21.03</span>
-        </div>
-        
-        <button class="btn-payment">Continue to Payment</button>
-    </div>
-</div> 
+} 

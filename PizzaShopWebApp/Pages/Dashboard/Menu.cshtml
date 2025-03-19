@@ -5,293 +5,214 @@
     Layout = "_DashboardLayout";
 }
 
-<div class="restaurant-header">
-    <div class="restaurant-info">
-        <h1 class="restaurant-name">Products Management</h1>
-        <p class="restaurant-date">@DateTime.Now.ToString("dddd, d MMM yyyy")</p>
+<div class="menu-container">
+    <div class="menu-header">
+        <h1>Menu Management</h1>
+        
+        <div class="menu-search-filter">
+            <form method="get" class="search-form">
+                <div class="search-bar">
+                    <i class="bx bx-search"></i>
+                    <input type="text" name="searchTerm" value="@Model.SearchTerm" placeholder="Search for food items..." />
+                </div>
+                
+                <div class="filter-dropdown">
+                    <select name="categoryId" onchange="this.form.submit()">
+                        <option value="">All Categories</option>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <option value="@category.Id" selected="@(Model.SelectedCategoryId == category.Id)">@category.Name</option>
+                        }
+                    </select>
+                </div>
+                
+                <button type="submit" class="search-btn">Search</button>
+            </form>
+        </div>
     </div>
     
-    <div class="search-bar">
-        <i class="bx bx-search"></i>
-        <input type="text" placeholder="Search for dishes..." />
-    </div>
-</div>
-
-<div class="category-tabs">
-    <button class="category-tab active">Hot Dishes</button>
-    <button class="category-tab">Cold Dishes</button>
-    <button class="category-tab">Soup</button>
-    <button class="category-tab">Grill</button>
-    <button class="category-tab">Appetizer</button>
-    <button class="category-tab">Dessert</button>
-</div>
-
-<div class="restaurant-content">
-    <div class="section-header">
-        <h2 class="section-title">Products Management</h2>
-        <div class="view-options">
-            <button class="manage-categories-btn">
-                <i class='bx bx-category'></i>
-                Manage Categories
+    <div class="menu-tabs">
+        <button class="menu-tab @(Model.SelectedCategoryId == null ? "active" : "")" onclick="window.location.href='?'">All</button>
+        @foreach (var category in Model.Categories)
+        {
+            <button class="menu-tab @(Model.SelectedCategoryId == category.Id ? "active" : "")" 
+                    onclick="window.location.href='?categoryId=@category.Id'">
+                @category.Name
             </button>
-        </div>
+        }
     </div>
     
-    <div class="menu-grid">
-        <!-- Add new dish card -->
-        <div class="menu-card add-new">
-            <div class="add-new-content">
-                <div class="add-icon"><i class='bx bx-plus'></i></div>
-                <span class="add-text">Add new dish</span>
+    <div class="menu-items-container">
+        @if (Model.MenuItems.Any())
+        {
+            <table class="menu-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Preparation Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.MenuItems.OrderBy(i => i.FoodCategoryId).ThenBy(i => i.Name))
+                    {
+                        <tr>
+                            <td class="menu-item-cell">
+                                <div class="menu-item-info">
+                                    <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/Images/basic_food_image.png" : item.ImageUrl)" 
+                                         alt="@item.Name" class="menu-item-image">
+                                    <div>
+                                        <h3 class="menu-item-name">@item.Name</h3>
+                                        <p class="menu-item-description">@item.Description</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@item.FoodCategoryName</td>
+                            <td>$@item.Price.ToString("0.00")</td>
+                            <td>@(item.PreparationTime.HasValue ? $"{item.PreparationTime} min" : "N/A")</td>
+                            <td>
+                                <span class="item-status @(item.IsPopular ? "popular" : "available")">
+                                    @(item.IsPopular ? "Popular" : "Available")
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="no-items-message">
+                <p>No menu items found. Please try a different search or category filter.</p>
             </div>
-        </div>
-        
-        <!-- Existing dish cards -->
-        <div class="menu-card">
-            <img src="~/Images/basic_food_image.png" alt="Spicy seasoned seafood noodles" class="menu-image">
-            <div class="menu-details">
-                <h3 class="menu-name">Spicy seasoned seafood noodles</h3>
-                <div class="menu-price-bowls">
-                    <span class="menu-price">$ 2.29</span>
-                    <span class="menu-bowls">• 20 Bowls</span>
-                </div>
-                <button class="edit-dish-btn">
-                    <i class='bx bx-edit'></i>
-                    Edit dish
-                </button>
-            </div>
-        </div>
-        
-        <div class="menu-card">
-            <img src="~/Images/basic_food_image.png" alt="Salted Pasta with mushroom sauce" class="menu-image">
-            <div class="menu-details">
-                <h3 class="menu-name">Salted Pasta with mushroom sauce</h3>
-                <div class="menu-price-bowls">
-                    <span class="menu-price">$ 2.69</span>
-                    <span class="menu-bowls">• 30 Bowls</span>
-                </div>
-                <button class="edit-dish-btn">
-                    <i class='bx bx-edit'></i>
-                    Edit dish
-                </button>
-            </div>
-        </div>
-        
-        <div class="menu-card">
-            <img src="~/Images/basic_food_image.png" alt="Beef dumpling in hot and sour soup" class="menu-image">
-            <div class="menu-details">
-                <h3 class="menu-name">Beef dumpling in hot and sour soup</h3>
-                <div class="menu-price-bowls">
-                    <span class="menu-price">$ 2.99</span>
-                    <span class="menu-bowls">• 16 Bowls</span>
-                </div>
-                <button class="edit-dish-btn">
-                    <i class='bx bx-edit'></i>
-                    Edit dish
-                </button>
-            </div>
-        </div>
-        
-        <div class="menu-card">
-            <img src="~/Images/basic_food_image.png" alt="Healthy noodle with spinach leaf" class="menu-image">
-            <div class="menu-details">
-                <h3 class="menu-name">Healthy noodle with spinach leaf</h3>
-                <div class="menu-price-bowls">
-                    <span class="menu-price">$ 3.29</span>
-                    <span class="menu-bowls">• 22 Bowls</span>
-                </div>
-                <button class="edit-dish-btn">
-                    <i class='bx bx-edit'></i>
-                    Edit dish
-                </button>
-            </div>
-        </div>
-        
-        <div class="menu-card">
-            <img src="~/Images/basic_food_image.png" alt="Hot spicy fried rice with omelet" class="menu-image">
-            <div class="menu-details">
-                <h3 class="menu-name">Hot spicy fried rice with omelet</h3>
-                <div class="menu-price-bowls">
-                    <span class="menu-price">$ 3.49</span>
-                    <span class="menu-bowls">• 13 Bowls</span>
-                </div>
-                <button class="edit-dish-btn">
-                    <i class='bx bx-edit'></i>
-                    Edit dish
-                </button>
-            </div>
-        </div>
-        
-        <div class="menu-card">
-            <img src="~/Images/basic_food_image.png" alt="Spicy instant noodle with special omelette" class="menu-image">
-            <div class="menu-details">
-                <h3 class="menu-name">Spicy instant noodle with special omelette</h3>
-                <div class="menu-price-bowls">
-                    <span class="menu-price">$ 3.59</span>
-                    <span class="menu-bowls">• 17 Bowls</span>
-                </div>
-                <button class="edit-dish-btn">
-                    <i class='bx bx-edit'></i>
-                    Edit dish
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="menu-actions">
-        <button class="btn-discard">Discard Changes</button>
-        <button class="btn-save">Save Changes</button>
+        }
     </div>
 </div>
 
 <style>
-    .menu-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 24px;
-        margin-top: 24px;
-    }
-    
-    .menu-card {
-        background-color: var(--dark-bg-color);
-        border-radius: 16px;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    .menu-container {
         padding: 20px;
-        position: relative;
     }
     
-    .menu-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-    
-    .menu-image {
-        width: 150px;
-        height: 150px;
-        object-fit: cover;
-        border-radius: 50%;
-        margin-bottom: 16px;
-    }
-    
-    .menu-details {
-        text-align: center;
-        width: 100%;
-    }
-    
-    .menu-name {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-    
-    .menu-price-bowls {
+    .menu-header {
         display: flex;
-        justify-content: center;
-        gap: 4px;
-        margin-bottom: 16px;
-    }
-    
-    .menu-price {
-        color: var(--accent-color);
-        font-weight: 500;
-    }
-    
-    .menu-bowls {
-        color: var(--text-muted);
-    }
-    
-    .edit-dish-btn {
-        background-color: var(--secondary-bg-color);
-        color: var(--accent-color);
-        border: 1px solid var(--accent-color);
-        border-radius: 8px;
-        padding: 10px 16px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        display: flex;
+        justify-content: space-between;
         align-items: center;
-        justify-content: center;
-        gap: 8px;
-        width: 100%;
-        transition: all 0.3s;
+        margin-bottom: 20px;
     }
     
-    .edit-dish-btn:hover {
-        background-color: rgba(234, 124, 105, 0.1);
-    }
-    
-    .menu-card.add-new {
-        border: 2px dashed var(--border-color);
-        background-color: transparent;
+    .menu-search-filter {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 300px;
-        cursor: pointer;
+        gap: 10px;
     }
     
-    .add-new-content {
+    .search-form {
         display: flex;
-        flex-direction: column;
-        align-items: center;
-        color: var(--accent-color);
+        gap: 10px;
     }
     
-    .add-icon {
-        font-size: 28px;
-        margin-bottom: 8px;
-    }
-    
-    .add-text {
-        font-size: 16px;
-        font-weight: 500;
-    }
-    
-    .manage-categories-btn {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background-color: var(--secondary-bg-color);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 10px 16px;
-        color: var(--text-color);
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-    }
-    
-    .menu-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 16px;
-        margin-top: 32px;
-    }
-    
-    .btn-discard {
-        background-color: transparent;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 12px 24px;
-        color: var(--text-color);
-        font-size: 16px;
-        font-weight: 500;
-        cursor: pointer;
-    }
-    
-    .btn-save {
+    .search-btn {
         background-color: var(--accent-color);
+        color: white;
         border: none;
         border-radius: 8px;
-        padding: 12px 24px;
-        color: white;
-        font-size: 16px;
-        font-weight: 500;
+        padding: 0 20px;
         cursor: pointer;
+    }
+    
+    .menu-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
+    
+    .menu-tab {
+        background-color: var(--secondary-bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 10px 20px;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    
+    .menu-tab.active {
+        background-color: var(--accent-color);
+        color: white;
+        border-color: var(--accent-color);
+    }
+    
+    .menu-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .menu-table th {
+        text-align: left;
+        padding: 15px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .menu-table td {
+        padding: 15px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .menu-item-cell {
+        min-width: 300px;
+    }
+    
+    .menu-item-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .menu-item-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    
+    .menu-item-name {
+        margin: 0 0 5px 0;
+        font-size: 16px;
+    }
+    
+    .menu-item-description {
+        margin: 0;
+        font-size: 14px;
+        color: var(--text-muted);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .item-status {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .item-status.popular {
+        background-color: rgba(234, 124, 105, 0.2);
+        color: var(--accent-color);
+    }
+    
+    .item-status.available {
+        background-color: rgba(136, 224, 145, 0.2);
+        color: #65D273;
+    }
+    
+    .no-items-message {
+        text-align: center;
+        padding: 50px;
+        color: var(--text-muted);
     }
 </style> 

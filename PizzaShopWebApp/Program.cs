@@ -1,4 +1,7 @@
+using PizzaShopWebApp.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -16,6 +19,23 @@ builder.Services.AddSession(options =>
 	options.Cookie.SameSite = SameSiteMode.Strict;
 	options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
+
+// Add HttpContextAccessor
+builder.Services.AddHttpContextAccessor();
+
+// Register API services
+builder.Services.AddScoped<IFoodService, FoodService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICartService, CartService>();
+
+// Configure API base URL from appsettings.json
+var apiSettings = builder.Configuration.GetSection("ApiSettings");
+if (!apiSettings.Exists())
+{
+	// Add default API settings if not exists
+	builder.Configuration["ApiSettings:BaseUrl"] = "http://localhost:5156";
+}
 
 var app = builder.Build();
 

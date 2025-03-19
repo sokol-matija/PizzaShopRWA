@@ -1,3 +1,7 @@
+@{
+    var username = Context.Session.GetString("Username") ?? "Guest";
+    var isAdmin = Context.Session.GetString("IsAdmin") == "True";
+}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -131,6 +135,26 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="dashboard-container">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="success-message">
+                        <span>@TempData["SuccessMessage"]</span>
+                        <button class="close-btn" onclick="this.parentElement.style.display='none';">
+                            <i class='bx bx-x'></i>
+                        </button>
+                    </div>
+                }
+                
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="error-message">
+                        <span>@TempData["ErrorMessage"]</span>
+                        <button class="close-btn" onclick="this.parentElement.style.display='none';">
+                            <i class='bx bx-x'></i>
+                        </button>
+                    </div>
+                }
+                
                 @RenderBody()
             </div>
         </div>
