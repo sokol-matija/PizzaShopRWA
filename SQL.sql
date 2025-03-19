@@ -257,6 +257,77 @@ INSERT INTO OrderItem (OrderId, FoodId, Quantity, Price) VALUES
 (15, 3, 1, 9.99),  -- One Cheeseburger
 (15, 6, 1, 8.99);  -- One Caesar Salad
 
+-- Insert more sample orders with different statuses and dates
+INSERT INTO [Order] (UserId, OrderDate, TotalAmount, DeliveryAddress, Status) VALUES 
+-- Orders for user 2 (john.doe) - Today's orders
+(2, DATEADD(hour, -2, GETDATE()), 35.97, '456 Main St', 'Delivered'),
+(2, DATEADD(hour, -1, GETDATE()), 22.98, '456 Main St', 'In Progress'),
+(2, GETDATE(), 18.98, '456 Main St', 'Pending'),
+
+-- Orders for user 1 (admin) - Today's orders
+(1, DATEADD(hour, -3, GETDATE()), 38.97, '123 Admin St', 'Delivered'),
+(1, DATEADD(hour, -1, GETDATE()), 29.98, '123 Admin St', 'In Progress'),
+(1, GETDATE(), 21.98, '123 Admin St', 'Pending'),
+
+-- Orders for user 2 (john.doe) - Yesterday's orders
+(2, DATEADD(day, -1, DATEADD(hour, -2, GETDATE())), 35.97, '456 Main St', 'Delivered'),
+(2, DATEADD(day, -1, DATEADD(hour, -1, GETDATE())), 22.98, '456 Main St', 'Delivered'),
+(2, DATEADD(day, -1, GETDATE()), 18.98, '456 Main St', 'Delivered'),
+
+-- Orders for user 1 (admin) - Yesterday's orders
+(1, DATEADD(day, -1, DATEADD(hour, -3, GETDATE())), 38.97, '123 Admin St', 'Delivered'),
+(1, DATEADD(day, -1, DATEADD(hour, -1, GETDATE())), 29.98, '123 Admin St', 'Delivered'),
+(1, DATEADD(day, -1, GETDATE()), 21.98, '123 Admin St', 'Delivered');
+
+-- Insert order items for the new orders
+INSERT INTO OrderItem (OrderId, FoodId, Quantity, Price) VALUES 
+-- Today's orders for user 2
+(16, 1, 2, 10.99),  -- Two Margherita Pizzas
+(16, 7, 1, 5.99),   -- One Chocolate Cake
+(16, 6, 1, 8.99),   -- One Caesar Salad
+
+(17, 3, 1, 9.99),   -- One Cheeseburger
+(17, 6, 1, 8.99),   -- One Caesar Salad
+
+(18, 4, 1, 10.99),  -- One Vegetarian Burger
+(18, 6, 1, 8.99),   -- One Caesar Salad
+
+-- Today's orders for user 1
+(19, 2, 2, 12.99),  -- Two Pepperoni Pizzas
+(19, 7, 1, 5.99),   -- One Chocolate Cake
+(19, 6, 1, 8.99),   -- One Caesar Salad
+
+(20, 5, 1, 11.99),  -- One Spaghetti Bolognese
+(20, 3, 1, 9.99),   -- One Cheeseburger
+(20, 7, 1, 5.99),   -- One Chocolate Cake
+
+(21, 1, 1, 10.99),  -- One Margherita Pizza
+(21, 6, 1, 8.99),   -- One Caesar Salad
+
+-- Yesterday's orders for user 2
+(22, 2, 2, 12.99),  -- Two Pepperoni Pizzas
+(22, 7, 1, 5.99),   -- One Chocolate Cake
+(22, 6, 1, 8.99),   -- One Caesar Salad
+
+(23, 5, 1, 11.99),  -- One Spaghetti Bolognese
+(23, 3, 1, 9.99),   -- One Cheeseburger
+(23, 7, 1, 5.99),   -- One Chocolate Cake
+
+(24, 1, 1, 10.99),  -- One Margherita Pizza
+(24, 6, 1, 8.99),   -- One Caesar Salad
+
+-- Yesterday's orders for user 1
+(25, 3, 2, 9.99),   -- Two Cheeseburgers
+(25, 6, 1, 8.99),   -- One Caesar Salad
+(25, 7, 1, 5.99),   -- One Chocolate Cake
+
+(26, 4, 1, 10.99),  -- One Vegetarian Burger
+(26, 6, 1, 8.99),   -- One Caesar Salad
+(26, 7, 1, 5.99),   -- One Chocolate Cake
+
+(27, 2, 1, 12.99),  -- One Pepperoni Pizza
+(27, 6, 1, 8.99);   -- One Caesar Salad
+
 
 select * from Allergen
 

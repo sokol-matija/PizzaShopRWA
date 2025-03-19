@@ -87,19 +87,10 @@
         </div>
     </div>
 
-    <!-- Order Type Distribution -->
-    <div class="chart-card">
-        <div class="chart-header">
-            <h3>Order Type Distribution</h3>
-            <div class="chart-actions">
-                <button class="chart-action-btn active">Today</button>
-                <button class="chart-action-btn">Week</button>
-                <button class="chart-action-btn">Month</button>
-            </div>
-        </div>
-        <div class="chart-container">
-            <canvas id="orderTypeChart"></canvas>
-        </div>
+    <!-- Food Category Distribution -->
+    <div class="chart-container">
+        <h3>Food Category Distribution</h3>
+        <canvas id="categoryDistributionChart"></canvas>
     </div>
 </div>
 
@@ -152,26 +143,22 @@
     </div>
 
     <!-- Popular Items -->
-    <div class="popular-items-card">
-        <div class="card-header">
-            <h3>Most Popular Items</h3>
-            <button class="view-all-btn">View All</button>
-        </div>
-        <div class="popular-items-list">
+    <div class="popular-items">
+        <h3>Popular Items</h3>
+        <div class="popular-items-grid">
             @foreach (var item in Model.MostOrderedItems)
             {
                 <div class="popular-item">
-                    <div class="item-image">
-                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/Images/basic_food_image.png" : item.ImageUrl)" 
-                             alt="@item.Name">
+                    <div class="popular-item-image">
+                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/images/placeholder-food.jpg" : item.ImageUrl)" 
+                             alt="@item.Name"
+                             onerror="this.src='/images/placeholder-food.jpg'">
                     </div>
-                    <div class="item-info">
+                    <div class="popular-item-info">
                         <h4>@item.Name</h4>
                         <p>@item.Description</p>
-                        <div class="item-meta">
-                            <span class="price">$@item.Price.ToString("N2")</span>
-                            <span class="category">@item.FoodCategoryName</span>
-                        </div>
+                        <span class="price">$@item.Price.ToString("0.00")</span>
+                        <span class="category">@item.FoodCategoryName</span>
                     </div>
                 </div>
             }
@@ -274,18 +261,20 @@
             }
         });
 
-        // Order Type Distribution Chart
-        const orderTypeCtx = document.getElementById('orderTypeChart').getContext('2d');
-        new Chart(orderTypeCtx, {
+        // Food Category Distribution Chart
+        var categoryCtx = document.getElementById('categoryDistributionChart').getContext('2d');
+        new Chart(categoryCtx, {
             type: 'doughnut',
             data: {
                 labels: @Html.Raw(Json.Serialize(Model.OrderTypeDistribution.Keys)),
                 datasets: [{
                     data: @Html.Raw(Json.Serialize(Model.OrderTypeDistribution.Values)),
                     backgroundColor: [
-                        '#EA7C69',
-                        '#6BE2BE',
-                        '#9290FE'
+                        '#FF6B6B',
+                        '#4ECDC4',
+                        '#45B7D1',
+                        '#96CEB4',
+                        '#FFEEAD'
                     ]
                 }]
             },
@@ -294,10 +283,7 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: '#ABBBC2'
-                        }
+                        position: 'bottom'
                     }
                 }
             }

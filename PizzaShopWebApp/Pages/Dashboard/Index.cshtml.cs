@@ -76,100 +76,92 @@ namespace PizzaShopWebApp.Pages.Dashboard
 
             try
             {
-                // Log API calls to console
-                Console.WriteLine("\n=== Testing API Calls on Dashboard Page ===");
-                
-                // Get all user orders
-                Console.WriteLine("\nGetting user orders from API...");
-                var orders = await _orderService.GetUserOrdersAsync();
-                Console.WriteLine($"Retrieved {orders.Count()} user orders");
-                RecentOrders = orders.OrderByDescending(o => o.OrderDate).Take(5).ToList();
-                AllOrders = orders.ToList();
-
-                // Get all orders (admin only)
-                Console.WriteLine("\nGetting all orders from API...");
+                // Get all orders
                 var allOrders = await _orderService.GetAllOrdersAsync(1, 100);
-                Console.WriteLine($"Retrieved {allOrders.Count()} total orders in the system");
-                
-                // Get popular food items
-                Console.WriteLine("\nGetting all food items from API...");
-                var allFoodItems = await _foodService.GetAllFoodAsync(1, 100);
-                Console.WriteLine($"Retrieved {allFoodItems.Count()} food items");
-                
-                // Get all categories
-                var allCategories = await _foodService.GetAllCategoriesAsync();
-                
-                // Display summary of total sales
-                CalculateAndDisplayOrderSummary(allOrders.ToList());
+                var orders = allOrders.ToList();
 
-                // Calculate stats from orders
-                TotalRevenue = allOrders.Sum(o => o.TotalAmount);
-                TotalDishesOrdered = allOrders.Sum(o => o.Items.Sum(i => i.Quantity));
+                // Get today's and yesterday's orders
+                var today = DateTime.Today;
+                var yesterday = today.AddDays(-1);
                 
-                // Get unique customer count (estimate based on orders)
-                var uniqueOrderNumbers = allOrders.Select(o => o.OrderNumber).Distinct().Count();
-                TotalCustomers = Math.Max(uniqueOrderNumbers, 100); // Use at least 100 as fallback
+                var todayOrders = orders.Where(o => o.OrderDate.Date == today).ToList();
+                var yesterdayOrders = orders.Where(o => o.OrderDate.Date == yesterday).ToList();
 
                 // Calculate today's metrics
-                var today = DateTime.Today;
-                var todayOrders = allOrders.Where(o => o.OrderDate.Date == today).ToList();
                 TodayRevenue = todayOrders.Sum(o => o.TotalAmount);
                 TodayOrders = todayOrders.Count;
                 TodayCustomers = todayOrders.Select(o => o.OrderNumber).Distinct().Count();
 
-                // Calculate weekly sales trends (last 7 days)
-                WeeklySalesTrend = CalculateWeeklySalesTrend(allOrders.ToList());
+                // Calculate yesterday's metrics for comparison
+                var yesterdayRevenue = yesterdayOrders.Sum(o => o.TotalAmount);
+                var yesterdayOrdersCount = yesterdayOrders.Count;
+                var yesterdayCustomers = yesterdayOrders.Select(o => o.OrderNumber).Distinct().Count();
+
+                // Calculate percentage changes
+                RevenueChangePercent = yesterdayRevenue > 0 
+                    ? ((TodayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100 
+                    : 0;
+                    
+                OrdersChangePercent = yesterdayOrdersCount > 0 
+                    ? ((TodayOrders - yesterdayOrdersCount) / (decimal)yesterdayOrdersCount) * 100 
+                    : 0;
+                    
+                CustomersChangePercent = yesterdayCustomers > 0 
+                    ? ((TodayCustomers - yesterdayCustomers) / (decimal)yesterdayCustomers) * 100 
+                    : 0;
+
+                // Get recent orders (last 5)
+                RecentOrders = orders
+                    .OrderByDescending(o => o.OrderDate)
+                    .Take(5)
+                    .ToList();
+
+                // Calculate weekly sales trend using real data
+                WeeklySalesTrend = CalculateWeeklySalesTrend(orders);
+
+                // Calculate food category distribution
+                var foodItems = await _foodService.GetAllFoodAsync(1, 100);
+                var categories = await _foodService.GetAllCategoriesAsync();
                 
-                // Calculate order type distribution (simplified example)
-                OrderTypeDistribution = new Dictionary<string, int>
+                // Calculate category distribution based on ordered items
+                var categoryDistribution = new Dictionary<string, int>();
+                foreach (var category in categories)
                 {
-                    { "Dine In", Math.Max(allOrders.Count() / 3, 200) }, 
-                    { "To Go", Math.Max(allOrders.Count() / 5, 122) },
-                    { "Delivery", Math.Max(allOrders.Count() / 2, 264) }
-                };
-                
-                // Calculate popular categories based on ordered items
-                PopularCategories = CalculatePopularCategories(allOrders.ToList(), allFoodItems.ToList(), allCategories.ToList());
-                
-                // Calculate orders by time of day
-                OrdersByTimeOfDay = CalculateOrdersByTimeOfDay(allOrders.ToList());
-                
+                    var categoryItems = foodItems.Where(f => f.FoodCategoryId == category.Id);
+                    var orderCount = orders
+                        .SelectMany(o => o.Items)
+                        .Count(i => categoryItems.Any(f => f.Id == i.FoodId));
+                    categoryDistribution[category.Name] = orderCount;
+                }
+
+                // Replace OrderTypeDistribution with CategoryDistribution
+                OrderTypeDistribution = categoryDistribution;
+
                 // Calculate order status distribution
-                OrderStatusDistribution = CalculateOrderStatusDistribution(allOrders.ToList());
+                OrderStatusDistribution = orders
+                    .GroupBy(o => o.Status)
+                    .ToDictionary(g => g.Key, g => g.Count());
 
-                // Set change percentages (could be calculated from previous period data)
-                RevenueChangePercent = 32.40m;
-                OrdersChangePercent = -12.40m;
-                CustomersChangePercent = 2.40m;
+                // Calculate orders by time of day
+                OrdersByTimeOfDay = CalculateOrdersByTimeOfDay(orders);
 
-                // Get popular food items (most ordered items)
-                var popularItemIds = allOrders
+                // Get popular items based on actual order data
+                var popularItemIds = orders
                     .SelectMany(o => o.Items)
                     .GroupBy(i => i.FoodId)
                     .OrderByDescending(g => g.Sum(i => i.Quantity))
                     .Select(g => g.Key)
                     .Take(5)
                     .ToList();
-                
-                // Map to actual food items
-                MostOrderedItems = allFoodItems
+
+                MostOrderedItems = foodItems
                     .Where(f => popularItemIds.Contains(f.Id))
                     .Take(5)
                     .ToList();
-                
-                // If we couldn't find matches, fall back to first few items
-                if (!MostOrderedItems.Any() && allFoodItems.Any())
-                {
-                    MostOrderedItems = allFoodItems.Take(5).ToList();
-                }
-                
-                Console.WriteLine("\n=== API Testing Complete ===");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading dashboard data");
-                Console.WriteLine($"Error loading dashboard data: {ex.Message}");
-                // Don't redirect, just show the page with empty data
             }
 
             return Page();
