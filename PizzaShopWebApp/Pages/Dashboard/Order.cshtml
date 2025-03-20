@@ -15,6 +15,12 @@
                     <div class="search-bar">
                         <i class="bx bx-search"></i>
                         <input type="text" name="searchTerm" value="@Model.SearchTerm" placeholder="Search for food, coffee, etc.." />
+                        @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                        {
+                            <button type="button" class="clear-search" onclick="clearSearch(this)">
+                                <i class='bx bx-x'></i>
+                            </button>
+                        }
                     </div>
                     
                     <div class="filter-dropdown">
@@ -55,13 +61,15 @@
                         <div class="food-card-content">
                             <h3 class="food-card-name">@food.Name</h3>
                             <p class="food-card-price">$@food.Price.ToString("0.00")</p>
-                            <p class="food-card-available">@(food.IsPopular ? "Popular item!" : "Available")</p>
+                            <p class="food-card-available">@(food.OrderCount > 0 ? $"{food.OrderCount} Bowls available" : "Available")</p>
                             <form method="post" asp-page-handler="AddToCart" class="add-to-cart-form">
                                 <input type="hidden" name="foodId" value="@food.Id" />
-                                <input type="hidden" name="quantity" value="1" />
-                                <button type="submit" class="add-to-cart-btn">
-                                    <i class='bx bx-plus'></i>
-                                </button>
+                                <input type="hidden" name="quantity" value="1" class="quantity-input" />
+                                <div class="add-to-cart-container">
+                                    <button type="submit" class="add-to-cart-btn">
+                                        <i class='bx bx-plus'></i>
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -70,6 +78,7 @@
             else
             {
                 <div class="no-items-message">
+                    <i class='bx bx-search-alt no-results-icon'></i>
                     <p>No items found. Try adjusting your search or filter.</p>
                 </div>
             }
@@ -185,6 +194,8 @@
         --success-color: #6BE2BE;
         --error-color: #FF7A7A;
         --card-anim-time: 0.3s;
+        --card-radius: 16px;
+        --card-image-height: 140px;
     }
     
     .order-container {
@@ -270,6 +281,26 @@
         box-shadow: 0 0 0 2px rgba(234, 124, 105, 0.3);
     }
     
+    .clear-search {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        font-size: 16px;
+    }
+    
+    .clear-search:hover {
+        color: var(--text-color);
+    }
+    
     .filter-dropdown select {
         padding: 10px 16px;
         background-color: var(--dark-bg-color);
@@ -345,10 +376,12 @@
     
     .food-card {
         background-color: var(--dark-bg-color);
-        border-radius: 16px;
+        border-radius: var(--card-radius);
         overflow: hidden;
         transition: transform var(--card-anim-time), box-shadow var(--card-anim-time);
         position: relative;
+        display: flex;
+        flex-direction: column;
     }
     
     .food-card:hover {
@@ -376,10 +409,13 @@
     }
     
     .food-card-image {
-        height: 140px;
+        height: var(--card-image-height);
         width: 100%;
         position: relative;
         overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     .food-card-image img {
@@ -411,7 +447,10 @@
     .food-card-content {
         padding: 16px;
         position: relative;
-        min-height: 120px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
     }
     
     .food-card-name {
@@ -431,13 +470,16 @@
     .food-card-available {
         font-size: 12px;
         color: var(--text-muted);
-        margin: 0;
+        margin: 0 0 12px 0;
+    }
+    
+    .add-to-cart-container {
+        display: flex;
+        justify-content: center;
+        margin-top: auto;
     }
     
     .add-to-cart-btn {
-        position: absolute;
-        bottom: 16px;
-        right: 16px;
         width: 36px;
         height: 36px;
         border-radius: 8px;
@@ -448,12 +490,39 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: background-color 0.2s, transform 0.2s;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .add-to-cart-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+        opacity: 0;
+        transition: opacity 0.3s;
     }
     
     .add-to-cart-btn:hover {
         background-color: var(--accent-hover);
         transform: scale(1.05);
+    }
+    
+    .add-to-cart-btn:hover::before {
+        opacity: 1;
+    }
+    
+    .add-to-cart-btn i {
+        font-size: 20px;
+        transition: transform 0.3s;
+    }
+    
+    .add-to-cart-btn:hover i {
+        transform: rotate(90deg);
     }
     
     .add-to-cart-btn:disabled {
@@ -462,8 +531,23 @@
         opacity: 0.7;
     }
     
-    .add-to-cart-btn i {
-        font-size: 20px;
+    /* No items message */
+    .no-items-message {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px 40px;
+        background-color: var(--dark-bg-color);
+        border-radius: 16px;
+        color: var(--text-muted);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .no-results-icon {
+        font-size: 48px;
+        opacity: 0.5;
     }
     
     /* Sidebar Styles */
@@ -739,15 +823,6 @@
         box-shadow: none;
     }
     
-    .no-items-message {
-        grid-column: 1 / -1;
-        text-align: center;
-        padding: 40px;
-        background-color: var(--dark-bg-color);
-        border-radius: 16px;
-        color: var(--text-muted);
-    }
-    
     /* Notification system */
     .notification {
         position: fixed;
@@ -881,29 +956,17 @@
     }
 </style>
 
-@if (TempData["SuccessMessage"] != null || TempData["ErrorMessage"] != null)
-{
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const notification = document.getElementById('notification');
-            const notificationMessage = notification.querySelector('.notification-message');
-            const notificationClose = notification.querySelector('.notification-close');
-            
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <text>
-                notification.classList.add('success');
-                notificationMessage.textContent = '@TempData["SuccessMessage"]';
-                </text>
-            }
-            
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <text>
-                notification.classList.add('error');
-                notificationMessage.textContent = '@TempData["ErrorMessage"]';
-                </text>
-            }
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const notification = document.getElementById('notification');
+        const notificationMessage = notification.querySelector('.notification-message');
+        const notificationClose = notification.querySelector('.notification-close');
+        
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+            notification.classList.add('success');
+            notificationMessage.textContent = '@TempData["SuccessMessage"]';
             
             // Show notification
             setTimeout(() => {
@@ -920,23 +983,53 @@
                 clearTimeout(hideTimeout);
                 notification.classList.remove('show');
             });
-        });
+            </text>
+        }
+        
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+            notification.classList.add('error');
+            notificationMessage.textContent = '@TempData["ErrorMessage"]';
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Auto hide after 5 seconds
+            const hideTimeout = setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+            
+            // Manual close button
+            notificationClose.addEventListener('click', function() {
+                clearTimeout(hideTimeout);
+                notification.classList.remove('show');
+            });
+            </text>
+        }
         
         // Add animation for items added to cart
-        document.addEventListener('DOMContentLoaded', function() {
-            const addForms = document.querySelectorAll('.add-to-cart-form');
-            
-            addForms.forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    const foodCard = this.closest('.food-card');
-                    if (foodCard) {
-                        foodCard.classList.add('added-to-cart');
-                        setTimeout(() => {
-                            foodCard.classList.remove('added-to-cart');
-                        }, 700);
-                    }
-                });
+        const addForms = document.querySelectorAll('.add-to-cart-form');
+        
+        addForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const foodCard = this.closest('.food-card');
+                if (foodCard) {
+                    foodCard.classList.add('added-to-cart');
+                    setTimeout(() => {
+                        foodCard.classList.remove('added-to-cart');
+                    }, 700);
+                }
             });
         });
-    </script>
-} 
+    });
+    
+    // Clear search function
+    function clearSearch(button) {
+        const searchInput = button.previousElementSibling;
+        searchInput.value = '';
+        searchInput.form.submit();
+    }
+</script> 
