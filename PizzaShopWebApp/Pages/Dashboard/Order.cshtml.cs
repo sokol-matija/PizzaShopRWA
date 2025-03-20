@@ -67,7 +67,7 @@ namespace PizzaShopWebApp.Pages.Dashboard
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading menu data for order page");
-                // We could show an error message here if desired
+                TempData["ErrorMessage"] = "An error occurred while loading the menu.";
             }
 
             return Page();
@@ -84,20 +84,27 @@ namespace PizzaShopWebApp.Pages.Dashboard
                 if (food != null && food.Id > 0)
                 {
                     _cartService.AddItem(food, quantity);
-                    TempData["SuccessMessage"] = $"{food.Name} added to cart.";
+                    return new JsonResult(new { 
+                        success = true, 
+                        message = $"{food.Name} added to cart." 
+                    });
                 }
                 else
                 {
-                    TempData["ErrorMessage"] = "Food item not found.";
+                    return new JsonResult(new { 
+                        success = false, 
+                        message = "Food item not found." 
+                    });
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding item to cart");
-                TempData["ErrorMessage"] = "An error occurred while adding to cart.";
+                return new JsonResult(new { 
+                    success = false, 
+                    message = "An error occurred while adding to cart." 
+                });
             }
-
-            return RedirectToPage();
         }
 
         public IActionResult OnPostRemoveFromCartAsync(int itemId)
