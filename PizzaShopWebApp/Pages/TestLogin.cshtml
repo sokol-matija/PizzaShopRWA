@@ -1,0 +1,38 @@
+@page
+@model PizzaShopWebApp.Pages.TestLoginModel
+@{
+    ViewData["Title"] = "API Login Test";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2>API Login Test</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label asp-for="Username" class="form-label">Username</label>
+                            <input type="text" class="form-control" asp-for="Username" value="user1" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">Password</label>
+                            <input type="text" class="form-control" asp-for="Password" value="Marvel247" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Test Login</button>
+                    </form>
+                    
+                    @if (Model.Result != null)
+                    {
+                        <div class="mt-4">
+                            <h3>Result:</h3>
+                            <pre>@Model.Result</pre>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

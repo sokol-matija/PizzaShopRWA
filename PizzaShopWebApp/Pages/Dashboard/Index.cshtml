@@ -183,7 +183,7 @@
                         <span class="status-count">@status.Value orders</span>
                     </div>
                     <div class="status-bar">
-                        <div class="status-progress" style="width: @(status.Value * 100 / Model.OrderStatusDistribution.Values.Max())%"></div>
+                        <div class="status-progress" style="width: @(Model.OrderStatusDistribution.Values.Max() > 0 ? (status.Value * 100 / Model.OrderStatusDistribution.Values.Max()) : 0)%"></div>
                     </div>
                 </div>
             }
@@ -205,7 +205,7 @@
                         <span class="time-slot-count">@timeSlot.Value orders</span>
                     </div>
                     <div class="time-slot-bar">
-                        <div class="time-slot-progress" style="width: @(timeSlot.Value * 100 / Model.OrdersByTimeOfDay.Values.Max())%"></div>
+                        <div class="time-slot-progress" style="width: @(Model.OrdersByTimeOfDay.Values.Max() > 0 ? (timeSlot.Value * 100 / Model.OrdersByTimeOfDay.Values.Max()) : 0)%"></div>
                     </div>
                 </div>
             }

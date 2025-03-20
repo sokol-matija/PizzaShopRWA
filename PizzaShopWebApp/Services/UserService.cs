@@ -21,6 +21,8 @@ namespace PizzaShopWebApp.Services
                 var client = await GetHttpClientAsync();
                 var loginData = new { Username = username, Password = password };
                 
+                _logger.LogInformation("Attempting login with username: {Username}", username);
+                
                 var response = await client.PostAsJsonAsync("/api/auth/login", loginData);
                 
                 if (response.IsSuccessStatusCode)
@@ -40,14 +42,14 @@ namespace PizzaShopWebApp.Services
                 }
                 
                 var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogWarning("Login failed. Status code: {StatusCode}, Error: {Error}", 
-                    response.StatusCode, errorContent);
+                _logger.LogWarning("Login failed. Status code: {StatusCode}, Error: {Error}, Username: {Username}, Password: {Password}", 
+                    response.StatusCode, errorContent, username, password);
                 
                 return false;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during login");
+                _logger.LogError(ex, "Error during login for username: {Username}", username);
                 return false;
             }
         }

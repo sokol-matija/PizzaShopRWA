@@ -57,6 +57,23 @@ namespace PizzaShopWebApp.Pages.Account
             {
                 try
                 {
+                    // Log user input for debugging
+                    _logger.LogInformation("Login attempt - Username: {Username}, Password length: {PasswordLength}", 
+                        Input.Username, Input.Password?.Length ?? 0);
+                        
+                    // Special case for the user1/Marvel247 test credentials
+                    if (Input.Username == "user1" && Input.Password == "Marvel247")
+                    {
+                        _logger.LogInformation("Detected test credentials - special logging enabled");
+                    }
+                    
+                    // Make sure password is not null before calling LoginAsync
+                    if (Input.Password == null)
+                    {
+                        ModelState.AddModelError(string.Empty, "Password cannot be empty.");
+                        return Page();
+                    }
+
                     var result = await _userService.LoginAsync(Input.Username, Input.Password);
                     
                     if (result)

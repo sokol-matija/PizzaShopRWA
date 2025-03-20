@@ -29,14 +29,6 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICartService, CartService>();
 
-// Configure API base URL from appsettings.json
-var apiSettings = builder.Configuration.GetSection("ApiSettings");
-if (!apiSettings.Exists())
-{
-	// Add default API settings if not exists
-	builder.Configuration["ApiSettings:BaseUrl"] = "http://localhost:5156";
-}
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

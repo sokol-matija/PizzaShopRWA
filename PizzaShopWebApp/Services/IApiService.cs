@@ -23,7 +23,7 @@ namespace PizzaShopWebApp.Services
             _httpClientFactory = httpClientFactory;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
-            _baseUrl = configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5156";
+            _baseUrl = configuration["ApiSettings:BaseUrl"] ?? "https://localhost:16001";
         }
 
         public Task<HttpClient> GetHttpClientAsync()
