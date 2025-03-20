@@ -369,22 +369,30 @@
         color: var(--accent-color);
     }
     
+    .dashboard-container{
+        margin-left: 1rem;
+    }
+
     .food-card-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        display: flex;
+        flex-wrap: wrap;
         gap: 24px;
+        padding: 40px 0;
     }
     
     .food-card {
         background-color: var(--dark-bg-color);
         border-radius: var(--card-radius);
-        overflow: hidden;
+        overflow: visible;
         transition: transform var(--card-anim-time), box-shadow var(--card-anim-time);
         position: relative;
         display: flex;
         flex-direction: column;
         box-shadow: var(--card-shadow);
-        height: 100%;
+        width: calc(29% - 16px);
+        min-width: 120px;
+        margin-bottom: 20px;
+        padding-top: 60px;
     }
     
     .food-card:hover {
@@ -412,24 +420,28 @@
     }
     
     .food-card-image {
-        height: var(--card-image-height);
-        width: 100%;
-        position: relative;
+        position: absolute;
+        top: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
         overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        background-color: var(--dark-bg-color);
+        z-index: 1;
     }
     
     .food-card-image img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: transform 0.5s;
+        transition: transform 0.5s ease;
     }
     
     .food-card:hover .food-card-image img {
-        transform: scale(1.05);
+        //transform: scale(1.1);
     }
     
     .food-badge {
@@ -933,8 +945,8 @@
     }
     
     @@media (max-width: 1200px) {
-        .food-card-grid {
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        .food-card {
+            width: calc(50% - 12px);
         }
     }
     
@@ -984,8 +996,8 @@
             width: 100%;
         }
         
-        .food-card-grid {
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        .food-card {
+            width: 100%;
         }
         
         .notification {
