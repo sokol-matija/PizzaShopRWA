@@ -86,7 +86,8 @@ namespace PizzaShopWebApp.Pages.Dashboard
                     _cartService.AddItem(food, quantity);
                     return new JsonResult(new { 
                         success = true, 
-                        message = $"{food.Name} added to cart." 
+                        message = $"{food.Name} added to cart.",
+                        cartCount = _cartService.GetCartItems().Sum(x => x.Quantity)
                     });
                 }
                 else
@@ -112,31 +113,34 @@ namespace PizzaShopWebApp.Pages.Dashboard
             try
             {
                 _cartService.RemoveItem(itemId);
-                TempData["SuccessMessage"] = "Item removed from cart.";
+                return RedirectToPage();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error removing item from cart");
-                TempData["ErrorMessage"] = "An error occurred while removing from cart.";
+                return RedirectToPage();
             }
-
-            return RedirectToPage();
         }
 
         public IActionResult OnPostUpdateCartAsync(int itemId, int quantity)
         {
             try
             {
-                _cartService.UpdateItemQuantity(itemId, quantity);
-                TempData["SuccessMessage"] = "Cart updated.";
+                if (quantity <= 0)
+                {
+                    _cartService.RemoveItem(itemId);
+                }
+                else
+                {
+                    _cartService.UpdateItemQuantity(itemId, quantity);
+                }
+                return RedirectToPage();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating cart");
-                TempData["ErrorMessage"] = "An error occurred while updating cart.";
+                return RedirectToPage();
             }
-
-            return RedirectToPage();
         }
 
         public IActionResult OnPostClearCartAsync()
