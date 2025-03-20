@@ -31,32 +31,39 @@
         </div>
         
         <div class="category-tabs">
-            <button class="category-tab active">All</button>
+            <button class="category-tab @(Model.SelectedCategoryId == null ? "active" : "")" onclick="window.location.href='?'">All</button>
             @foreach (var category in Model.Categories.Take(4)) // Limit to 4 for UI
             {
-                <button class="category-tab" onclick="window.location.href='?categoryId=@category.Id'">@category.Name</button>
+                <button class="category-tab @(Model.SelectedCategoryId == category.Id ? "active" : "")" 
+                        onclick="window.location.href='?categoryId=@category.Id'">@category.Name</button>
             }
         </div>
         
-        <div class="menu-grid">
+        <div class="food-card-grid">
             @if (Model.Foods.Any())
             {
                 @foreach (var food in Model.Foods)
                 {
-                    <div class="menu-item">
-                        <div class="menu-item-image">
+                    <div class="food-card">
+                        <div class="food-card-image">
                             <img src="@(string.IsNullOrEmpty(food.ImageUrl) ? "/Images/basic_food_image.png" : food.ImageUrl)" alt="@food.Name">
+                            @if (food.IsPopular)
+                            {
+                                <span class="food-badge popular">Popular</span>
+                            }
                         </div>
-                        <div class="menu-item-content">
-                            <h3 class="menu-item-name">@food.Name</h3>
-                            <p class="menu-item-price">$@food.Price.ToString("0.00")</p>
-                            <p class="menu-item-available">@(food.IsPopular ? "Popular!" : "Available")</p>
+                        <div class="food-card-content">
+                            <h3 class="food-card-name">@food.Name</h3>
+                            <p class="food-card-price">$@food.Price.ToString("0.00")</p>
+                            <p class="food-card-available">@(food.IsPopular ? "Popular item!" : "Available")</p>
+                            <form method="post" asp-page-handler="AddToCart">
+                                <input type="hidden" name="foodId" value="@food.Id" />
+                                <input type="hidden" name="quantity" value="1" />
+                                <button type="submit" class="add-to-cart-btn">
+                                    <i class='bx bx-plus'></i>
+                                </button>
+                            </form>
                         </div>
-                        <form method="post" asp-page-handler="AddToCart">
-                            <input type="hidden" name="foodId" value="@food.Id" />
-                            <input type="hidden" name="quantity" value="1" />
-                            <button type="submit" class="add-to-cart-btn">Add to Cart</button>
-                        </form>
                     </div>
                 }
             }
@@ -95,9 +102,13 @@
                             <div class="quantity-controls">
                                 <form method="post" asp-page-handler="UpdateCart" class="update-cart-form">
                                     <input type="hidden" name="itemId" value="@item.Id" />
-                                    <button type="submit" name="quantity" value="@(item.Quantity - 1)" class="quantity-btn">-</button>
+                                    <button type="submit" name="quantity" value="@(item.Quantity - 1)" class="quantity-btn minus">
+                                        <i class='bx bx-minus'></i>
+                                    </button>
                                     <span class="quantity">@item.Quantity</span>
-                                    <button type="submit" name="quantity" value="@(item.Quantity + 1)" class="quantity-btn">+</button>
+                                    <button type="submit" name="quantity" value="@(item.Quantity + 1)" class="quantity-btn plus">
+                                        <i class='bx bx-plus'></i>
+                                    </button>
                                 </form>
                             </div>
                             
@@ -114,8 +125,9 @@
             else
             {
                 <div class="empty-cart">
-                    <p>Your cart is empty.</p>
-                    <p>Add some delicious items!</p>
+                    <i class='bx bx-cart-alt empty-cart-icon'></i>
+                    <p>Your cart is empty</p>
+                    <p class="empty-cart-subtitle">Add some delicious items!</p>
                 </div>
             }
         </div>
@@ -138,15 +150,566 @@
         @if (Model.CartItems.Any())
         {
             <a href="/Dashboard/Payment" class="checkout-btn">
-                Continue to Payment
+                <span>Continue to Payment</span>
+                <i class='bx bx-right-arrow-alt'></i>
             </a>
         }
         else
         {
-            <button class="checkout-btn disabled" disabled>Continue to Payment</button>
+            <button class="checkout-btn disabled" disabled>
+                <span>Continue to Payment</span>
+                <i class='bx bx-right-arrow-alt'></i>
+            </button>
         }
     </div>
 </div>
+
+<style>
+    /* Order page specific styles */
+    :root {
+        --scrollbar-width: 6px;
+        --scrollbar-height: 4px;
+        --scrollbar-thumb-color: var(--accent-color);
+        --scrollbar-thumb-hover-color: var(--accent-hover);
+        --scrollbar-track-color-light: var(--secondary-bg-color);
+        --scrollbar-track-color-dark: var(--dark-bg-color);
+        --scrollbar-radius: 4px;
+    }
+    
+    .order-container {
+        display: flex;
+        gap: 24px;
+        height: calc(100vh - 100px);
+    }
+    
+    .order-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0 10px 20px 0;
+    }
+    
+    /* Custom scrollbar for order content */
+    .order-content::-webkit-scrollbar {
+        width: var(--scrollbar-width);
+    }
+    
+    .order-content::-webkit-scrollbar-track {
+        background: var(--scrollbar-track-color-light);
+        border-radius: var(--scrollbar-radius);
+    }
+    
+    .order-content::-webkit-scrollbar-thumb {
+        background-color: var(--scrollbar-thumb-color);
+        border-radius: var(--scrollbar-radius);
+    }
+    
+    .order-content::-webkit-scrollbar-thumb:hover {
+        background-color: var(--scrollbar-thumb-hover-color);
+    }
+    
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    
+    .order-header h1 {
+        font-size: 28px;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .search-filter-container {
+        display: flex;
+        gap: 16px;
+    }
+    
+    .search-form {
+        display: flex;
+        gap: 16px;
+    }
+    
+    .search-bar {
+        position: relative;
+        min-width: 220px;
+    }
+    
+    .search-bar i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+    }
+    
+    .search-bar input {
+        width: 100%;
+        padding: 10px 10px 10px 40px;
+        background-color: var(--dark-bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-color);
+        font-size: 14px;
+    }
+    
+    .filter-dropdown select {
+        padding: 10px 16px;
+        background-color: var(--dark-bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-color);
+        font-size: 14px;
+        cursor: pointer;
+    }
+    
+    .category-tabs {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+    
+    /* Custom scrollbar for category tabs */
+    .category-tabs::-webkit-scrollbar {
+        height: var(--scrollbar-height);
+    }
+    
+    .category-tabs::-webkit-scrollbar-track {
+        background: var(--scrollbar-track-color-light);
+        border-radius: var(--scrollbar-radius);
+    }
+    
+    .category-tabs::-webkit-scrollbar-thumb {
+        background-color: var(--scrollbar-thumb-color);
+        border-radius: var(--scrollbar-radius);
+    }
+    
+    .category-tabs::-webkit-scrollbar-thumb:hover {
+        background-color: var(--scrollbar-thumb-hover-color);
+    }
+    
+    .category-tab {
+        padding: 10px 20px;
+        background-color: var(--dark-bg-color);
+        border: none;
+        border-radius: 8px;
+        color: var(--text-muted);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+    
+    .category-tab.active {
+        background-color: var(--accent-color);
+        color: white;
+    }
+    
+    .category-tab:hover:not(.active) {
+        background-color: rgba(234, 124, 105, 0.1);
+        color: var(--accent-color);
+    }
+    
+    /* Food Card Grid */
+    .food-card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 24px;
+    }
+    
+    .food-card {
+        background-color: var(--dark-bg-color);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+        position: relative;
+    }
+    
+    .food-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .food-card-image {
+        height: 140px;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .food-card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .food-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .food-badge.popular {
+        background-color: var(--accent-color);
+        color: white;
+    }
+    
+    .food-card-content {
+        padding: 16px;
+        position: relative;
+    }
+    
+    .food-card-name {
+        font-size: 16px;
+        font-weight: 500;
+        margin: 0 0 8px 0;
+        color: var(--text-color);
+    }
+    
+    .food-card-price {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 8px 0;
+        color: var(--text-color);
+    }
+    
+    .food-card-available {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin: 0;
+    }
+    
+    .add-to-cart-btn {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background-color: var(--accent-color);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.2s;
+    }
+    
+    .add-to-cart-btn:hover {
+        background-color: var(--accent-hover);
+        transform: scale(1.05);
+    }
+    
+    .add-to-cart-btn:disabled {
+        background-color: var(--border-color);
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+    .add-to-cart-btn i {
+        font-size: 20px;
+    }
+    
+    /* Sidebar Styles */
+    .order-sidebar {
+        width: 350px;
+        background-color: var(--dark-bg-color);
+        border-radius: 16px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .cart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .cart-header h2 {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .clear-cart-btn {
+        background: transparent;
+        border: none;
+        color: var(--accent-color);
+        font-size: 14px;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    
+    .clear-cart-btn:hover {
+        color: var(--accent-hover);
+        text-decoration: underline;
+    }
+    
+    .cart-items {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 24px;
+        padding-right: 8px;
+    }
+    
+    .cart-items::-webkit-scrollbar {
+        width: var(--scrollbar-width);
+    }
+    
+    .cart-items::-webkit-scrollbar-track {
+        background: var(--scrollbar-track-color-dark);
+        border-radius: var(--scrollbar-radius);
+    }
+    
+    .cart-items::-webkit-scrollbar-thumb {
+        background-color: var(--scrollbar-thumb-color);
+        border-radius: var(--scrollbar-radius);
+    }
+    
+    .cart-items::-webkit-scrollbar-thumb:hover {
+        background-color: var(--scrollbar-thumb-hover-color);
+    }
+    
+    .cart-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+    
+    .cart-item-info {
+        flex: 1;
+    }
+    
+    .cart-item-name {
+        font-size: 16px;
+        font-weight: 500;
+        margin: 0 0 4px 0;
+    }
+    
+    .cart-item-price {
+        font-size: 14px;
+        color: var(--text-muted);
+        margin: 0;
+    }
+    
+    .cart-item-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+    }
+    
+    .update-cart-form {
+        display: flex;
+        align-items: center;
+    }
+    
+    .quantity-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background-color: var(--secondary-bg-color);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .quantity-btn:hover {
+        background-color: var(--border-color);
+    }
+    
+    .quantity {
+        margin: 0 8px;
+        font-size: 14px;
+        min-width: 20px;
+        text-align: center;
+    }
+    
+    .remove-item-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    
+    .remove-item-btn:hover {
+        color: var(--accent-color);
+    }
+    
+    .remove-item-btn i {
+        font-size: 18px;
+    }
+    
+    .empty-cart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 60px 0;
+        color: var(--text-muted);
+    }
+    
+    .empty-cart-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        color: var(--border-color);
+    }
+    
+    .empty-cart p {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+    }
+    
+    .empty-cart-subtitle {
+        font-size: 14px !important;
+        opacity: 0.7;
+    }
+    
+    .cart-summary {
+        margin-bottom: 24px;
+        background-color: var(--secondary-bg-color);
+        border-radius: 12px;
+        padding: 16px;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+    
+    .summary-row:last-child {
+        margin-bottom: 0;
+    }
+    
+    .summary-row.total {
+        font-weight: 600;
+        font-size: 16px;
+        color: var(--text-color);
+        padding-top: 12px;
+        border-top: 1px solid var(--border-color);
+        margin-top: 12px;
+    }
+    
+    .checkout-btn {
+        padding: 14px 20px;
+        background-color: var(--accent-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    
+    .checkout-btn i {
+        font-size: 20px;
+    }
+    
+    .checkout-btn:hover {
+        background-color: var(--accent-hover);
+    }
+    
+    .checkout-btn.disabled {
+        background-color: var(--border-color);
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+    .no-items-message {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 40px;
+        background-color: var(--dark-bg-color);
+        border-radius: 16px;
+        color: var(--text-muted);
+    }
+    
+    /* Responsive styles */
+    @@media (max-width: 1200px) {
+        .food-card-grid {
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        }
+    }
+    
+    @@media (max-width: 992px) {
+        .order-container {
+            flex-direction: column;
+            height: auto;
+        }
+        
+        .order-content {
+            padding-right: 0;
+        }
+        
+        .order-sidebar {
+            width: 100%;
+            margin-top: 24px;
+            height: auto;
+        }
+        
+        .cart-items {
+            max-height: 300px;
+        }
+    }
+    
+    @@media (max-width: 768px) {
+        .order-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        
+        .search-filter-container {
+            width: 100%;
+        }
+        
+        .search-form {
+            width: 100%;
+        }
+        
+        .food-card-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+    }
+</style>
 
 @if (TempData["SuccessMessage"] != null)
 {
