@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using WebAPI.Data;
 using WebAPI.DTOs;
 using WebAPI.Models;
+using System.Collections.Generic;
 
 namespace WebAPI.Services
 {
@@ -14,6 +15,7 @@ namespace WebAPI.Services
 		Task<User> RegisterAsync(RegisterDTO model);
 		Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword);
 		Task<User> GetByIdAsync(int userId);
+		Task<List<User>> GetAllUsersAsync();
 	}
 
 	public class UserService : IUserService
@@ -115,6 +117,11 @@ namespace WebAPI.Services
 		public async Task<User> GetByIdAsync(int userId)
 		{
 			return await _context.Users.FindAsync(userId);
+		}
+
+		public async Task<List<User>> GetAllUsersAsync()
+		{
+			return await _context.Users.ToListAsync();
 		}
 
 		// Private helper methods for password hashing

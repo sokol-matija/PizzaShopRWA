@@ -107,12 +107,22 @@ namespace PizzaShopWebApp.Services
             try
             {
                 var client = await GetHttpClientAsync();
-                var response = await client.GetAsync($"/api/order/all?page={page}&count={count}");
+                var response = await client.GetAsync($"/api/order/all?page={page}&count={count}&includeUserDetails=true");
                 
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadFromJsonAsync<PagedResultModel<OrderModel>>();
-                    return result?.Items ?? new List<OrderModel>();
+                    var orders = result?.Items ?? new List<OrderModel>();
+                    
+                    foreach (var order in orders.Where(o => string.IsNullOrEmpty(o.CustomerName)))
+                    {
+                        if (string.IsNullOrEmpty(order.CustomerName))
+                        {
+                            order.CustomerName = $"Customer #{order.CustomerId}";
+                        }
+                    }
+                    
+                    return orders;
                 }
                 
                 _logger.LogWarning("Failed to get all orders. Status code: {StatusCode}", response.StatusCode);

@@ -554,7 +554,7 @@
                     {
                         <tr>
                             <td>#@order.OrderNumber</td>
-                            <td>@(string.IsNullOrEmpty(order.CustomerName) ? $"Customer {order.CustomerId}" : order.CustomerName)</td>
+                            <td>@(string.IsNullOrEmpty(order.CustomerName) ? $"Customer #{order.CustomerId}" : order.CustomerName)</td>
                             <td>
                                 @if (order.Items.Any())
                                 {

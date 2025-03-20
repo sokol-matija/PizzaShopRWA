@@ -42,7 +42,7 @@ namespace WebAPI.Services
 				.OrderByDescending(o => o.OrderDate)
 				.ToListAsync();
 
-			var orderDtos = orders.Select(o => MapToOrderDTO(o)).ToList();
+			var orderDtos = orders.Select(o => MapToOrderDTO(o, true)).ToList();
 
 			await _logService.LogInformationAsync($"Retrieved {orderDtos.Count} orders for user with id={userId}");
 			return orderDtos;
@@ -63,7 +63,7 @@ namespace WebAPI.Services
 			}
 
 			await _logService.LogInformationAsync($"Retrieved order with id={orderId} for user with id={userId}");
-			return MapToOrderDTO(order);
+			return MapToOrderDTO(order, true);
 		}
 
 		public async Task<OrderDTO> CreateOrderAsync(OrderCreateDTO orderDto, int userId)
@@ -123,14 +123,8 @@ namespace WebAPI.Services
 			_context.Orders.Add(order);
 			await _context.SaveChangesAsync();
 
-			await _logService.LogInformationAsync($"Order with id={order.Id} was created for user with id={userId}");
-
-			// Load related data for the response
-			await _context.Entry(order)
-				.Reference(o => o.User)
-				.LoadAsync();
-
-			return MapToOrderDTO(order);
+			await _logService.LogInformationAsync($"Order created with id={order.Id} for user with id={userId}");
+			return MapToOrderDTO(order, true);
 		}
 
 		public async Task<OrderDTO> UpdateOrderStatusAsync(int orderId, string status)
@@ -161,7 +155,7 @@ namespace WebAPI.Services
 			await _context.SaveChangesAsync();
 
 			await _logService.LogInformationAsync($"Order with id={orderId} status updated to '{status}'");
-			return MapToOrderDTO(order);
+			return MapToOrderDTO(order, true);
 		}
 
 		public async Task<bool> CancelOrderAsync(int orderId, int userId)
@@ -238,8 +232,8 @@ namespace WebAPI.Services
 				.Take(filterDto.Count)
 				.ToListAsync();
 
-			// Map to DTOs
-			var orderDtos = orders.Select(o => MapToOrderDTO(o)).ToList();
+			// Map to DTOs with or without detailed user info based on filter
+			var orderDtos = orders.Select(o => MapToOrderDTO(o, filterDto.IncludeUserDetails)).ToList();
 
 			await _logService.LogInformationAsync($"Retrieved {orderDtos.Count} orders with filters");
 
@@ -261,13 +255,29 @@ namespace WebAPI.Services
 		}
 
 		// Helper method to map Order entity to OrderDTO
-		private OrderDTO MapToOrderDTO(Order order)
+		private OrderDTO MapToOrderDTO(Order order, bool includeUserDetails = false)
 		{
+			string customerName = null;
+			
+			if (includeUserDetails && order.User != null)
+			{
+				// Create customer full name from first and last name
+				if (!string.IsNullOrEmpty(order.User.FirstName) || !string.IsNullOrEmpty(order.User.LastName))
+				{
+					customerName = $"{order.User.FirstName} {order.User.LastName}".Trim();
+				}
+				else
+				{
+					customerName = order.User.Username;
+				}
+			}
+			
 			return new OrderDTO
 			{
 				Id = order.Id,
 				UserId = order.UserId,
 				Username = order.User?.Username,
+				CustomerName = customerName,
 				OrderDate = order.OrderDate,
 				TotalAmount = order.TotalAmount,
 				DeliveryAddress = order.DeliveryAddress,

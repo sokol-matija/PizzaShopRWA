@@ -9,6 +9,7 @@ namespace WebAPI.DTOs
 		public int Id { get; set; }
 		public int UserId { get; set; }
 		public string Username { get; set; }
+		public string CustomerName { get; set; }
 		public DateTime OrderDate { get; set; }
 		public decimal TotalAmount { get; set; }
 		public string DeliveryAddress { get; set; }
@@ -60,5 +61,6 @@ namespace WebAPI.DTOs
 		public int? UserId { get; set; }
 		public int Page { get; set; } = 1;
 		public int Count { get; set; } = 10;
+		public bool IncludeUserDetails { get; set; } = false;
 	}
 }

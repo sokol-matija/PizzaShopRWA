@@ -105,7 +105,8 @@ namespace WebAPI.Controllers
 			[FromQuery] DateTime? toDate = null,
 			[FromQuery] int? userId = null,
 			[FromQuery] int page = 1,
-			[FromQuery] int count = 10)
+			[FromQuery] int count = 10,
+			[FromQuery] bool includeUserDetails = false)
 		{
 			var filterDto = new OrderFilterDTO
 			{
@@ -114,7 +115,8 @@ namespace WebAPI.Controllers
 				ToDate = toDate,
 				UserId = userId,
 				Page = page,
-				Count = count
+				Count = count,
+				IncludeUserDetails = includeUserDetails
 			};
 
 			var orders = await _orderService.GetAllOrdersAsync(filterDto);

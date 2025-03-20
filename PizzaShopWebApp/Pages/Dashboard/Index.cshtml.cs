@@ -105,7 +105,19 @@ namespace PizzaShopWebApp.Pages.Dashboard
                 // Calculate metrics for the filtered period
                 TodayRevenue = filteredOrders.Sum(o => o.TotalAmount);
                 TodayOrders = filteredOrders.Count;
-                TodayCustomers = filteredOrders.Select(o => o.CustomerId).Distinct().Count();
+                
+                // Count distinct customers - first by name, then fallback to id if name is missing
+                TodayCustomers = filteredOrders
+                    .Where(o => !string.IsNullOrEmpty(o.CustomerName))
+                    .Select(o => o.CustomerName)
+                    .Distinct()
+                    .Count();
+                
+                // If no customers with names were found, fallback to counting by ID
+                if (TodayCustomers == 0)
+                {
+                    TodayCustomers = filteredOrders.Select(o => o.CustomerId).Distinct().Count();
+                }
 
                 // Calculate previous period for comparison
                 var previousPeriodDuration = FilterEndDate - FilterStartDate;
@@ -119,7 +131,19 @@ namespace PizzaShopWebApp.Pages.Dashboard
                 // Calculate previous period metrics
                 var previousRevenue = previousPeriodOrders.Sum(o => o.TotalAmount);
                 var previousOrdersCount = previousPeriodOrders.Count;
-                var previousCustomers = previousPeriodOrders.Select(o => o.CustomerId).Distinct().Count();
+                
+                // Count previous period customers using the same logic as current period
+                var previousCustomers = previousPeriodOrders
+                    .Where(o => !string.IsNullOrEmpty(o.CustomerName))
+                    .Select(o => o.CustomerName)
+                    .Distinct()
+                    .Count();
+                
+                // Fallback to customer ID if no names are available
+                if (previousCustomers == 0)
+                {
+                    previousCustomers = previousPeriodOrders.Select(o => o.CustomerId).Distinct().Count();
+                }
 
                 // Calculate percentage changes
                 RevenueChangePercent = previousRevenue > 0 
