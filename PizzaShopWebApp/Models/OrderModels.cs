@@ -8,6 +8,8 @@ namespace PizzaShopWebApp.Models
         public decimal TotalAmount { get; set; }
         public string DeliveryAddress { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
+        public int CustomerId { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
         public List<OrderItemModel> Items { get; set; } = new List<OrderItemModel>();
     }
 

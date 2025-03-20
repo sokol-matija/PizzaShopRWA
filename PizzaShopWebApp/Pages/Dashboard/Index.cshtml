@@ -5,6 +5,318 @@
     Layout = "_DashboardLayout";
 }
 
+<style>
+    :root {
+        --primary: #EA7C69;
+        --primary-hover: #f68d7a;
+        --primary-light: rgba(234, 124, 105, 0.2);
+    }
+
+    /* Date filter styles */
+    .date-filter-bar {
+        display: flex;
+        background-color: var(--dark-bg-2);
+        border-radius: 8px;
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .date-filter-option {
+        padding: 12px 20px;
+        font-weight: 500;
+        color: #ABBBC2;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+        flex: 1;
+        text-align: center;
+    }
+
+    .date-filter-option:hover {
+        background-color: var(--primary-light);
+        color: white;
+    }
+
+    .date-filter-option.active {
+        background-color: var(--primary);
+        color: white;
+    }
+
+    /* Dashboard layout */
+    .dashboard-row {
+        margin-bottom: 25px;
+        width: 100%;
+    }
+
+    /* Improving popular items styling */
+    .popular-items-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 20px;
+        margin-top: 15px;
+    }
+    
+    @@media (max-width: 1400px) {
+        .popular-items-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+    
+    @@media (max-width: 1100px) {
+        .popular-items-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    @@media (max-width: 900px) {
+        .popular-items-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @@media (max-width: 600px) {
+        .popular-items-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .popular-item {
+        display: flex;
+        flex-direction: column;
+        background: var(--dark-bg-2);
+        border-radius: 12px;
+        overflow: hidden;
+        height: 100%;
+        min-height: 250px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .popular-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    
+    .popular-item-image {
+        height: 140px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .popular-item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .popular-item:hover .popular-item-image img {
+        transform: scale(1.05);
+    }
+    
+    .popular-item-info {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    
+    .popular-item-info h4 {
+        margin: 0 0 8px 0;
+        color: white;
+        font-size: 1.1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .popular-item-info p {
+        margin: 0 0 10px 0;
+        color: var(--text-light);
+        font-size: 0.85rem;
+        flex-grow: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .popular-item-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+    }
+    
+    .popular-item-info .price {
+        color: var(--primary);
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    
+    .popular-item-info .category {
+        color: var(--text-light);
+        font-size: 0.8rem;
+        padding: 4px 8px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+    }
+    
+    .item-order-count {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: var(--primary);
+        color: white;
+        font-weight: bold;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* Recent orders table improvements */
+    .orders-table-container {
+        overflow-x: auto;
+        margin-top: 15px;
+        border-radius: 8px;
+    }
+    
+    .orders-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .orders-table th {
+        padding: 15px;
+        text-align: left;
+        background-color: rgba(0,0,0,0.2);
+        color: #ABBBC2;
+        font-weight: 500;
+    }
+    
+    .orders-table th:first-child {
+        border-top-left-radius: 8px;
+    }
+    
+    .orders-table th:last-child {
+        border-top-right-radius: 8px;
+    }
+    
+    .orders-table td {
+        padding: 15px;
+        background-color: var(--dark-bg-2);
+        border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .orders-table tr:last-child td:first-child {
+        border-bottom-left-radius: 8px;
+    }
+    
+    .orders-table tr:last-child td:last-child {
+        border-bottom-right-radius: 8px;
+    }
+    
+    .orders-table tr:hover td {
+        background-color: rgba(255,255,255,0.02);
+    }
+    
+    .more-items {
+        background-color: var(--primary-light);
+        color: var(--primary);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        margin-left: 5px;
+    }
+
+    /* Status bars improvements */
+    .status-time-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .status-item, .time-slot-item {
+        margin-bottom: 12px;
+        padding: 8px 0;
+    }
+    
+    .status-bar, .time-slot-bar {
+        height: 8px;
+        background-color: rgba(255,255,255,0.05);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    
+    .status-progress, .time-slot-progress {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+
+    /* Update accent colors */
+    .stats-icon.revenue, .stats-icon.orders, .stats-icon.customers {
+        background-color: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .stats-change.positive, .price {
+        color: var(--primary);
+    }
+
+    .status-badge.completed {
+        background-color: var(--primary);
+    }
+
+    .time-slot-progress, .status-progress {
+        background-color: var(--primary);
+    }
+
+    .view-all-btn, .refresh-btn {
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+    
+    .view-all-btn:hover, .refresh-btn:hover {
+        background-color: var(--primary);
+        color: white;
+    }
+    
+    /* Card headers */
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .card-header h3 {
+        margin: 0;
+    }
+    
+    .subtitle {
+        color: var(--text-light);
+        font-size: 0.85rem;
+        margin-top: 3px;
+    }
+    
+    /* Chart cards */
+    .chart-card {
+        background-color: var(--dark-bg-2);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        height: 100%;
+    }
+    
+    .chart-container {
+        height: 300px;
+        position: relative;
+    }
+</style>
+
 <div class="dashboard-header">
     <div class="header-content">
         <h1>Dashboard Overview</h1>
@@ -22,82 +334,204 @@
     </div>
 </div>
 
+<!-- Date Filter Bar -->
+<div class="date-filter-bar">
+    <a asp-page="Index" asp-route-dateFilter="@PizzaShopWebApp.Pages.Dashboard.DateFilterType.Today" 
+       class="date-filter-option @(Model.DateFilter == PizzaShopWebApp.Pages.Dashboard.DateFilterType.Today ? "active" : "")">
+        Today
+    </a>
+    <a asp-page="Index" asp-route-dateFilter="@PizzaShopWebApp.Pages.Dashboard.DateFilterType.Week" 
+       class="date-filter-option @(Model.DateFilter == PizzaShopWebApp.Pages.Dashboard.DateFilterType.Week ? "active" : "")">
+        Week
+    </a>
+    <a asp-page="Index" asp-route-dateFilter="@PizzaShopWebApp.Pages.Dashboard.DateFilterType.Month" 
+       class="date-filter-option @(Model.DateFilter == PizzaShopWebApp.Pages.Dashboard.DateFilterType.Month ? "active" : "")">
+        Month
+    </a>
+    <a asp-page="Index" asp-route-dateFilter="@PizzaShopWebApp.Pages.Dashboard.DateFilterType.Year" 
+       class="date-filter-option @(Model.DateFilter == PizzaShopWebApp.Pages.Dashboard.DateFilterType.Year ? "active" : "")">
+        Year
+    </a>
+    <a asp-page="Index" asp-route-dateFilter="@PizzaShopWebApp.Pages.Dashboard.DateFilterType.AllTime" 
+       class="date-filter-option @(Model.DateFilter == PizzaShopWebApp.Pages.Dashboard.DateFilterType.AllTime ? "active" : "")">
+        All Time
+    </a>
+</div>
+
 <!-- Stats Cards -->
-<div class="stats-grid">
-    <!-- Today's Revenue -->
-    <div class="stats-card">
-        <div class="stats-header">
-            <div class="stats-icon revenue">
-                <i class='bx bx-dollar'></i>
+<div class="dashboard-row">
+    <div class="stats-grid">
+        <!-- Revenue -->
+        <div class="stats-card">
+            <div class="stats-header">
+                <div class="stats-icon revenue">
+                    <i class='bx bx-dollar'></i>
+                </div>
+                <div class="stats-change @(Model.RevenueChangePercent >= 0 ? "positive" : "negative")">
+                    @(Model.RevenueChangePercent >= 0 ? "+" : "")@Model.RevenueChangePercent.ToString("0.00")% 
+                    <i class='bx @(Model.RevenueChangePercent >= 0 ? "bx-up-arrow-alt" : "bx-down-arrow-alt")'></i>
+                </div>
             </div>
-            <div class="stats-change @(Model.RevenueChangePercent >= 0 ? "positive" : "negative")">
-                @(Model.RevenueChangePercent >= 0 ? "+" : "")@Model.RevenueChangePercent.ToString("0.00")% 
-                <i class='bx @(Model.RevenueChangePercent >= 0 ? "bx-up-arrow-alt" : "bx-down-arrow-alt")'></i>
-            </div>
-        </div>
-        <div class="stats-value">$@Model.TodayRevenue.ToString("N2")</div>
-        <div class="stats-label">Today's Revenue</div>
-    </div>
-    
-    <!-- Today's Orders -->
-    <div class="stats-card">
-        <div class="stats-header">
-            <div class="stats-icon orders">
-                <i class='bx bx-receipt'></i>
-            </div>
-            <div class="stats-change @(Model.OrdersChangePercent >= 0 ? "positive" : "negative")">
-                @(Model.OrdersChangePercent >= 0 ? "+" : "")@Model.OrdersChangePercent.ToString("0.00")% 
-                <i class='bx @(Model.OrdersChangePercent >= 0 ? "bx-up-arrow-alt" : "bx-down-arrow-alt")'></i>
-            </div>
-        </div>
-        <div class="stats-value">@Model.TodayOrders</div>
-        <div class="stats-label">Today's Orders</div>
-    </div>
-    
-    <!-- Today's Customers -->
-    <div class="stats-card">
-        <div class="stats-header">
-            <div class="stats-icon customers">
-                <i class='bx bx-user'></i>
-            </div>
-            <div class="stats-change @(Model.CustomersChangePercent >= 0 ? "positive" : "negative")">
-                @(Model.CustomersChangePercent >= 0 ? "+" : "")@Model.CustomersChangePercent.ToString("0.00")% 
-                <i class='bx @(Model.CustomersChangePercent >= 0 ? "bx-up-arrow-alt" : "bx-down-arrow-alt")'></i>
+            <div class="stats-value">$@Model.TodayRevenue.ToString("N2")</div>
+            <div class="stats-label">
+                @switch (Model.DateFilter)
+                {
+                    case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Today:
+                        <text>Today's Revenue</text>
+                        break;
+                    case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Week:
+                        <text>Weekly Revenue</text>
+                        break;
+                    case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Month:
+                        <text>Monthly Revenue</text>
+                        break;
+                    case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Year:
+                        <text>Yearly Revenue</text>
+                        break;
+                    default:
+                        <text>All Time Revenue</text>
+                        break;
+                }
             </div>
         </div>
-        <div class="stats-value">@Model.TodayCustomers</div>
-        <div class="stats-label">Today's Customers</div>
+        
+        <!-- Orders -->
+        <div class="stats-card">
+            <div class="stats-header">
+                <div class="stats-icon orders">
+                    <i class='bx bx-receipt'></i>
+                </div>
+                <div class="stats-change @(Model.OrdersChangePercent >= 0 ? "positive" : "negative")">
+                    @(Model.OrdersChangePercent >= 0 ? "+" : "")@Model.OrdersChangePercent.ToString("0.00")% 
+                    <i class='bx @(Model.OrdersChangePercent >= 0 ? "bx-up-arrow-alt" : "bx-down-arrow-alt")'></i>
+                </div>
+            </div>
+            <div class="stats-value">@Model.TodayOrders</div>
+            <div class="stats-label">
+                @switch (Model.DateFilter)
+                {
+                    case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Today:
+                        <text>Today's Orders</text>
+                        break;
+                    case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Week:
+                        <text>Weekly Orders</text>
+                        break;
+                    case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Month:
+                        <text>Monthly Orders</text>
+                        break;
+                    case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Year:
+                        <text>Yearly Orders</text>
+                        break;
+                    default:
+                        <text>All Time Orders</text>
+                        break;
+                }
+            </div>
+        </div>
+        
+        <!-- Customers -->
+        <div class="stats-card">
+            <div class="stats-header">
+                <div class="stats-icon customers">
+                    <i class='bx bx-user'></i>
+                </div>
+                <div class="stats-change @(Model.CustomersChangePercent >= 0 ? "positive" : "negative")">
+                    @(Model.CustomersChangePercent >= 0 ? "+" : "")@Model.CustomersChangePercent.ToString("0.00")% 
+                    <i class='bx @(Model.CustomersChangePercent >= 0 ? "bx-up-arrow-alt" : "bx-down-arrow-alt")'></i>
+                </div>
+            </div>
+            <div class="stats-value">@Model.TodayCustomers</div>
+            <div class="stats-label">
+                @switch (Model.DateFilter)
+                {
+                    case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Today:
+                        <text>Today's Customers</text>
+                        break;
+                    case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Week:
+                        <text>Weekly Customers</text>
+                        break;
+                    case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Month:
+                        <text>Monthly Customers</text>
+                        break;
+                    case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Year:
+                        <text>Yearly Customers</text>
+                        break;
+                    default:
+                        <text>All Time Customers</text>
+                        break;
+                }
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Charts Grid -->
-<div class="charts-grid">
-    <!-- Weekly Sales Trend -->
-    <div class="chart-card">
-        <div class="chart-header">
-            <h3>Weekly Sales Trend</h3>
-            <div class="chart-actions">
-                <button class="chart-action-btn active">Week</button>
-                <button class="chart-action-btn">Month</button>
-                <button class="chart-action-btn">Year</button>
+<!-- Charts Row -->
+<div class="dashboard-row">
+    <div class="charts-grid">
+        <!-- Revenue Trend -->
+        <div class="chart-card">
+            <div class="card-header">
+                <h3>
+                    @switch (Model.DateFilter)
+                    {
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Today:
+                            <text>Today's Hourly Revenue</text>
+                            break;
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Week:
+                            <text>Weekly Revenue Trend</text>
+                            break;
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Month:
+                            <text>Monthly Revenue Trend</text>
+                            break;
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Year:
+                            <text>Yearly Revenue Trend</text>
+                            break;
+                        default:
+                            <text>All Time Revenue Trend</text>
+                            break;
+                    }
+                </h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
             </div>
         </div>
-        <div class="chart-container">
-            <canvas id="weeklySalesChart"></canvas>
-        </div>
-    </div>
 
-    <!-- Food Category Distribution -->
-    <div class="chart-container">
-        <h3>Food Category Distribution</h3>
-        <canvas id="categoryDistributionChart"></canvas>
+        <!-- Food Category Distribution -->
+        <div class="chart-card">
+            <div class="card-header">
+                <h3>
+                    @switch (Model.DateFilter)
+                    {
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Today:
+                            <text>Today's Food Category Distribution</text>
+                            break;
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Week:
+                            <text>Weekly Food Category Distribution</text>
+                            break;
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Month:
+                            <text>Monthly Food Category Distribution</text>
+                            break;
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Year:
+                            <text>Yearly Food Category Distribution</text>
+                            break;
+                        default:
+                            <text>All Time Food Category Distribution</text>
+                            break;
+                    }
+                </h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="categoryDistributionChart"></canvas>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Recent Orders & Popular Items Grid -->
-<div class="orders-popular-grid">
+<!-- Recent Orders Row -->
+<div class="dashboard-row">
     <!-- Recent Orders -->
-    <div class="orders-card">
+    <div class="orders-card chart-card">
         <div class="card-header">
             <h3>Recent Orders</h3>
             <button class="view-all-btn">View All</button>
@@ -107,9 +541,11 @@
                 <thead>
                     <tr>
                         <th>Order #</th>
+                        <th>Customer</th>
                         <th>Items</th>
                         <th>Total</th>
                         <th>Status</th>
+                        <th>Date</th>
                         <th>Time</th>
                     </tr>
                 </thead>
@@ -118,6 +554,7 @@
                     {
                         <tr>
                             <td>#@order.OrderNumber</td>
+                            <td>@(string.IsNullOrEmpty(order.CustomerName) ? $"Customer {order.CustomerId}" : order.CustomerName)</td>
                             <td>
                                 @if (order.Items.Any())
                                 {
@@ -134,6 +571,7 @@
                                     @order.Status
                                 </span>
                             </td>
+                            <td>@order.OrderDate.ToString("MM/dd/yyyy")</td>
                             <td>@order.OrderDate.ToString("HH:mm")</td>
                         </tr>
                     }
@@ -141,10 +579,16 @@
             </table>
         </div>
     </div>
+</div>
 
+<!-- Popular Items Row -->
+<div class="dashboard-row">
     <!-- Popular Items -->
-    <div class="popular-items">
-        <h3>Popular Items</h3>
+    <div class="popular-items chart-card">
+        <div class="card-header">
+            <h3>Popular Items</h3>
+            <div class="subtitle">Top items for the selected period</div>
+        </div>
         <div class="popular-items-grid">
             @foreach (var item in Model.MostOrderedItems)
             {
@@ -152,13 +596,15 @@
                     <div class="popular-item-image">
                         <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/images/placeholder-food.jpg" : item.ImageUrl)" 
                              alt="@item.Name"
-                             onerror="this.src='/images/placeholder-food.jpg'">
+                             class="lazy-load">
+                        <div class="item-order-count">@item.OrderCount orders</div>
                     </div>
                     <div class="popular-item-info">
                         <h4>@item.Name</h4>
-                        <p>@item.Description</p>
-                        <span class="price">$@item.Price.ToString("0.00")</span>
-                        <span class="category">@item.FoodCategoryName</span>
+                        <div class="popular-item-stats">
+                            <span class="price">$@item.Price.ToString("0.00")</span>
+                            <span class="category">@item.FoodCategoryName</span>
+                        </div>
                     </div>
                 </div>
             }
@@ -166,49 +612,89 @@
     </div>
 </div>
 
-<!-- Order Status & Time Distribution Grid -->
-<div class="status-time-grid">
-    <!-- Order Status Distribution -->
-    <div class="status-card">
-        <div class="card-header">
-            <h3>Order Status Distribution</h3>
-            <button class="view-all-btn">View Details</button>
-        </div>
-        <div class="status-list">
-            @foreach (var status in Model.OrderStatusDistribution)
-            {
-                <div class="status-item">
-                    <div class="status-info">
-                        <span class="status-name">@status.Key</span>
-                        <span class="status-count">@status.Value orders</span>
+<!-- Distribution Row -->
+<div class="dashboard-row">
+    <div class="status-time-grid">
+        <!-- Order Status Distribution -->
+        <div class="status-card chart-card">
+            <div class="card-header">
+                <h3>
+                    @switch (Model.DateFilter)
+                    {
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Today:
+                            <text>Today's Order Status Distribution</text>
+                            break;
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Week:
+                            <text>Weekly Order Status Distribution</text>
+                            break;
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Month:
+                            <text>Monthly Order Status Distribution</text>
+                            break;
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Year:
+                            <text>Yearly Order Status Distribution</text>
+                            break;
+                        default:
+                            <text>All Time Order Status Distribution</text>
+                            break;
+                    }
+                </h3>
+                <button class="view-all-btn">View Details</button>
+            </div>
+            <div class="status-list">
+                @foreach (var status in Model.OrderStatusDistribution)
+                {
+                    <div class="status-item">
+                        <div class="status-info">
+                            <span class="status-name">@status.Key</span>
+                            <span class="status-count">@status.Value orders</span>
+                        </div>
+                        <div class="status-bar">
+                            <div class="status-progress" style="width: @(Model.OrderStatusDistribution.Values.Max() > 0 ? (status.Value * 100 / Model.OrderStatusDistribution.Values.Max()) : 0)%"></div>
+                        </div>
                     </div>
-                    <div class="status-bar">
-                        <div class="status-progress" style="width: @(Model.OrderStatusDistribution.Values.Max() > 0 ? (status.Value * 100 / Model.OrderStatusDistribution.Values.Max()) : 0)%"></div>
-                    </div>
-                </div>
-            }
+                }
+            </div>
         </div>
-    </div>
 
-    <!-- Orders by Time of Day -->
-    <div class="time-distribution-card">
-        <div class="card-header">
-            <h3>Orders by Time of Day</h3>
-            <button class="view-all-btn">View Details</button>
-        </div>
-        <div class="time-distribution-list">
-            @foreach (var timeSlot in Model.OrdersByTimeOfDay)
-            {
-                <div class="time-slot-item">
-                    <div class="time-slot-info">
-                        <span class="time-slot-name">@timeSlot.Key</span>
-                        <span class="time-slot-count">@timeSlot.Value orders</span>
+        <!-- Orders by Time of Day -->
+        <div class="time-distribution-card chart-card">
+            <div class="card-header">
+                <h3>
+                    @switch (Model.DateFilter)
+                    {
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Today:
+                            <text>Today's Orders by Time of Day</text>
+                            break;
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Week:
+                            <text>Weekly Orders by Time of Day</text>
+                            break;
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Month:
+                            <text>Monthly Orders by Time of Day</text>
+                            break;
+                        case PizzaShopWebApp.Pages.Dashboard.DateFilterType.Year:
+                            <text>Yearly Orders by Time of Day</text>
+                            break;
+                        default:
+                            <text>All Time Orders by Time of Day</text>
+                            break;
+                    }
+                </h3>
+                <button class="view-all-btn">View Details</button>
+            </div>
+            <div class="time-distribution-list">
+                @foreach (var timeSlot in Model.OrdersByTimeOfDay)
+                {
+                    <div class="time-slot-item">
+                        <div class="time-slot-info">
+                            <span class="time-slot-name">@timeSlot.Key</span>
+                            <span class="time-slot-count">@timeSlot.Value orders</span>
+                        </div>
+                        <div class="time-slot-bar">
+                            <div class="time-slot-progress" style="width: @(Model.OrdersByTimeOfDay.Values.Max() > 0 ? (timeSlot.Value * 100 / Model.OrdersByTimeOfDay.Values.Max()) : 0)%"></div>
+                        </div>
                     </div>
-                    <div class="time-slot-bar">
-                        <div class="time-slot-progress" style="width: @(Model.OrdersByTimeOfDay.Values.Max() > 0 ? (timeSlot.Value * 100 / Model.OrdersByTimeOfDay.Values.Max()) : 0)%"></div>
-                    </div>
-                </div>
-            }
+                }
+            </div>
         </div>
     </div>
 </div>
@@ -216,14 +702,33 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Weekly Sales Chart
-        const weeklySalesCtx = document.getElementById('weeklySalesChart').getContext('2d');
-        new Chart(weeklySalesCtx, {
+        // Lazy load images to prevent flickering
+        document.addEventListener('DOMContentLoaded', function() {
+            const lazyImages = document.querySelectorAll('.lazy-load');
+            lazyImages.forEach(img => {
+                const src = img.getAttribute('data-src');
+                if (src) {
+                    // Create a new image to preload
+                    const tempImg = new Image();
+                    tempImg.onload = function() {
+                        img.src = src;
+                    };
+                    tempImg.onerror = function() {
+                        // Keep the placeholder if error occurs
+                    };
+                    tempImg.src = src;
+                }
+            });
+        });
+
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
             type: 'line',
             data: {
                 labels: @Html.Raw(Json.Serialize(Model.WeeklySalesTrend.Keys)),
                 datasets: [{
-                    label: 'Daily Revenue',
+                    label: 'Revenue',
                     data: @Html.Raw(Json.Serialize(Model.WeeklySalesTrend.Values)),
                     borderColor: '#EA7C69',
                     backgroundColor: 'rgba(234, 124, 105, 0.1)',
@@ -270,7 +775,7 @@
                 datasets: [{
                     data: @Html.Raw(Json.Serialize(Model.OrderTypeDistribution.Values)),
                     backgroundColor: [
-                        '#FF6B6B',
+                        '#EA7C69',
                         '#4ECDC4',
                         '#45B7D1',
                         '#96CEB4',

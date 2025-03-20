@@ -13,6 +13,7 @@ namespace PizzaShopWebApp.Models
         public List<AllergenModel> Allergens { get; set; } = new List<AllergenModel>();
         public bool IsVegetarian { get; set; }
         public bool IsPopular { get; set; }
+        public int OrderCount { get; set; }
     }
 
     public class CategoryModel

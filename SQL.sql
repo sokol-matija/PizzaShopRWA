@@ -340,3 +340,6 @@ select * from food
 select * from dbo.FoodCategory
 
 select * from [Order]
+
+SELECT * FROM [Order]
+ORDER BY OrderDate DESC;  -- Assuming there is a column named OrderDate to sort by date

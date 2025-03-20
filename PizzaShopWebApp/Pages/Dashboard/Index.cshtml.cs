@@ -9,12 +9,28 @@ using System.Threading.Tasks;
 
 namespace PizzaShopWebApp.Pages.Dashboard
 {
+    // Define the date filter types
+    public enum DateFilterType
+    {
+        Today,
+        Week,
+        Month,
+        Year,
+        AllTime
+    }
+
     public class DashboardIndexModel : PageModel
     {
         private readonly IOrderService _orderService;
         private readonly IFoodService _foodService;
         private readonly IUserService _userService;
         private readonly ILogger<DashboardIndexModel> _logger;
+
+        // Date filter properties
+        [BindProperty(SupportsGet = true)]
+        public DateFilterType DateFilter { get; set; } = DateFilterType.Today;
+        public DateTime FilterStartDate { get; private set; }
+        public DateTime FilterEndDate { get; private set; }
 
         public DashboardIndexModel(
             IOrderService orderService,
@@ -76,88 +92,133 @@ namespace PizzaShopWebApp.Pages.Dashboard
 
             try
             {
-                // Get all orders
-                var allOrders = await _orderService.GetAllOrdersAsync(1, 100);
-                var orders = allOrders.ToList();
-
-                // Get today's and yesterday's orders
-                var today = DateTime.Today;
-                var yesterday = today.AddDays(-1);
+                // Set date range based on the filter selection
+                CalculateDateRange();
                 
-                var todayOrders = orders.Where(o => o.OrderDate.Date == today).ToList();
-                var yesterdayOrders = orders.Where(o => o.OrderDate.Date == yesterday).ToList();
+                // Get all orders
+                var allOrders = await _orderService.GetAllOrdersAsync(1, 1000);
+                var orders = allOrders.ToList();
+                
+                // Filter orders based on selected date range
+                var filteredOrders = orders.Where(o => o.OrderDate >= FilterStartDate && o.OrderDate <= FilterEndDate).ToList();
 
-                // Calculate today's metrics
-                TodayRevenue = todayOrders.Sum(o => o.TotalAmount);
-                TodayOrders = todayOrders.Count;
-                TodayCustomers = todayOrders.Select(o => o.OrderNumber).Distinct().Count();
+                // Calculate metrics for the filtered period
+                TodayRevenue = filteredOrders.Sum(o => o.TotalAmount);
+                TodayOrders = filteredOrders.Count;
+                TodayCustomers = filteredOrders.Select(o => o.CustomerId).Distinct().Count();
 
-                // Calculate yesterday's metrics for comparison
-                var yesterdayRevenue = yesterdayOrders.Sum(o => o.TotalAmount);
-                var yesterdayOrdersCount = yesterdayOrders.Count;
-                var yesterdayCustomers = yesterdayOrders.Select(o => o.OrderNumber).Distinct().Count();
+                // Calculate previous period for comparison
+                var previousPeriodDuration = FilterEndDate - FilterStartDate;
+                var previousPeriodStart = FilterStartDate.AddDays(-previousPeriodDuration.TotalDays - 1);
+                var previousPeriodEnd = FilterStartDate.AddDays(-1);
+                
+                var previousPeriodOrders = orders
+                    .Where(o => o.OrderDate >= previousPeriodStart && o.OrderDate <= previousPeriodEnd)
+                    .ToList();
+
+                // Calculate previous period metrics
+                var previousRevenue = previousPeriodOrders.Sum(o => o.TotalAmount);
+                var previousOrdersCount = previousPeriodOrders.Count;
+                var previousCustomers = previousPeriodOrders.Select(o => o.CustomerId).Distinct().Count();
 
                 // Calculate percentage changes
-                RevenueChangePercent = yesterdayRevenue > 0 
-                    ? ((TodayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100 
+                RevenueChangePercent = previousRevenue > 0 
+                    ? ((TodayRevenue - previousRevenue) / previousRevenue) * 100 
                     : 0;
                     
-                OrdersChangePercent = yesterdayOrdersCount > 0 
-                    ? ((TodayOrders - yesterdayOrdersCount) / (decimal)yesterdayOrdersCount) * 100 
+                OrdersChangePercent = previousOrdersCount > 0 
+                    ? ((TodayOrders - previousOrdersCount) / (decimal)previousOrdersCount) * 100 
                     : 0;
                     
-                CustomersChangePercent = yesterdayCustomers > 0 
-                    ? ((TodayCustomers - yesterdayCustomers) / (decimal)yesterdayCustomers) * 100 
+                CustomersChangePercent = previousCustomers > 0 
+                    ? ((TodayCustomers - previousCustomers) / (decimal)previousCustomers) * 100 
                     : 0;
 
                 // Get recent orders (last 5)
-                RecentOrders = orders
+                RecentOrders = filteredOrders
                     .OrderByDescending(o => o.OrderDate)
                     .Take(5)
                     .ToList();
 
-                // Calculate weekly sales trend using real data
-                WeeklySalesTrend = CalculateWeeklySalesTrend(orders);
+                // Calculate weekly/period sales trend using filtered data
+                WeeklySalesTrend = CalculatePeriodSalesTrend(filteredOrders);
 
-                // Calculate food category distribution
+                // Calculate food category distribution from filtered orders
                 var foodItems = await _foodService.GetAllFoodAsync(1, 100);
                 var categories = await _foodService.GetAllCategoriesAsync();
                 
-                // Calculate category distribution based on ordered items
+                // Calculate category distribution based on filtered ordered items
                 var categoryDistribution = new Dictionary<string, int>();
                 foreach (var category in categories)
                 {
                     var categoryItems = foodItems.Where(f => f.FoodCategoryId == category.Id);
-                    var orderCount = orders
+                    var orderCount = filteredOrders
                         .SelectMany(o => o.Items)
                         .Count(i => categoryItems.Any(f => f.Id == i.FoodId));
                     categoryDistribution[category.Name] = orderCount;
                 }
 
-                // Replace OrderTypeDistribution with CategoryDistribution
+                // Replace OrderTypeDistribution with filtered CategoryDistribution
                 OrderTypeDistribution = categoryDistribution;
 
-                // Calculate order status distribution
-                OrderStatusDistribution = orders
+                // Calculate order status distribution for filtered orders
+                OrderStatusDistribution = filteredOrders
                     .GroupBy(o => o.Status)
                     .ToDictionary(g => g.Key, g => g.Count());
 
-                // Calculate orders by time of day
-                OrdersByTimeOfDay = CalculateOrdersByTimeOfDay(orders);
+                // Calculate orders by time of day for filtered period
+                OrdersByTimeOfDay = CalculateOrdersByTimeOfDay(filteredOrders);
 
-                // Get popular items based on actual order data
-                var popularItemIds = orders
+                // Get popular items based on actual filtered order data
+                var popularItemsWithCount = filteredOrders
                     .SelectMany(o => o.Items)
                     .GroupBy(i => i.FoodId)
-                    .OrderByDescending(g => g.Sum(i => i.Quantity))
-                    .Select(g => g.Key)
+                    .Select(g => new 
+                    { 
+                        FoodId = g.Key, 
+                        Count = g.Sum(i => i.Quantity),
+                        Name = g.First().FoodName
+                    })
+                    .OrderByDescending(g => g.Count)
                     .Take(5)
                     .ToList();
 
-                MostOrderedItems = foodItems
-                    .Where(f => popularItemIds.Contains(f.Id))
-                    .Take(5)
-                    .ToList();
+                // Get popular items based on filtered orders, or fallback to default items if none exist
+                if (popularItemsWithCount.Any())
+                {
+                    MostOrderedItems = foodItems
+                        .Where(f => popularItemsWithCount.Select(p => p.FoodId).Contains(f.Id))
+                        .ToList();
+                        
+                    // Set the order count for each item
+                    foreach (var item in MostOrderedItems)
+                    {
+                        var count = popularItemsWithCount.FirstOrDefault(p => p.FoodId == item.Id)?.Count ?? 0;
+                        item.OrderCount = count;
+                    }
+                }
+                else
+                {
+                    // Provide fallback default items if no order data exists
+                    MostOrderedItems = foodItems
+                        .OrderBy(f => f.Name)  // Just use alphabetical order as fallback
+                        .Take(5)
+                        .ToList();
+                        
+                    // Set default order counts
+                    foreach (var item in MostOrderedItems)
+                    {
+                        item.OrderCount = 0;
+                    }
+                }
+                
+                // Ensure we have descriptions and other properties populated to prevent UI flicker
+                foreach (var item in MostOrderedItems)
+                {
+                    item.Description = item.Description ?? "Delicious menu item";
+                    item.ImageUrl = !string.IsNullOrEmpty(item.ImageUrl) ? item.ImageUrl : "/images/placeholder-food.jpg";
+                    item.FoodCategoryName = item.FoodCategoryName ?? "Uncategorized";
+                }
             }
             catch (Exception ex)
             {
@@ -167,32 +228,142 @@ namespace PizzaShopWebApp.Pages.Dashboard
             return Page();
         }
 
-        // Method to calculate weekly sales trend
-        private Dictionary<string, decimal> CalculateWeeklySalesTrend(List<Models.OrderModel> orders)
+        // Method to set date range based on filter
+        private void CalculateDateRange()
+        {
+            var today = DateTime.Today;
+            FilterEndDate = today.AddDays(1).AddSeconds(-1); // End of today
+
+            switch (DateFilter)
+            {
+                case DateFilterType.Today:
+                    FilterStartDate = today;
+                    break;
+                case DateFilterType.Week:
+                    // Last 7 days including today
+                    FilterStartDate = today.AddDays(-6);
+                    break;
+                case DateFilterType.Month:
+                    // Last 30 days including today
+                    FilterStartDate = today.AddDays(-29);
+                    break;
+                case DateFilterType.Year:
+                    // Last 365 days including today
+                    FilterStartDate = today.AddDays(-364);
+                    break;
+                case DateFilterType.AllTime:
+                    // Set to a far past date to include all orders
+                    FilterStartDate = new DateTime(2000, 1, 1);
+                    break;
+                default:
+                    FilterStartDate = today;
+                    break;
+            }
+        }
+
+        // Method to calculate sales trend for the selected period
+        private Dictionary<string, decimal> CalculatePeriodSalesTrend(List<Models.OrderModel> orders)
         {
             var result = new Dictionary<string, decimal>();
-            var today = DateTime.Today;
             
-            // Get days of week abbreviated names
-            var daysOfWeek = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
-            
-            // Initialize with zeros for all days
-            foreach (var day in daysOfWeek)
+            // If the period is Week, show daily data
+            if (DateFilter == DateFilterType.Week)
             {
-                result[day] = 0;
-            }
-            
-            // Go back 6 days from today to get a 7-day window
-            for (int i = 6; i >= 0; i--)
-            {
-                var date = today.AddDays(-i);
-                var dayName = daysOfWeek[(int)date.DayOfWeek > 0 ? (int)date.DayOfWeek - 1 : 6]; // Adjust for Sunday
+                // Get days of week abbreviated names
+                var daysOfWeek = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
                 
-                var dayRevenue = orders
-                    .Where(o => o.OrderDate.Date == date)
-                    .Sum(o => o.TotalAmount);
+                // Initialize with zeros for all days
+                foreach (var day in daysOfWeek)
+                {
+                    result[day] = 0;
+                }
+                
+                // Go back 6 days from today to get a 7-day window
+                for (int i = 6; i >= 0; i--)
+                {
+                    var date = DateTime.Today.AddDays(-i);
+                    var dayName = daysOfWeek[(int)date.DayOfWeek > 0 ? (int)date.DayOfWeek - 1 : 6]; // Adjust for Sunday
                     
-                result[dayName] = dayRevenue;
+                    var dayRevenue = orders
+                        .Where(o => o.OrderDate.Date == date)
+                        .Sum(o => o.TotalAmount);
+                        
+                    result[dayName] = dayRevenue;
+                }
+            }
+            // If the period is Month, show weekly data
+            else if (DateFilter == DateFilterType.Month)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    var weekStart = DateTime.Today.AddDays(-i * 7 - 6);
+                    var weekEnd = DateTime.Today.AddDays(-i * 7);
+                    var weekLabel = $"Week {4-i}";
+                    
+                    var weekRevenue = orders
+                        .Where(o => o.OrderDate.Date >= weekStart && o.OrderDate.Date <= weekEnd)
+                        .Sum(o => o.TotalAmount);
+                        
+                    result[weekLabel] = weekRevenue;
+                }
+            }
+            // If the period is Year, show monthly data
+            else if (DateFilter == DateFilterType.Year)
+            {
+                var monthNames = new[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+                var today = DateTime.Today;
+                
+                for (int i = 11; i >= 0; i--)
+                {
+                    var monthStart = new DateTime(today.Year, today.Month, 1).AddMonths(-i);
+                    var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+                    var monthLabel = monthNames[monthStart.Month - 1];
+                    
+                    var monthRevenue = orders
+                        .Where(o => o.OrderDate.Date >= monthStart && o.OrderDate.Date <= monthEnd)
+                        .Sum(o => o.TotalAmount);
+                        
+                    result[monthLabel] = monthRevenue;
+                }
+            }
+            // If AllTime or Today, show appropriate data
+            else
+            {
+                if (DateFilter == DateFilterType.Today)
+                {
+                    // For Today, show hourly data
+                    for (int hour = 0; hour < 24; hour += 2)
+                    {
+                        var hourStart = DateTime.Today.AddHours(hour);
+                        var hourEnd = DateTime.Today.AddHours(hour + 2);
+                        var hourLabel = $"{hour:D2}-{(hour + 2) % 24:D2}";
+                        
+                        var hourRevenue = orders
+                            .Where(o => o.OrderDate >= hourStart && o.OrderDate < hourEnd)
+                            .Sum(o => o.TotalAmount);
+                            
+                        result[hourLabel] = hourRevenue;
+                    }
+                }
+                else // AllTime
+                {
+                    // For AllTime, show monthly data for the last 12 months
+                    var monthNames = new[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+                    var today = DateTime.Today;
+                    
+                    for (int i = 11; i >= 0; i--)
+                    {
+                        var monthStart = new DateTime(today.Year, today.Month, 1).AddMonths(-i);
+                        var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+                        var monthLabel = $"{monthNames[monthStart.Month - 1]} {monthStart.Year}";
+                        
+                        var monthRevenue = orders
+                            .Where(o => o.OrderDate.Date >= monthStart && o.OrderDate.Date <= monthEnd)
+                            .Sum(o => o.TotalAmount);
+                            
+                        result[monthLabel] = monthRevenue;
+                    }
+                }
             }
             
             return result;
@@ -339,6 +510,9 @@ namespace PizzaShopWebApp.Pages.Dashboard
         // Helper method to get appropriate status class for CSS
         public string GetStatusClass(string status)
         {
+            if (string.IsNullOrEmpty(status))
+                return "pending";
+                
             return status.ToLower() switch
             {
                 "completed" => "completed",
@@ -348,7 +522,7 @@ namespace PizzaShopWebApp.Pages.Dashboard
                 "in progress" => "preparing",
                 "pending" => "pending",
                 "cancelled" => "cancelled",
-                _ => "pending"
+                _ => "pending" // Default case
             };
         }
     }
