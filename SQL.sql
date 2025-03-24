@@ -841,6 +841,22 @@ PRINT 'Total orders should now be ~120 or more in the database.';
 -- Optional: Verify the total number of orders
 -- SELECT COUNT(*) AS TotalOrders FROM [Order];
 
+-- Update image paths for all food items to use correct paths and .png extension
+UPDATE Food
+SET ImageUrl = CASE Id
+    WHEN 1 THEN '/images/food/margherita.png'
+    WHEN 2 THEN '/images/food/pepperoni.png'
+    WHEN 3 THEN '/images/food/cheeseburger.png'
+    WHEN 4 THEN '/images/food/vegburger.png'
+    WHEN 5 THEN '/images/food/spaghetti.png'
+    WHEN 6 THEN '/images/food/caesar.png'
+    WHEN 7 THEN '/images/food/choccake.png'
+END
+WHERE Id IN (1, 2, 3, 4, 5, 6, 7);
+
+-- Verify the updates
+SELECT Id, Name, ImageUrl FROM Food WHERE Id IN (1, 2, 3, 4, 5, 6, 7);
+
 
 
 select * from Allergen

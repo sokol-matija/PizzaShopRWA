@@ -5,6 +5,8 @@
     Layout = "_DashboardLayout";
 }
 
+<link rel="stylesheet" href="~/css/animations.css" />
+
 <div class="order-container">
     <div class="order-content">
         <div class="order-header">
@@ -173,7 +175,13 @@
 
 <div id="notification" class="notification">
     <div class="notification-content">
-        <i class="notification-icon"></i>
+        <div class="notification-icon-container">
+            <i class="notification-icon"></i>
+            <svg class="checkmark-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+        </div>
         <span class="notification-message"></span>
     </div>
     <button class="notification-close"><i class='bx bx-x'></i></button>
@@ -188,7 +196,8 @@
         --scrollbar-track-color-light: var(--secondary-bg-color);
         --scrollbar-track-color-dark: var(--dark-bg-color);
         --scrollbar-radius: 4px;
-        --success-color: #6BE2BE;
+        --success-color: #2ECC71;
+        --success-light: rgba(46, 204, 113, 0.15);
         --error-color: #FF7A7A;
         --card-anim-time: 0.3s;
         --card-radius: 16px;
@@ -380,7 +389,7 @@
         transform: translateY(-1px);
     }
     
-    .dashboard-container{
+    .dashboard-container {
         margin-left: 1rem;
     }
 
@@ -415,21 +424,6 @@
         animation: addToCartPulse 0.7s ease-in-out;
     }
     
-    @@keyframes addToCartPulse {
-        0% {
-            transform: translateY(-5px) scale(1);
-            box-shadow: var(--card-hover-shadow);
-        }
-        30% {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: var(--card-active-shadow);
-        }
-        100% {
-            transform: translateY(-5px) scale(1);
-            box-shadow: var(--card-hover-shadow);
-        }
-    }
-    
     .food-card-image {
         position: absolute;
         top: -40px;
@@ -452,7 +446,7 @@
     }
     
     .food-card:hover .food-card-image img {
-        //transform: scale(1.1);
+        /* transform: scale(1.1); */
     }
     
     .food-badge {
@@ -522,13 +516,29 @@
         box-shadow: 0 4px 12px rgba(234, 124, 105, 0.3);
     }
     
+    .add-to-cart-btn i {
+        transition: transform 0.4s ease;
+    }
+    
     .add-to-cart-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 16px rgba(234, 124, 105, 0.4);
     }
     
+    .add-to-cart-btn:hover i {
+        transform: rotate(90deg);
+    }
+    
     .add-to-cart-btn:active {
         transform: translateY(0);
+    }
+    
+    .add-to-cart-btn.clicked {
+        animation: buttonPulse 0.6s ease;
+    }
+    
+    .add-to-cart-btn.clicked i {
+        animation: spinAddIcon 0.6s ease;
     }
     
     .no-items-message {
@@ -640,11 +650,6 @@
         padding: 16px 0;
         border-bottom: 1px solid var(--border-color);
         animation: fadeIn 0.3s ease-in-out;
-    }
-    
-    @@keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
     }
     
     .cart-item:last-child {
@@ -855,6 +860,7 @@
         transform: translateY(0);
         opacity: 1;
         visibility: visible;
+        animation: notificationBounce 0.5s ease forwards;
     }
     
     .notification.success {
@@ -871,19 +877,65 @@
         gap: 12px;
     }
     
-    .notification-icon {
-        font-size: 24px;
+    .notification-icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--success-light);
+        transition: all 0.3s ease;
+        position: relative;
     }
     
-    .notification.success .notification-icon:before {
-        content: '\ea08';
-        font-family: 'boxicons';
+    .notification.success .notification-icon-container {
+        background-color: var(--success-light);
+    }
+    
+    .notification.error .notification-icon-container {
+        background-color: rgba(255, 122, 122, 0.15);
+    }
+    
+    .notification-icon {
+        font-size: 20px;
+        animation: iconPop 0.5s ease 0.1s forwards;
+    }
+    
+    .checkmark-svg {
+        width: 36px;
+        height: 36px;
+        position: absolute;
+        border-radius: 50%;
+        display: none;
+        stroke-width: 3;
+        stroke: var(--success-color);
+        stroke-miterlimit: 10;
+    }
+    
+    .checkmark-circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 3;
+        stroke: var(--success-color);
+        fill: none;
+        animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+    
+    .checkmark-check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        stroke-width: 4;
+        stroke: var(--success-color);
+        animation: stroke 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.4s forwards;
+    }
+    
+    .notification.success .notification-icon {
         color: var(--success-color);
     }
     
-    .notification.error .notification-icon:before {
-        content: '\ec14';
-        font-family: 'boxicons';
+    .notification.error .notification-icon {
         color: var(--error-color);
     }
     
@@ -999,19 +1051,69 @@
             notification.classList.add(type);
             notificationMessage.textContent = message;
             
+            // Get the elements
+            const icon = notification.querySelector('.notification-icon');
+            const checkmarkSvg = notification.querySelector('.checkmark-svg');
+            
+            // Reset animations and display
+            icon.style.display = 'none';
+            checkmarkSvg.style.display = 'none';
+            
+            // Set different icons based on type and message
+            if (type === 'success') {
+                // Use SVG checkmark for success notifications
+                checkmarkSvg.style.display = 'block';
+                
+                // Reset SVG animation
+                const circle = checkmarkSvg.querySelector('.checkmark-circle');
+                const check = checkmarkSvg.querySelector('.checkmark-check');
+                
+                circle.style.animation = 'none';
+                check.style.animation = 'none';
+                
+                // Force reflow
+                void checkmarkSvg.offsetWidth;
+                
+                // Restart animations
+                circle.style.animation = 'stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards';
+                check.style.animation = 'stroke 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.4s forwards';
+                
+                // Still set icon class for fallback
+                if (message.toLowerCase().includes('added')) {
+                    icon.className = 'notification-icon bx bx-dish';
+                } else if (message.toLowerCase().includes('removed')) {
+                    icon.className = 'notification-icon bx bx-basket';
+                } else if (message.toLowerCase().includes('updated') || message.toLowerCase().includes('changed')) {
+                    icon.className = 'notification-icon bx bx-food-menu';
+                } else {
+                    icon.className = 'notification-icon bx bx-check-circle';
+                }
+            } else {
+                // Use boxicon for error
+                icon.style.display = 'block';
+                icon.className = 'notification-icon bx bx-error-circle';
+            }
+            
             // Force a reflow to restart animation
             notification.offsetHeight;
             
-            notification.classList.add('show');
+            // Add a slight delay for a better visual effect
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
             
             const hideTimeout = setTimeout(() => {
-                notification.classList.remove('show');
+                hideNotification();
             }, 3000);
             
             notificationClose.onclick = function() {
                 clearTimeout(hideTimeout);
-                notification.classList.remove('show');
+                hideNotification();
             };
+        }
+        
+        function hideNotification() {
+            notification.classList.remove('show');
         }
         
         // Handle add to cart
@@ -1019,7 +1121,18 @@
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const button = form.querySelector('.add-to-cart-btn');
+                const icon = button.querySelector('i');
                 const foodCard = form.closest('.food-card');
+                
+                // Force animation restart by removing and adding the class
+                button.classList.remove('clicked');
+                void button.offsetWidth; // Trigger reflow
+                button.classList.add('clicked');
+                
+                // Remove the class after animation completes
+                setTimeout(() => {
+                    button.classList.remove('clicked');
+                }, 600);
                 
                 button.disabled = true;
                 
