@@ -65,6 +65,19 @@
                 <p>Add new dish</p>
             </div>
             
+            @if (!Model.MenuItems.Any())
+            {
+                <div class="empty-state">
+                    <i class='bx bx-dish'></i>
+                    <h3>No dishes found</h3>
+                    <p>Try adjusting your filters or add a new dish to get started.</p>
+                    <button class="btn-manage-categories" onclick="window.location.href='/Dashboard/Menu/EditItem'">
+                        <i class='bx bx-plus'></i>
+                        Add First Dish
+                    </button>
+                </div>
+            }
+            
             @foreach (var item in Model.MenuItems)
             {
                 <div class="dish-card" data-id="@item.Id" data-category="@item.FoodCategoryId">
@@ -183,12 +196,18 @@
     </div>
 </div>
 
+<!-- Scroll to top button -->
+<button class="scroll-to-top" id="scrollToTop">
+    <i class='bx bx-up-arrow-alt'></i>
+</button>
+
 @section Scripts {
     <script>
         let excludedAllergenIds = @(string.IsNullOrEmpty(Request.Query["excludeAllergens"]) ? 
             "[]" : $"[{Request.Query["excludeAllergens"]}]");
         
         function searchProducts() {
+            showLoadingState();
             const searchTerm = document.getElementById('searchInput').value;
             const category = '@Model.SelectedCategorySlug';
             const allergens = excludedAllergenIds.join(',');
@@ -316,6 +335,50 @@
                 modal.style.display = 'block';
             }
         }
+        
+        // Scroll to top functionality
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        });
+        
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Add loading state for dish cards
+        function showLoadingState() {
+            const cards = document.querySelectorAll('.dish-card');
+            cards.forEach(card => {
+                card.classList.add('skeleton-loading');
+            });
+        }
+        
+        function hideLoadingState() {
+            const cards = document.querySelectorAll('.dish-card');
+            cards.forEach(card => {
+                card.classList.remove('skeleton-loading');
+            });
+        }
+        
+        // Add animation class to cards on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.dish-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
     </script>
 }
 
@@ -530,6 +593,7 @@
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 32px;
         margin-bottom: 32px;
+        animation: fadeInUp 0.6s ease;
     }
     
     .add-dish-card {
@@ -662,7 +726,8 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        background: none;
+        background: linear-gradient(135deg, rgba(234, 124, 105, 0.1), rgba(234, 124, 105, 0.2));
+        background-size: 200% 200%;
         border: none;
         color: var(--text-color, #fff);
         font-size: 15px;
@@ -670,6 +735,34 @@
         cursor: pointer;
         transition: all 0.3s ease;
         text-decoration: none;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .edit-dish-btn::before, .view-dish-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(234, 124, 105, 0.2), rgba(234, 124, 105, 0.3));
+        transition: left 0.3s ease;
+    }
+    
+    .edit-dish-btn:hover::before, .view-dish-btn:hover::before {
+        left: 0;
+    }
+    
+    .edit-dish-btn i, .view-dish-btn i {
+        position: relative;
+        z-index: 1;
+        font-size: 18px;
+    }
+    
+    .edit-dish-btn span, .view-dish-btn span {
+        position: relative;
+        z-index: 1;
     }
     
     .edit-dish-btn {
@@ -677,7 +770,8 @@
     }
     
     .edit-dish-btn:hover, .view-dish-btn:hover {
-        background: rgba(255, 255, 255, 0.05);
+        background-position: right center;
+        color: var(--accent-color, #EA7C69);
     }
     
     /* Enhanced Modal styling */
@@ -947,5 +1041,104 @@
         .modal-footer {
             padding: 20px;
         }
+    }
+
+    /* Add loading animation for the products container */
+    .products-container {
+        animation: fadeInUp 0.6s ease;
+    }
+
+    /* Add smooth scroll behavior */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Add scroll to top button */
+    .scroll-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--accent-color, #EA7C69), #e96c57);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(234, 124, 105, 0.3);
+        z-index: 999;
+    }
+
+    .scroll-to-top.visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .scroll-to-top:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(234, 124, 105, 0.4);
+    }
+
+    /* Add loading skeleton animation */
+    @@keyframes shimmer {
+        0% {
+            background-position: -200% 0;
+        }
+        100% {
+            background-position: 200% 0;
+        }
+    }
+
+    .skeleton-loading {
+        background: linear-gradient(90deg, 
+            rgba(255, 255, 255, 0.05) 25%, 
+            rgba(255, 255, 255, 0.1) 37%, 
+            rgba(255, 255, 255, 0.05) 63%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+    }
+
+    /* Add fade in animations */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Add empty state styling */
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 16px;
+        margin: 32px 0;
+    }
+
+    .empty-state i {
+        font-size: 48px;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+    }
+
+    .empty-state h3 {
+        color: var(--text-color);
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+
+    .empty-state p {
+        color: var(--text-muted);
+        margin-bottom: 24px;
     }
 </style> 
