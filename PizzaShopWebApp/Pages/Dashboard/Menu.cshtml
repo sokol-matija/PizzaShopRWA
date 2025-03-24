@@ -646,11 +646,13 @@
     .dish-card {
         background: rgba(255, 255, 255, 0.03);
         border-radius: 20px;
-        overflow: hidden;
+        overflow: visible;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         border: 1px solid rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
+        margin-top: 40px;
+        padding-top: 20px;
     }
     
     .dish-card:hover {
@@ -661,23 +663,37 @@
     
     .dish-image-container {
         position: relative;
-        height: 180px;
-        overflow: hidden;
+        height: 160px;
+        overflow: visible;
+        margin-top: -40px;
+        padding: 0 20px;
+        display: flex;
+        justify-content: center;
+        z-index: 1;
     }
     
     .dish-image {
-        width: 100%;
-        height: 100%;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
         object-fit: cover;
-        transition: transform 0.5s ease;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
     }
     
     .dish-card:hover .dish-image {
-        transform: scale(1.05);
+        border-color: rgba(234, 124, 105, 0.3);
+        box-shadow: 0 8px 32px rgba(234, 124, 105, 0.2),
+                    0 0 0 6px rgba(234, 124, 105, 0.1);
     }
     
     .dish-details {
         padding: 20px;
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 0 0 20px 20px;
     }
     
     .dish-name {
@@ -974,14 +990,15 @@
     /* Enhanced Dish badges styling */
     .dish-badge {
         position: absolute;
-        top: 12px;
-        right: 12px;
+        top: 0;
+        right: 30px;
         padding: 6px 12px;
         border-radius: 8px;
         font-size: 13px;
         font-weight: 500;
         backdrop-filter: blur(4px);
         transition: all 0.3s ease;
+        z-index: 2;
     }
     
     .dish-badge.popular {
@@ -990,9 +1007,29 @@
     }
     
     .dish-badge.vegetarian {
-        background: linear-gradient(45deg, #4CAF50, #45a049);
-        color: white;
-        top: 48px;
+        top: 36px;
+    }
+    
+    /* Add a subtle background glow effect */
+    .dish-card::before {
+        content: '';
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 220px;
+        height: 220px;
+        background: radial-gradient(circle at center, 
+            rgba(234, 124, 105, 0.1) 0%,
+            rgba(234, 124, 105, 0) 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        z-index: 0;
+    }
+    
+    .dish-card:hover::before {
+        opacity: 1;
     }
     
     /* Responsive improvements */
