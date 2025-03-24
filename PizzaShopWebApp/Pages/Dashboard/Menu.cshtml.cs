@@ -30,9 +30,10 @@ namespace PizzaShopWebApp.Pages.Dashboard
         public Dictionary<int, List<MenuItemModel>> FoodByCategory { get; set; } = new Dictionary<int, List<MenuItemModel>>();
         
         public int? SelectedCategoryId { get; set; }
+        public string SelectedCategorySlug { get; set; } = string.Empty;
         public string SearchTerm { get; set; } = string.Empty;
 
-        public async Task<IActionResult> OnGetAsync(int? categoryId = null, string searchTerm = "")
+        public async Task<IActionResult> OnGetAsync(string category = "", string searchTerm = "")
         {
             // Check if user is authenticated
             if (!_userService.IsAuthenticated())
@@ -40,32 +41,59 @@ namespace PizzaShopWebApp.Pages.Dashboard
                 return RedirectToPage("/Account/Login");
             }
 
-            SelectedCategoryId = categoryId;
             SearchTerm = searchTerm;
+            SelectedCategorySlug = category;
 
             try
             {
                 // Load categories
                 Categories = (await _foodService.GetAllCategoriesAsync()).ToList();
                 
-                // Load all food items
-                if (string.IsNullOrEmpty(searchTerm) && !categoryId.HasValue)
+                // If we have a category slug, find the matching category ID
+                if (!string.IsNullOrEmpty(category))
                 {
-                    MenuItems = (await _foodService.GetAllFoodAsync()).ToList();
+                    var matchingCategory = Categories.FirstOrDefault(c => 
+                        c.Name.ToLower().Replace(" ", "-") == category);
+                    
+                    if (matchingCategory != null)
+                    {
+                        SelectedCategoryId = matchingCategory.Id;
+                    }
+                }
+
+                // Load all food items
+                if (string.IsNullOrEmpty(searchTerm) && !SelectedCategoryId.HasValue)
+                {
+                    // If no category is selected, default to 'Hot Dishes' or the first category
+                    var hotDishesCategory = Categories.FirstOrDefault(c => c.Name == "Hot Dishes");
+                    if (hotDishesCategory != null)
+                    {
+                        MenuItems = (await _foodService.GetFoodByCategoryAsync(hotDishesCategory.Id)).ToList();
+                    }
+                    else if (Categories.Any())
+                    {
+                        // Fall back to first category if 'Hot Dishes' doesn't exist
+                        MenuItems = (await _foodService.GetFoodByCategoryAsync(Categories.First().Id)).ToList();
+                    }
+                    else
+                    {
+                        // If no categories, show all food
+                        MenuItems = (await _foodService.GetAllFoodAsync()).ToList();
+                    }
                 }
                 else
                 {
-                    MenuItems = (await _foodService.SearchFoodAsync(searchTerm, categoryId)).ToList();
+                    MenuItems = (await _foodService.SearchFoodAsync(searchTerm, SelectedCategoryId)).ToList();
                 }
 
                 // Group food items by category
-                foreach (var category in Categories)
+                foreach (var cat in Categories)
                 {
                     var foodsInCategory = MenuItems
-                        .Where(f => f.FoodCategoryId == category.Id)
+                        .Where(f => f.FoodCategoryId == cat.Id)
                         .ToList();
                     
-                    FoodByCategory[category.Id] = foodsInCategory;
+                    FoodByCategory[cat.Id] = foodsInCategory;
                 }
             }
             catch (Exception ex)

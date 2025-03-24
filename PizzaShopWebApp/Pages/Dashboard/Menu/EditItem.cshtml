@@ -1,0 +1,363 @@
+@page "{id:int?}"
+@model PizzaShopWebApp.Pages.Dashboard.Menu.EditItemModel
+@{
+    ViewData["Title"] = Model.IsNewItem ? "Add New Item" : "Edit Item";
+    Layout = "_DashboardLayout";
+}
+
+<div class="edit-item-container">
+    <div class="header-section">
+        <div class="title-with-back">
+            <a href="/Dashboard/Menu" class="back-button">
+                <i class='bx bx-arrow-back'></i>
+            </a>
+            <h1>@(Model.IsNewItem ? "Add New Dish" : "Edit Dish")</h1>
+        </div>
+    </div>
+    
+    <form method="post" enctype="multipart/form-data" class="edit-form">
+        <input type="hidden" asp-for="MenuItem.Id" />
+        
+        <div class="form-sections">
+            <div class="form-section-left">
+                <div class="form-group">
+                    <label asp-for="MenuItem.Name">Dish Name</label>
+                    <input asp-for="MenuItem.Name" class="form-control" required />
+                    <span asp-validation-for="MenuItem.Name" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="MenuItem.Price">Price ($)</label>
+                    <input asp-for="MenuItem.Price" class="form-control" type="number" step="0.01" min="0" required />
+                    <span asp-validation-for="MenuItem.Price" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="MenuItem.FoodCategoryId">Category</label>
+                    <select asp-for="MenuItem.FoodCategoryId" class="form-control" required>
+                        <option value="">Select a category</option>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <option value="@category.Id">@category.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="MenuItem.FoodCategoryId" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="MenuItem.PreparationTime">Preparation Time (minutes)</label>
+                    <input asp-for="MenuItem.PreparationTime" class="form-control" type="number" min="1" />
+                    <span asp-validation-for="MenuItem.PreparationTime" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input asp-for="MenuItem.IsVegetarian" type="checkbox" id="isVegetarian" />
+                        <label for="isVegetarian">Vegetarian</label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input asp-for="MenuItem.IsPopular" type="checkbox" id="isPopular" />
+                        <label for="isPopular">Mark as Popular</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section-right">
+                <div class="form-group">
+                    <label asp-for="MenuItem.Description">Description</label>
+                    <textarea asp-for="MenuItem.Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="MenuItem.Description" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Dish Image</label>
+                    <div class="image-upload-container">
+                        <div class="image-preview">
+                            <img id="imagePreview" src="@(string.IsNullOrEmpty(Model.MenuItem.ImageUrl) ? "/Images/basic_food_image.png" : Model.MenuItem.ImageUrl)" alt="Dish preview" />
+                        </div>
+                        <div class="upload-controls">
+                            <label for="imageFile" class="upload-button">
+                                <i class='bx bx-upload'></i>
+                                Upload Image
+                            </label>
+                            <input type="file" id="imageFile" name="ImageFile" class="hidden-file-input" accept="image/*" />
+                            <button type="button" class="remove-image-btn" id="removeImage">
+                                <i class='bx bx-trash'></i>
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Allergens</label>
+                    <div class="allergens-container">
+                        @foreach (var allergen in Model.Allergens)
+                        {
+                            <div class="allergen-checkbox">
+                                <input type="checkbox" name="SelectedAllergens" value="@allergen.Id" id="allergen-@allergen.Id" 
+                                       @(Model.SelectedAllergenIds.Contains(allergen.Id) ? "checked" : "") />
+                                <label for="allergen-@allergen.Id">@allergen.Name</label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <a href="/Dashboard/Menu" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn-save">Save Changes</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .edit-item-container {
+        padding: 24px;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    
+    .title-with-back {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .back-button {
+        color: var(--text-color, #fff);
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+    
+    .header-section h1 {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--text-color, #fff);
+        margin: 0;
+    }
+    
+    .edit-form {
+        background-color: var(--secondary-bg-color, #1F1D2B);
+        border-radius: 16px;
+        padding: 24px;
+    }
+    
+    .form-sections {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-color, #fff);
+        font-weight: 500;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-color, #fff);
+        font-size: 14px;
+    }
+    
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        margin-right: 8px;
+    }
+    
+    .allergens-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .allergen-checkbox {
+        display: flex;
+        align-items: center;
+    }
+    
+    .allergen-checkbox input[type="checkbox"] {
+        margin-right: 8px;
+    }
+    
+    .image-upload-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .image-preview {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 auto;
+    }
+    
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .upload-controls {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+    
+    .upload-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: var(--accent-color, #EA7C69);
+        color: #fff;
+        font-size: 14px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .upload-button:hover {
+        background-color: #d66c5a;
+    }
+    
+    .hidden-file-input {
+        display: none;
+    }
+    
+    .remove-image-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-muted, #ABBBC2);
+        font-size: 14px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .remove-image-btn:hover {
+        color: #FF4A55;
+        border-color: #FF4A55;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+    }
+    
+    .btn-cancel, .btn-save {
+        padding: 14px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-cancel {
+        background-color: transparent;
+        border: 1px solid var(--accent-color, #EA7C69);
+        color: var(--accent-color, #EA7C69);
+    }
+    
+    .btn-save {
+        background-color: var(--accent-color, #EA7C69);
+        border: none;
+        color: #fff;
+    }
+    
+    .text-danger {
+        color: #FF4A55;
+        font-size: 12px;
+        margin-top: 4px;
+        display: block;
+    }
+    
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .form-sections {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Image preview functionality
+            const imageFileInput = document.getElementById('imageFile');
+            const imagePreview = document.getElementById('imagePreview');
+            const removeImageBtn = document.getElementById('removeImage');
+            
+            // Original image URL for reset
+            const originalImageUrl = imagePreview.src;
+            
+            imageFileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                    }
+                    
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+            
+            removeImageBtn.addEventListener('click', function() {
+                imagePreview.src = '/Images/basic_food_image.png';
+                imageFileInput.value = '';
+                
+                // Add a hidden input to indicate image removal on the server
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'RemoveImage';
+                hiddenInput.value = 'true';
+                
+                // Replace existing hidden input if any
+                const existingInput = document.querySelector('input[name="RemoveImage"]');
+                if (existingInput) {
+                    existingInput.parentNode.removeChild(existingInput);
+                }
+                
+                imageFileInput.parentNode.appendChild(hiddenInput);
+            });
+        });
+    </script>
+} 

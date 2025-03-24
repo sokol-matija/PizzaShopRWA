@@ -1,0 +1,370 @@
+@page
+@model PizzaShopWebApp.Pages.Dashboard.Menu.CategoriesModel
+@{
+    ViewData["Title"] = "Manage Categories";
+    Layout = "_DashboardLayout";
+}
+
+<div class="categories-management">
+    <div class="header-section">
+        <div class="title-with-back">
+            <a href="/Dashboard/Menu" class="back-button">
+                <i class='bx bx-arrow-back'></i>
+            </a>
+            <h1>Manage Categories</h1>
+        </div>
+        <button class="btn-add-category" id="addCategory">
+            <i class='bx bx-plus'></i>
+            Add Category
+        </button>
+    </div>
+    
+    <div class="categories-container">
+        @if (Model.Categories.Any())
+        {
+            <table class="categories-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Items Count</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <tr>
+                            <td>@category.Name</td>
+                            <td>@category.Description</td>
+                            <td>@Model.ItemsCountByCategory[category.Id]</td>
+                            <td class="actions-cell">
+                                <button class="btn-edit" data-id="@category.Id">
+                                    <i class='bx bx-edit-alt'></i>
+                                </button>
+                                <button class="btn-delete" data-id="@category.Id" data-name="@category.Name">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="no-categories">
+                <p>No categories found. Click the "Add Category" button to create your first category.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div id="categoryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Add Category</h2>
+            <span class="close">&times;</span>
+        </div>
+        <form id="categoryForm" method="post">
+            <input type="hidden" id="categoryId" name="categoryId" value="0" />
+            <div class="form-group">
+                <label for="categoryName">Category Name</label>
+                <input type="text" id="categoryName" name="categoryName" required />
+            </div>
+            <div class="form-group">
+                <label for="categoryDescription">Description</label>
+                <textarea id="categoryDescription" name="categoryDescription" rows="3"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-cancel">Cancel</button>
+                <button type="submit" class="btn-save">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .categories-management {
+        padding: 24px;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    
+    .title-with-back {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .back-button {
+        color: var(--text-color, #fff);
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+    
+    .header-section h1 {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--text-color, #fff);
+        margin: 0;
+    }
+    
+    .btn-add-category {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: var(--accent-color, #EA7C69);
+        border: none;
+        color: #fff;
+        font-size: 14px;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-add-category:hover {
+        background-color: #d66c5a;
+    }
+    
+    .categories-container {
+        background-color: var(--secondary-bg-color, #1F1D2B);
+        border-radius: 16px;
+        padding: 24px;
+    }
+    
+    .categories-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .categories-table th {
+        text-align: left;
+        padding: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--text-muted, #ABBBC2);
+        font-weight: 500;
+    }
+    
+    .categories-table td {
+        padding: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--text-color, #fff);
+    }
+    
+    .categories-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .actions-cell {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .btn-edit, .btn-delete {
+        background-color: transparent;
+        border: none;
+        color: var(--text-muted, #ABBBC2);
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-edit:hover {
+        color: var(--accent-color, #EA7C69);
+    }
+    
+    .btn-delete:hover {
+        color: #FF4A55;
+    }
+    
+    .no-categories {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-muted, #ABBBC2);
+    }
+    
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-content {
+        background-color: var(--secondary-bg-color, #1F1D2B);
+        margin: 15% auto;
+        padding: 24px;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 500px;
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .modal-header h2 {
+        margin: 0;
+        font-size: 24px;
+        color: var(--text-color, #fff);
+    }
+    
+    .close {
+        color: var(--text-muted, #ABBBC2);
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .close:hover {
+        color: var(--text-color, #fff);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-color, #fff);
+    }
+    
+    .form-group input, .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-color, #fff);
+        font-size: 14px;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+    }
+    
+    .btn-cancel, .btn-save {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    
+    .btn-cancel {
+        background-color: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-muted, #ABBBC2);
+    }
+    
+    .btn-save {
+        background-color: var(--accent-color, #EA7C69);
+        border: none;
+        color: #fff;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('categoryModal');
+            const addCategoryBtn = document.getElementById('addCategory');
+            const closeBtn = document.querySelector('.close');
+            const cancelBtn = document.querySelector('.btn-cancel');
+            const categoryForm = document.getElementById('categoryForm');
+            const modalTitle = document.getElementById('modalTitle');
+            const categoryIdInput = document.getElementById('categoryId');
+            const categoryNameInput = document.getElementById('categoryName');
+            const categoryDescriptionInput = document.getElementById('categoryDescription');
+            
+            // Open modal for adding a new category
+            addCategoryBtn.addEventListener('click', function() {
+                modalTitle.textContent = 'Add Category';
+                categoryIdInput.value = '0';
+                categoryNameInput.value = '';
+                categoryDescriptionInput.value = '';
+                modal.style.display = 'block';
+            });
+            
+            // Open modal for editing an existing category
+            const editButtons = document.querySelectorAll('.btn-edit');
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const categoryId = this.getAttribute('data-id');
+                    // In a real implementation, you would fetch the category data here
+                    
+                    modalTitle.textContent = 'Edit Category';
+                    categoryIdInput.value = categoryId;
+                    // For demo, we're getting the name from the table
+                    const row = this.closest('tr');
+                    categoryNameInput.value = row.cells[0].textContent;
+                    categoryDescriptionInput.value = row.cells[1].textContent;
+                    modal.style.display = 'block';
+                });
+            });
+            
+            // Delete category confirmation
+            const deleteButtons = document.querySelectorAll('.btn-delete');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const categoryId = this.getAttribute('data-id');
+                    const categoryName = this.getAttribute('data-name');
+                    if (confirm(`Are you sure you want to delete the category "${categoryName}"?`)) {
+                        // Here you would submit a form or make an API call to delete the category
+                        // For demo purposes, we'll just show an alert
+                        alert(`Category "${categoryName}" deleted successfully!`);
+                    }
+                });
+            });
+            
+            // Close modal
+            closeBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            cancelBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // Handle form submission
+            categoryForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const isEdit = categoryIdInput.value !== '0';
+                // In a real implementation, you would submit the form data to the server
+                // For demo purposes, we'll just show an alert
+                alert(`Category ${isEdit ? 'updated' : 'added'} successfully!`);
+                modal.style.display = 'none';
+            });
+        });
+    </script>
+} 

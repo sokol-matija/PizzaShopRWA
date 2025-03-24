@@ -1,218 +1,297 @@
 @page
 @model PizzaShopWebApp.Pages.Dashboard.MenuModel
 @{
-    ViewData["Title"] = "Menu";
+    ViewData["Title"] = "Products Management";
     Layout = "_DashboardLayout";
 }
 
-<div class="menu-container">
-    <div class="menu-header">
-        <h1>Menu Management</h1>
-        
-        <div class="menu-search-filter">
-            <form method="get" class="search-form">
-                <div class="search-bar">
-                    <i class="bx bx-search"></i>
-                    <input type="text" name="searchTerm" value="@Model.SearchTerm" placeholder="Search for food items..." />
-                </div>
-                
-                <div class="filter-dropdown">
-                    <select name="categoryId" onchange="this.form.submit()">
-                        <option value="">All Categories</option>
-                        @foreach (var category in Model.Categories)
-                        {
-                            <option value="@category.Id" selected="@(Model.SelectedCategoryId == category.Id)">@category.Name</option>
-                        }
-                    </select>
-                </div>
-                
-                <button type="submit" class="search-btn">Search</button>
-            </form>
-        </div>
+<div class="products-management">
+    <div class="header-section">
+        <h1>Products Management</h1>
+        <button class="btn-manage-categories" id="manageCategories">
+            <i class='bx bx-grid-alt'></i>
+            Manage Categories
+        </button>
     </div>
     
-    <div class="menu-tabs">
-        <button class="menu-tab @(Model.SelectedCategoryId == null ? "active" : "")" onclick="window.location.href='?'">All</button>
-        @foreach (var category in Model.Categories)
+    <div class="category-tabs">
+        <button class="tab-item @(string.IsNullOrEmpty(Model.SelectedCategorySlug) ? "active" : "")" 
+                onclick="window.location.href='?'">Hot Dishes</button>
+        
+        @foreach (var category in Model.Categories.Where(c => c.Name != "Hot Dishes"))
         {
-            <button class="menu-tab @(Model.SelectedCategoryId == category.Id ? "active" : "")" 
-                    onclick="window.location.href='?categoryId=@category.Id'">
+            <button class="tab-item @(Model.SelectedCategorySlug == category.Name.ToLower().Replace(" ", "-") ? "active" : "")" 
+                    onclick="window.location.href='?category=@category.Name.ToLower().Replace(" ", "-")'">
                 @category.Name
             </button>
         }
     </div>
     
-    <div class="menu-items-container">
-        @if (Model.MenuItems.Any())
+    <div class="products-container">
+        <!-- Add New Dish Card -->
+        <div class="add-dish-card" onclick="window.location.href='/Dashboard/Menu/EditItem'">
+            <div class="add-icon">
+                <i class='bx bx-plus'></i>
+            </div>
+            <p>Add new dish</p>
+        </div>
+        
+        @foreach (var item in Model.MenuItems)
         {
-            <table class="menu-table">
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Category</th>
-                        <th>Price</th>
-                        <th>Preparation Time</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.MenuItems.OrderBy(i => i.FoodCategoryId).ThenBy(i => i.Name))
-                    {
-                        <tr>
-                            <td class="menu-item-cell">
-                                <div class="menu-item-info">
-                                    <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/Images/basic_food_image.png" : item.ImageUrl)" 
-                                         alt="@item.Name" class="menu-item-image">
-                                    <div>
-                                        <h3 class="menu-item-name">@item.Name</h3>
-                                        <p class="menu-item-description">@item.Description</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>@item.FoodCategoryName</td>
-                            <td>$@item.Price.ToString("0.00")</td>
-                            <td>@(item.PreparationTime.HasValue ? $"{item.PreparationTime} min" : "N/A")</td>
-                            <td>
-                                <span class="item-status @(item.IsPopular ? "popular" : "available")">
-                                    @(item.IsPopular ? "Popular" : "Available")
-                                </span>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-        else
-        {
-            <div class="no-items-message">
-                <p>No menu items found. Please try a different search or category filter.</p>
+            <div class="dish-card">
+                <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/Images/basic_food_image.png" : item.ImageUrl)" 
+                     alt="@item.Name" class="dish-image">
+                
+                <div class="dish-details">
+                    <h3 class="dish-name">@item.Name</h3>
+                    <p class="dish-price-bowls">$ @item.Price.ToString("0.00") • @item.OrderCount Bowls</p>
+                </div>
+                
+                <a href="/Dashboard/Menu/EditItem/@item.Id" class="edit-dish-btn">
+                    <i class='bx bx-edit-alt'></i>
+                    Edit dish
+                </a>
             </div>
         }
+    </div>
+    
+    <div class="action-buttons">
+        <button class="btn-discard">Discard Changes</button>
+        <button class="btn-save">Save Changes</button>
     </div>
 </div>
 
 <style>
-    .menu-container {
-        padding: 20px;
+    .products-management {
+        padding: 24px;
+        font-family: 'Poppins', sans-serif;
     }
     
-    .menu-header {
+    .header-section {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 24px;
     }
     
-    .menu-search-filter {
-        display: flex;
-        gap: 10px;
+    .header-section h1 {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--text-color, #fff);
+        margin: 0;
     }
     
-    .search-form {
-        display: flex;
-        gap: 10px;
-    }
-    
-    .search-btn {
-        background-color: var(--accent-color);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0 20px;
-        cursor: pointer;
-    }
-    
-    .menu-tabs {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-        overflow-x: auto;
-        padding-bottom: 5px;
-    }
-    
-    .menu-tab {
-        background-color: var(--secondary-bg-color);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 10px 20px;
-        cursor: pointer;
-        white-space: nowrap;
-    }
-    
-    .menu-tab.active {
-        background-color: var(--accent-color);
-        color: white;
-        border-color: var(--accent-color);
-    }
-    
-    .menu-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .menu-table th {
-        text-align: left;
-        padding: 15px;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .menu-table td {
-        padding: 15px;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .menu-item-cell {
-        min-width: 300px;
-    }
-    
-    .menu-item-info {
+    .btn-manage-categories {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 8px;
+        background-color: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        font-size: 14px;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
     }
     
-    .menu-item-image {
+    .btn-manage-categories:hover {
+        background-color: rgba(255, 255, 255, 0.12);
+    }
+    
+    .category-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+    
+    .tab-item {
+        background: none;
+        border: none;
+        color: var(--text-muted, #ABBBC2);
+        font-size: 14px;
+        padding: 7px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.3s ease;
+    }
+    
+    .tab-item.active {
+        background-color: var(--accent-color, #EA7C69);
+        color: #fff;
+        box-shadow: 0 8px 24px rgba(234, 124, 105, 0.3);
+    }
+    
+    .products-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(192px, 1fr));
+        gap: 28px;
+        margin-bottom: 24px;
+    }
+    
+    .add-dish-card {
+        background-color: rgba(255, 255, 255, 0.08);
+        border: 1px dashed rgba(255, 255, 255, 0.4);
+        border-radius: 16px;
+        height: 260px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .add-dish-card:hover {
+        background-color: rgba(255, 255, 255, 0.12);
+    }
+    
+    .add-icon {
         width: 60px;
         height: 60px;
-        object-fit: cover;
-        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
     }
     
-    .menu-item-name {
-        margin: 0 0 5px 0;
-        font-size: 16px;
+    .add-icon i {
+        font-size: 24px;
+        color: var(--accent-color, #EA7C69);
     }
     
-    .menu-item-description {
+    .add-dish-card p {
+        color: var(--accent-color, #EA7C69);
+        font-size: 14px;
         margin: 0;
-        font-size: 14px;
-        color: var(--text-muted);
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
     }
     
-    .item-status {
-        display: inline-block;
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-size: 14px;
-    }
-    
-    .item-status.popular {
-        background-color: rgba(234, 124, 105, 0.2);
-        color: var(--accent-color);
-    }
-    
-    .item-status.available {
-        background-color: rgba(136, 224, 145, 0.2);
-        color: #65D273;
-    }
-    
-    .no-items-message {
+    .dish-card {
+        background-color: var(--secondary-bg-color, #1F1D2B);
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         text-align: center;
-        padding: 50px;
-        color: var(--text-muted);
+        transition: all 0.3s ease;
     }
-</style> 
+    
+    .dish-image {
+        width: 132px;
+        height: 132px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin-bottom: 12px;
+    }
+    
+    .dish-details {
+        margin-bottom: 16px;
+    }
+    
+    .dish-name {
+        font-size: 14px;
+        font-weight: 500;
+        margin: 0 0 8px 0;
+        color: var(--text-color, #fff);
+    }
+    
+    .dish-price-bowls {
+        font-size: 14px;
+        color: var(--text-muted, #ABBBC2);
+        margin: 0;
+    }
+    
+    .edit-dish-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        font-size: 14px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    
+    .edit-dish-btn:hover {
+        background-color: rgba(255, 255, 255, 0.12);
+    }
+    
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+    
+    .btn-discard, .btn-save {
+        padding: 14px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-discard {
+        background-color: transparent;
+        border: 1px solid var(--accent-color, #EA7C69);
+        color: var(--accent-color, #EA7C69);
+    }
+    
+    .btn-discard:hover {
+        background-color: rgba(234, 124, 105, 0.1);
+    }
+    
+    .btn-save {
+        background-color: var(--accent-color, #EA7C69);
+        border: none;
+        color: #fff;
+    }
+    
+    .btn-save:hover {
+        background-color: #d66c5a;
+    }
+    
+    /* Responsive styles are applied inline for compatibility */
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listener for the Manage Categories button
+            const manageCategoriesBtn = document.getElementById('manageCategories');
+            if (manageCategoriesBtn) {
+                manageCategoriesBtn.addEventListener('click', function() {
+                    window.location.href = '/Dashboard/Menu/Categories';
+                });
+            }
+            
+            // Add event listeners for action buttons
+            const discardBtn = document.querySelector('.btn-discard');
+            if (discardBtn) {
+                discardBtn.addEventListener('click', function() {
+                    if (confirm('Are you sure you want to discard all changes?')) {
+                        window.location.reload();
+                    }
+                });
+            }
+            
+            const saveBtn = document.querySelector('.btn-save');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', function() {
+                    alert('Changes saved successfully!');
+                });
+            }
+        });
+    </script>
+} 
