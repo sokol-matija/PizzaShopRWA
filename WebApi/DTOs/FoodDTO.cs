@@ -30,7 +30,6 @@ namespace WebAPI.DTOs
 		public decimal Price { get; set; }
 
 		[StringLength(500)]
-		[Url]
 		public string ImageUrl { get; set; }
 
 		[Range(1, int.MaxValue, ErrorMessage = "Preparation time must be greater than 0")]
@@ -56,7 +55,6 @@ namespace WebAPI.DTOs
 		public decimal Price { get; set; }
 
 		[StringLength(500)]
-		[Url]
 		public string ImageUrl { get; set; }
 
 		[Range(1, int.MaxValue, ErrorMessage = "Preparation time must be greater than 0")]

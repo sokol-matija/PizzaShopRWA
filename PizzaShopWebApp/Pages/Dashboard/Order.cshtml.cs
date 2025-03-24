@@ -30,12 +30,14 @@ namespace PizzaShopWebApp.Pages.Dashboard
 
         public List<MenuItemModel> Foods { get; set; } = new List<MenuItemModel>();
         public List<CategoryModel> Categories { get; set; } = new List<CategoryModel>();
+        public List<AllergenModel> Allergens { get; set; } = new List<AllergenModel>();
         public List<CartItemModel> CartItems { get; set; } = new List<CartItemModel>();
         
         public string SearchTerm { get; set; } = string.Empty;
         public int? SelectedCategoryId { get; set; }
+        public List<int> ExcludedAllergenIds { get; set; } = new List<int>();
 
-        public async Task<IActionResult> OnGetAsync(string searchTerm = "", int? categoryId = null)
+        public async Task<IActionResult> OnGetAsync(string searchTerm = "", int? categoryId = null, string excludeAllergens = "")
         {
             // Check if user is authenticated
             if (!_userService.IsAuthenticated())
@@ -45,11 +47,23 @@ namespace PizzaShopWebApp.Pages.Dashboard
 
             SearchTerm = searchTerm;
             SelectedCategoryId = categoryId;
+            
+            // Parse excluded allergen IDs if any
+            if (!string.IsNullOrEmpty(excludeAllergens))
+            {
+                ExcludedAllergenIds = excludeAllergens.Split(',')
+                    .Where(id => int.TryParse(id, out _))
+                    .Select(int.Parse)
+                    .ToList();
+            }
 
             try
             {
                 // Load categories
                 Categories = (await _foodService.GetAllCategoriesAsync()).ToList();
+                
+                // Load allergens
+                Allergens = (await _foodService.GetAllAllergensAsync()).ToList();
                 
                 // Load foods based on search and category filters
                 if (!string.IsNullOrEmpty(searchTerm) || categoryId.HasValue)
@@ -59,6 +73,14 @@ namespace PizzaShopWebApp.Pages.Dashboard
                 else
                 {
                     Foods = (await _foodService.GetAllFoodAsync()).ToList();
+                }
+                
+                // Filter out foods with excluded allergens
+                if (ExcludedAllergenIds.Any())
+                {
+                    Foods = Foods
+                        .Where(food => !food.Allergens.Any(a => ExcludedAllergenIds.Contains(a.Id)))
+                        .ToList();
                 }
 
                 // Get cart items

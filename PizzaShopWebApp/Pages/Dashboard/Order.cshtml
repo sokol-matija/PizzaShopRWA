@@ -45,6 +45,45 @@
             }
         </div>
         
+        <div class="allergen-filters">
+            <h3 class="allergen-filters-title">Filter by allergens:</h3>
+            <div class="allergen-icons-container">
+                @foreach (var allergen in Model.Allergens)
+                {
+                    <div class="allergen-filter @(Model.ExcludedAllergenIds.Contains(allergen.Id) ? "excluded" : "")" 
+                         data-allergen-id="@allergen.Id" onclick="toggleAllergenFilter(@allergen.Id)">
+                        <div class="allergen-icon">
+                            @switch (allergen.Name.ToLower())
+                            {
+                                case "gluten":
+                                    <i class='bx bx-cookie'></i>
+                                    break;
+                                case "dairy":
+                                    <i class='bx bxs-drink'></i>
+                                    break;
+                                case "nuts":
+                                    <i class='bx bx-food-menu'></i>
+                                    break;
+                                case "soy":
+                                    <i class='bx bx-food-tag'></i>
+                                    break;
+                                case "shellfish":
+                                    <i class='bx bx-bowl-hot'></i>
+                                    break;
+                                case "eggs":
+                                    <i class='bx bx-dish'></i>
+                                    break;
+                                default:
+                                    <i class='bx bx-food-tag'></i>
+                                    break;
+                            }
+                        </div>
+                        <span class="allergen-name">@allergen.Name</span>
+                    </div>
+                }
+            </div>
+        </div>
+        
         <div class="food-card-grid">
             @if (Model.Foods.Any())
             {
@@ -57,12 +96,28 @@
                             {
                                 <span class="food-badge popular">Popular</span>
                             }
+                            
+                            @if (food.Allergens.Any())
+                            {
+                                <div class="food-allergen-tags">
+                                    @foreach (var allergen in food.Allergens.Take(3))
+                                    {
+                                        <span class="food-allergen-tag" title="@allergen.Name">
+                                            <i class='bx bx-food-tag'></i>
+                                        </span>
+                                    }
+                                    @if (food.Allergens.Count > 3)
+                                    {
+                                        <span class="food-allergen-tag more">+@(food.Allergens.Count - 3)</span>
+                                    }
+                                </div>
+                            }
                         </div>
                         <div class="food-card-content">
                             <h3 class="food-card-name">@food.Name</h3>
                             <p class="food-card-price">$@food.Price.ToString("0.00")</p>
                             <p class="food-card-available">@(food.OrderCount > 0 ? $"{food.OrderCount} Bowls available" : "Available")</p>
-                            <form method="post" asp-page-handler="AddToCart" class="add-to-cart-form">
+                            <form method="post" asp-page-handler="AddToCart" class="add-to-cart-form" onsubmit="return addToCartSubmit(event, @food.Id)">
                                 <input type="hidden" name="foodId" value="@food.Id" />
                                 <input type="hidden" name="quantity" value="1" class="quantity-input" />
                                 <div class="add-to-cart-container">
@@ -101,7 +156,7 @@
             {
                 @foreach (var item in Model.CartItems)
                 {
-                    <div class="cart-item">
+                    <div class="cart-item" data-item-id="@item.Id">
                         <div class="cart-item-info">
                             <h3 class="cart-item-name">@item.Name</h3>
                             <p class="cart-item-price">$@item.Price.ToString("0.00")</p>
@@ -156,20 +211,10 @@
             </div>
         </div>
         
-        @if (Model.CartItems.Any())
-        {
-            <a href="/Dashboard/Payment" class="checkout-btn">
-                <span>Continue to Payment</span>
-                <i class='bx bx-right-arrow-alt'></i>
-            </a>
-        }
-        else
-        {
-            <button class="checkout-btn disabled" disabled>
-                <span>Continue to Payment</span>
-                <i class='bx bx-right-arrow-alt'></i>
-            </button>
-        }
+        <a href="/Dashboard/Payment" class="checkout-btn @(Model.CartItems.Any() ? "" : "disabled")" id="checkoutBtn" @(Model.CartItems.Any() ? "" : "disabled")>
+            <span>Continue to Payment</span>
+            <i class='bx bx-right-arrow-alt'></i>
+        </a>
     </div>
 </div>
 
@@ -841,7 +886,7 @@
         position: fixed;
         bottom: 30px;
         right: 30px;
-        background-color: var(--dark-bg-color);
+        background-color: var(--dark-bg-color, #1F1D2B);
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         display: flex;
@@ -854,6 +899,7 @@
         opacity: 0;
         visibility: hidden;
         transition: transform 0.3s, opacity 0.3s, visibility 0.3s;
+        border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
     }
     
     .notification.show {
@@ -865,10 +911,12 @@
     
     .notification.success {
         border-left: 4px solid var(--success-color);
+        background-color: var(--dark-bg-color, #1F1D2B);
     }
     
     .notification.error {
         border-left: 4px solid var(--error-color);
+        background-color: var(--dark-bg-color, #1F1D2B);
     }
     
     .notification-content {
@@ -884,22 +932,23 @@
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background-color: var(--success-light);
+        background-color: var(--success-color);
         transition: all 0.3s ease;
         position: relative;
     }
     
     .notification.success .notification-icon-container {
-        background-color: var(--success-light);
+        background-color: var(--success-color);
     }
     
     .notification.error .notification-icon-container {
-        background-color: rgba(255, 122, 122, 0.15);
+        background-color: var(--error-color);
     }
     
     .notification-icon {
         font-size: 20px;
         animation: iconPop 0.5s ease 0.1s forwards;
+        color: white;
     }
     
     .checkmark-svg {
@@ -909,7 +958,7 @@
         border-radius: 50%;
         display: none;
         stroke-width: 3;
-        stroke: var(--success-color);
+        stroke: white;
         stroke-miterlimit: 10;
     }
     
@@ -917,7 +966,7 @@
         stroke-dasharray: 166;
         stroke-dashoffset: 166;
         stroke-width: 3;
-        stroke: var(--success-color);
+        stroke: white;
         fill: none;
         animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
     }
@@ -927,27 +976,28 @@
         stroke-dasharray: 48;
         stroke-dashoffset: 48;
         stroke-width: 4;
-        stroke: var(--success-color);
+        stroke: white;
         animation: stroke 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.4s forwards;
     }
     
     .notification.success .notification-icon {
-        color: var(--success-color);
+        color: white;
     }
     
     .notification.error .notification-icon {
-        color: var(--error-color);
+        color: white;
     }
     
     .notification-message {
         font-size: 14px;
-        color: var(--text-color);
+        color: var(--text-color, #fff);
+        font-weight: 500;
     }
     
     .notification-close {
         background: transparent;
         border: none;
-        color: var(--text-muted);
+        color: var(--text-muted, #ABBBC2);
         cursor: pointer;
         padding: 0;
         display: flex;
@@ -958,7 +1008,7 @@
     }
     
     .notification-close:hover {
-        color: var(--text-color);
+        color: var(--text-color, #fff);
     }
     
     @@media (max-width: 1200px) {
@@ -1007,211 +1057,307 @@
             padding: 12px 0;
         }
     }
+    
+    /* New Allergen Filters styling */
+    .allergen-filters {
+        margin-bottom: 24px;
+        background-color: var(--secondary-bg-color, #1F1D2B);
+        border-radius: 16px;
+        padding: 16px;
+    }
+    
+    .allergen-filters-title {
+        font-size: 16px;
+        font-weight: 500;
+        margin: 0 0 12px 0;
+        color: var(--text-color);
+    }
+    
+    .allergen-icons-container {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .allergen-filter {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 8px;
+        border-radius: 12px;
+        width: 80px;
+    }
+    
+    .allergen-filter:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .allergen-icon {
+        width: 48px;
+        height: 48px;
+        background-color: rgba(234, 124, 105, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .allergen-icon i {
+        font-size: 24px;
+        color: var(--accent-color, #EA7C69);
+    }
+    
+    .allergen-name {
+        font-size: 12px;
+        color: var(--text-color);
+        text-align: center;
+    }
+    
+    .allergen-filter.excluded .allergen-icon {
+        background-color: rgba(255, 59, 59, 0.1);
+    }
+    
+    .allergen-filter.excluded .allergen-icon i {
+        color: #FF3B3B;
+    }
+    
+    .allergen-filter.excluded .allergen-icon::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24'%3E%3Cpath d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z' fill='%23FF3B3B'/%3E%3C/svg%3E");
+        background-size: 24px;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.8;
+    }
+    
+    .allergen-filter.excluded .allergen-name {
+        color: #FF3B3B;
+    }
+    
+    /* Food allergen tags */
+    .food-allergen-tags {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        display: flex;
+        gap: 4px;
+    }
+    
+    .food-allergen-tag {
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        border-radius: 4px;
+        padding: 4px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .food-allergen-tag.more {
+        background-color: rgba(234, 124, 105, 0.7);
+    }
+    
+    /* Improved checkout button styles */
+    .checkout-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        background-color: var(--accent-color, #EA7C69);
+        color: #fff;
+        padding: 14px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 16px;
+        box-shadow: 0 8px 24px rgba(234, 124, 105, 0.3);
+    }
+    
+    .checkout-btn:not(.disabled):hover {
+        background-color: #d66c5a;
+        transform: translateY(-2px);
+    }
+    
+    .checkout-btn:not(.disabled):active {
+        transform: translateY(0);
+    }
+    
+    .checkout-btn.disabled {
+        background-color: var(--dark-bg-color);
+        color: var(--text-muted);
+        cursor: not-allowed;
+        box-shadow: none;
+        pointer-events: none;
+    }
+    
+    /* Animation for checkout button when first item is added */
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    
+    .pulse-animation {
+        animation: pulse 0.5s ease-in-out 3;
+    }
 </style>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const notification = document.getElementById('notification');
-        const notificationMessage = notification.querySelector('.notification-message');
-        const notificationClose = notification.querySelector('.notification-close');
-        const cartCountBadge = document.querySelector('.cart-count-badge');
-        const cartItems = document.querySelector('.cart-items');
-        
-        // Dynamic search with debounce
-        const searchInput = document.getElementById('searchInput');
-        let searchTimeout;
-        
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                performSearch();
-            }, 300);
-        });
-        
-        function performSearch() {
-            const searchTerm = searchInput.value;
-            const url = new URL(window.location.href);
-            
-            if (searchTerm) {
-                url.searchParams.set('searchTerm', searchTerm);
-            } else {
-                url.searchParams.delete('searchTerm');
-            }
-            
-            window.location.href = url.toString();
-        }
-        
-        window.clearSearch = function() {
-            searchInput.value = '';
-            performSearch();
-        };
-        
-        function showNotification(type, message) {
-            notification.classList.remove('success', 'error', 'show');
-            notification.classList.add(type);
-            notificationMessage.textContent = message;
-            
-            // Get the elements
+@section Scripts {
+    <script>
+        // Notification Functions
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const messageEl = notification.querySelector('.notification-message');
+            const iconContainer = notification.querySelector('.notification-icon-container');
             const icon = notification.querySelector('.notification-icon');
-            const checkmarkSvg = notification.querySelector('.checkmark-svg');
+            const checkmark = notification.querySelector('.checkmark-svg');
             
-            // Reset animations and display
-            icon.style.display = 'none';
-            checkmarkSvg.style.display = 'none';
+            // Set message and type
+            messageEl.textContent = message;
             
-            // Set different icons based on type and message
+            // Set icon based on type
             if (type === 'success') {
-                // Use SVG checkmark for success notifications
-                checkmarkSvg.style.display = 'block';
-                
-                // Reset SVG animation
-                const circle = checkmarkSvg.querySelector('.checkmark-circle');
-                const check = checkmarkSvg.querySelector('.checkmark-check');
-                
-                circle.style.animation = 'none';
-                check.style.animation = 'none';
-                
-                // Force reflow
-                void checkmarkSvg.offsetWidth;
-                
-                // Restart animations
-                circle.style.animation = 'stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards';
-                check.style.animation = 'stroke 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.4s forwards';
-                
-                // Still set icon class for fallback
-                if (message.toLowerCase().includes('added')) {
-                    icon.className = 'notification-icon bx bx-dish';
-                } else if (message.toLowerCase().includes('removed')) {
-                    icon.className = 'notification-icon bx bx-basket';
-                } else if (message.toLowerCase().includes('updated') || message.toLowerCase().includes('changed')) {
-                    icon.className = 'notification-icon bx bx-food-menu';
-                } else {
-                    icon.className = 'notification-icon bx bx-check-circle';
-                }
+                icon.className = 'notification-icon bx bx-check';
+                checkmark.style.display = 'block';
+                notification.classList.add('success');
             } else {
-                // Use boxicon for error
-                icon.style.display = 'block';
-                icon.className = 'notification-icon bx bx-error-circle';
+                icon.className = 'notification-icon bx bx-error';
+                checkmark.style.display = 'none';
+                notification.classList.add('error');
             }
             
-            // Force a reflow to restart animation
-            notification.offsetHeight;
+            // Show notification
+            notification.classList.add('show');
             
-            // Add a slight delay for a better visual effect
+            // Auto hide after 3 seconds
             setTimeout(() => {
-                notification.classList.add('show');
-            }, 10);
-            
-            const hideTimeout = setTimeout(() => {
                 hideNotification();
             }, 3000);
-            
-            notificationClose.onclick = function() {
-                clearTimeout(hideTimeout);
-                hideNotification();
-            };
         }
         
         function hideNotification() {
+            const notification = document.getElementById('notification');
             notification.classList.remove('show');
         }
         
-        // Handle add to cart
-        document.querySelectorAll('.add-to-cart-form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const button = form.querySelector('.add-to-cart-btn');
-                const icon = button.querySelector('i');
-                const foodCard = form.closest('.food-card');
-                
-                // Force animation restart by removing and adding the class
-                button.classList.remove('clicked');
-                void button.offsetWidth; // Trigger reflow
-                button.classList.add('clicked');
-                
-                // Remove the class after animation completes
-                setTimeout(() => {
-                    button.classList.remove('clicked');
-                }, 600);
-                
-                button.disabled = true;
-                
-                fetch(form.action, {
-                    method: 'POST',
-                    body: new FormData(form)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update cart count
-                        cartCountBadge.textContent = data.cartCount;
-                        
-                        // Update cart items
-                        fetch(window.location.href)
-                            .then(response => response.text())
-                            .then(html => {
-                                const parser = new DOMParser();
-                                const doc = parser.parseFromString(html, 'text/html');
-                                const newCartItems = doc.querySelector('.cart-items').innerHTML;
-                                cartItems.innerHTML = newCartItems;
-                                
-                                // Update cart total
-                                const newTotal = doc.querySelector('.summary-row.total span:last-child').textContent;
-                                document.querySelector('.summary-row.total span:last-child').textContent = newTotal;
-                            });
-                        
-                        // Animate the card
-                        foodCard.classList.add('added-to-cart');
-                        setTimeout(() => {
-                            foodCard.classList.remove('added-to-cart');
-                        }, 700);
-                    }
-                    
-                    showNotification(data.success ? 'success' : 'error', data.message);
-                })
-                .catch(error => {
-                    showNotification('error', 'An error occurred while adding to cart.');
-                })
-                .finally(() => {
-                    button.disabled = false;
-                });
-            });
+        // Close button handler
+        document.querySelector('.notification-close').addEventListener('click', hideNotification);
+        
+        // Handle search input
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        
+        // Apply filters when Enter key is pressed in search input
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                applyFilters();
+            }
         });
         
-        // Handle quantity updates and remove items
-        cartItems.addEventListener('click', function(e) {
-            const button = e.target.closest('button');
-            if (!button) return;
+        // Apply filters when category selection changes
+        categoryFilter.addEventListener('change', function() {
+            applyFilters();
+        });
+        
+        // Function to clear search field and apply filters
+        function clearSearch() {
+            searchInput.value = '';
+            applyFilters();
+        }
+        
+        // Allergen filtering
+        let excludedAllergens = [@string.Join(",", Model.ExcludedAllergenIds)];
+        
+        // Function to toggle allergen filter selection
+        function toggleAllergenFilter(allergenId) {
+            const index = excludedAllergens.indexOf(allergenId);
+            if (index > -1) {
+                // Remove allergen from excluded list if it's already there
+                excludedAllergens.splice(index, 1);
+            } else {
+                // Add allergen to excluded list
+                excludedAllergens.push(allergenId);
+            }
             
-            const form = button.closest('form');
-            if (!form) return;
+            // Apply updated filters
+            applyFilters();
+        }
+        
+        // Function to apply all filters (search, category, allergens)
+        function applyFilters() {
+            const searchTerm = searchInput.value;
+            const categoryId = categoryFilter.value;
+            const allergenParam = excludedAllergens.length > 0 ? `&excludeAllergens=${excludedAllergens.join(',')}` : '';
             
-            e.preventDefault();
+            // Build URL with all filter parameters
+            const url = `?searchTerm=${encodeURIComponent(searchTerm)}${categoryId ? `&categoryId=${categoryId}` : ''}${allergenParam}`;
+            window.location.href = url;
+        }
+        
+        // Function to handle adding items to cart
+        function addToCartSubmit(event, foodId) {
+            event.preventDefault();
+            const form = event.target;
+            const quantityInput = form.querySelector('.quantity-input');
+            const quantity = parseInt(quantityInput.value) || 1;
             
-            fetch(form.action, {
+            // Get CSRF token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            
+            // Send AJAX request to add item to cart
+            fetch(`?handler=AddToCart`, {
                 method: 'POST',
-                body: new FormData(form)
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                },
+                body: `foodId=${foodId}&quantity=${quantity}`
             })
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                
-                // Update cart items
-                const newCartItems = doc.querySelector('.cart-items').innerHTML;
-                cartItems.innerHTML = newCartItems;
-                
-                // Update cart count
-                const newCount = doc.querySelector('.cart-count-badge').textContent;
-                cartCountBadge.textContent = newCount;
-                
-                // Update cart total
-                const newTotal = doc.querySelector('.summary-row.total span:last-child').textContent;
-                document.querySelector('.summary-row.total span:last-child').textContent = newTotal;
+            .then(response => {
+                if (response.ok) {
+                    // Show success notification
+                    showNotification('Item added to cart successfully');
+                    
+                    // Add animation to the food card
+                    const foodCard = document.querySelector(`.food-card[data-id="${foodId}"]`);
+                    foodCard.classList.add('added-to-cart');
+                    setTimeout(() => {
+                        foodCard.classList.remove('added-to-cart');
+                    }, 700);
+                    
+                    // Reload page to show updated cart
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 700);
+                } else {
+                    throw new Error('Failed to add item to cart');
+                }
             })
             .catch(error => {
-                showNotification('error', 'An error occurred while updating cart.');
+                console.error('Error adding to cart:', error);
+                showNotification('Failed to add item to cart. Please try again.', 'error');
             });
-        });
-    });
-</script>
+            
+            return false;
+        }
+    </script>
+}

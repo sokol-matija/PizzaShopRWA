@@ -10,5 +10,10 @@ namespace PizzaShopWebApp.Services
         Task<IEnumerable<MenuItemModel>> SearchFoodAsync(string searchTerm, int? categoryId = null, int page = 1, int count = 10);
         Task<IEnumerable<CategoryModel>> GetAllCategoriesAsync();
         Task<IEnumerable<AllergenModel>> GetAllAllergensAsync();
+        
+        // Add missing methods for CRUD operations
+        Task<MenuItemModel> CreateFoodAsync(MenuItemModel menuItem);
+        Task<MenuItemModel> UpdateFoodAsync(MenuItemModel menuItem);
+        Task<bool> DeleteFoodAsync(int id);
     }
 } 

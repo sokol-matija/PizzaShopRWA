@@ -7,35 +7,59 @@
 
 <div class="payment-container">
     <div class="payment-header">
-        <h1>Payment</h1>
-        <p>Complete your order by providing payment details</p>
+        <div class="header-content">
+            <h1>Payment</h1>
+            <p>Complete your order by providing payment details</p>
+        </div>
+        <div class="checkout-steps">
+            <div class="step completed">
+                <div class="step-icon">
+                    <i class='bx bx-cart-alt'></i>
+                </div>
+                <div class="step-label">Cart</div>
+            </div>
+            <div class="step-connector completed"></div>
+            <div class="step active">
+                <div class="step-icon">
+                    <i class='bx bx-credit-card'></i>
+                </div>
+                <div class="step-label">Payment</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-icon">
+                    <i class='bx bx-check-circle'></i>
+                </div>
+                <div class="step-label">Confirmation</div>
+            </div>
+        </div>
     </div>
     
     <div class="payment-content">
         <div class="payment-left">
-            <form method="post" asp-page-handler="Checkout">
-                <div class="form-section">
+            <form method="post" asp-page-handler="Checkout" id="paymentForm">
+                <div class="form-section payment-methods-section">
                     <h2>Payment Method</h2>
                     <div class="payment-methods">
                         <div class="payment-method active">
                             <input type="radio" id="creditCard" name="PaymentMethod" value="Credit Card" checked>
                             <label for="creditCard">
                                 <i class='bx bx-credit-card'></i>
-                                Credit Card
+                                <span>Credit Card</span>
                             </label>
                         </div>
                         <div class="payment-method">
                             <input type="radio" id="paypal" name="PaymentMethod" value="PayPal">
                             <label for="paypal">
                                 <i class='bx bxl-paypal'></i>
-                                PayPal
+                                <span>PayPal</span>
                             </label>
                         </div>
                         <div class="payment-method">
                             <input type="radio" id="cash" name="PaymentMethod" value="Cash">
                             <label for="cash">
                                 <i class='bx bx-money'></i>
-                                Cash on Delivery
+                                <span>Cash on Delivery</span>
                             </label>
                         </div>
                     </div>
@@ -43,26 +67,47 @@
                 
                 <div class="form-section" id="creditCardForm">
                     <h2>Card Details</h2>
+                    <div class="credit-card-visual">
+                        <div class="card-front">
+                            <div class="card-type">
+                                <i class='bx bxl-visa'></i>
+                                <i class='bx bxl-mastercard hidden'></i>
+                                <i class='bx bxl-american-express hidden'></i>
+                            </div>
+                            <div class="card-number" id="cardNumberDisplay">•••• •••• •••• ••••</div>
+                            <div class="card-details">
+                                <div class="card-holder">
+                                    <div class="label">Card Holder</div>
+                                    <div class="value" id="cardNameDisplay">YOUR NAME</div>
+                                </div>
+                                <div class="card-expiry">
+                                    <div class="label">Expires</div>
+                                    <div class="value" id="expiryDateDisplay">MM/YY</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="form-row">
                         <div class="form-group full">
                             <label for="cardName">Cardholder Name</label>
-                            <input type="text" id="cardName" placeholder="John Smith">
+                            <input type="text" id="cardName" placeholder="John Smith" oninput="updateCardDisplay()">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group full">
                             <label for="cardNumber">Card Number</label>
-                            <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456">
+                            <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCardNumber(this); updateCardDisplay()">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group half">
                             <label for="expiryDate">Expiry Date</label>
-                            <input type="text" id="expiryDate" placeholder="MM/YY">
+                            <input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5" oninput="formatExpiryDate(this); updateCardDisplay()">
                         </div>
                         <div class="form-group half">
                             <label for="cvv">CVV</label>
-                            <input type="text" id="cvv" placeholder="123">
+                            <input type="text" id="cvv" placeholder="123" maxlength="3">
                         </div>
                     </div>
                 </div>
@@ -76,11 +121,23 @@
                             <span asp-validation-for="DeliveryAddress" class="text-danger"></span>
                         </div>
                     </div>
+                    <div class="form-row">
+                        <div class="form-group full">
+                            <label for="deliveryNotes">Delivery Notes (Optional)</label>
+                            <textarea id="deliveryNotes" name="DeliveryNotes" rows="2" placeholder="Special instructions for delivery..."></textarea>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="payment-actions">
-                    <button type="submit" formmethod="post" asp-page-handler="Cancel" class="cancel-btn">Cancel Order</button>
-                    <button type="submit" class="confirm-btn">Confirm Payment</button>
+                    <a href="/Dashboard/Order" class="back-btn">
+                        <i class='bx bx-arrow-back'></i>
+                        Back to Order
+                    </a>
+                    <button type="submit" class="confirm-btn">
+                        <i class='bx bx-check'></i>
+                        Confirm Payment
+                    </button>
                 </div>
             </form>
         </div>
@@ -93,8 +150,10 @@
                     @foreach (var item in Model.CartItems)
                     {
                         <div class="order-item">
-                            <div class="item-quantity">@item.Quantity×</div>
-                            <div class="item-name">@item.Name</div>
+                            <div class="item-info">
+                                <div class="item-quantity">@item.Quantity×</div>
+                                <div class="item-name">@item.Name</div>
+                            </div>
                             <div class="item-price">$@((item.Price * item.Quantity).ToString("0.00"))</div>
                         </div>
                     }
@@ -113,13 +172,52 @@
                         <span>Delivery Fee</span>
                         <span>$@Model.DeliveryFee.ToString("0.00")</span>
                     </div>
+                    <div class="total-row discount">
+                        <span>Promo <span class="promo-code">WELCOME10</span></span>
+                        <span>-$@((Model.Subtotal * 0.1m).ToString("0.00"))</span>
+                    </div>
                     <div class="total-row grand-total">
                         <span>Total</span>
-                        <span>$@Model.Total.ToString("0.00")</span>
+                        <span>$@((Model.Total - (Model.Subtotal * 0.1m)).ToString("0.00"))</span>
                     </div>
                 </div>
+                
+                <div class="estimated-delivery">
+                    <div class="delivery-icon">
+                        <i class='bx bx-time'></i>
+                    </div>
+                    <div class="delivery-info">
+                        <span class="delivery-label">Estimated Delivery</span>
+                        <span class="delivery-time">@DateTime.Now.AddMinutes(30).ToString("h:mm tt") - @DateTime.Now.AddMinutes(45).ToString("h:mm tt")</span>
+                    </div>
+                </div>
+                
+                <div class="promo-code-input">
+                    <input type="text" placeholder="Promo code" value="WELCOME10" disabled>
+                    <button disabled>Applied</button>
+                </div>
+            </div>
+            
+            <div class="secure-payment-note">
+                <i class='bx bx-lock-alt'></i>
+                <span>Secure Payment Processing</span>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="payment-success-modal" class="modal">
+    <div class="modal-content">
+        <div class="success-animation">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+            </svg>
+        </div>
+        <h2>Payment Successful!</h2>
+        <p>Your order has been placed and will be delivered soon.</p>
+        <p class="order-number">Order #<span id="orderNumberDisplay">12345</span></p>
+        <a href="/Dashboard/Index" class="return-home-btn">Return to Dashboard</a>
     </div>
 </div>
 
@@ -156,6 +254,757 @@
                     }
                 });
             });
+            
+            // Handle form submission (simulate payment)
+            const paymentForm = document.getElementById('paymentForm');
+            paymentForm.addEventListener('submit', function(e) {
+                // For demo purposes only - in reality, this would be handled server-side
+                if (document.getElementById('creditCard').checked) {
+                    const cardName = document.getElementById('cardName').value;
+                    const cardNumber = document.getElementById('cardNumber').value;
+                    const expiryDate = document.getElementById('expiryDate').value;
+                    const cvv = document.getElementById('cvv').value;
+                    
+                    if (!cardName || !cardNumber || !expiryDate || !cvv) {
+                        e.preventDefault();
+                        alert('Please fill out all card details');
+                        return;
+                    }
+                }
+                
+                // Show success animation if everything is valid
+                // In a real app, this would happen after server response
+                if (document.getElementById('deliveryAddress').value) {
+                    //e.preventDefault(); // Uncomment for demo without backend
+                    //showPaymentSuccessModal(); // Uncomment for demo without backend
+                }
+            });
+            
+            // Check for success message in URL (after redirect from server)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('success') && urlParams.get('success') === 'true') {
+                const orderNumber = urlParams.get('orderNumber') || '12345';
+                document.getElementById('orderNumberDisplay').textContent = orderNumber;
+                showPaymentSuccessModal();
+            }
         });
+        
+        // Function to format card number with spaces
+        function formatCardNumber(input) {
+            // Remove any non-digit characters
+            let value = input.value.replace(/\D/g, '');
+            
+            // Add spaces after every 4 digits
+            let formattedValue = '';
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formattedValue += ' ';
+                }
+                formattedValue += value[i];
+            }
+            
+            input.value = formattedValue;
+            
+            // Determine card type
+            const cardType = document.querySelectorAll('.card-type i');
+            cardType.forEach(icon => icon.classList.add('hidden'));
+            
+            if (value.startsWith('4')) {
+                document.querySelector('.bxl-visa').classList.remove('hidden');
+            } else if (value.startsWith('5')) {
+                document.querySelector('.bxl-mastercard').classList.remove('hidden');
+            } else if (value.startsWith('3')) {
+                document.querySelector('.bxl-american-express').classList.remove('hidden');
+            }
+        }
+        
+        // Function to format expiry date as MM/YY
+        function formatExpiryDate(input) {
+            let value = input.value.replace(/\D/g, '');
+            
+            if (value.length > 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2);
+            }
+            
+            input.value = value;
+        }
+        
+        // Function to update the card display
+        function updateCardDisplay() {
+            const cardName = document.getElementById('cardName').value;
+            const cardNumber = document.getElementById('cardNumber').value;
+            const expiryDate = document.getElementById('expiryDate').value;
+            
+            document.getElementById('cardNameDisplay').textContent = cardName || 'YOUR NAME';
+            
+            if (cardNumber) {
+                document.getElementById('cardNumberDisplay').textContent = cardNumber;
+            } else {
+                document.getElementById('cardNumberDisplay').textContent = '•••• •••• •••• ••••';
+            }
+            
+            if (expiryDate) {
+                document.getElementById('expiryDateDisplay').textContent = expiryDate;
+            } else {
+                document.getElementById('expiryDateDisplay').textContent = 'MM/YY';
+            }
+        }
+        
+        // Show payment success modal
+        function showPaymentSuccessModal() {
+            const modal = document.getElementById('payment-success-modal');
+            modal.style.display = 'flex';
+            
+            // Prevent closing - it's a final confirmation
+            // Add a timeout to allow redirect in a real app
+            setTimeout(() => {
+                window.location.href = '/Dashboard/Index';
+            }, 5000);
+        }
     </script>
-} 
+}
+
+<style>
+    /* Payment Container */
+    .payment-container {
+        padding: 24px;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    /* Payment Header */
+    .payment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+    }
+    
+    .header-content h1 {
+        font-size: 28px;
+        font-weight: 600;
+        margin: 0 0 8px 0;
+        color: var(--text-color, #fff);
+    }
+    
+    .header-content p {
+        color: var(--text-muted, #ABBBC2);
+        margin: 0;
+    }
+    
+    /* Checkout Steps */
+    .checkout-steps {
+        display: flex;
+        align-items: center;
+    }
+    
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+    }
+    
+    .step-icon {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 8px;
+        color: var(--text-muted, #ABBBC2);
+        font-size: 18px;
+    }
+    
+    .step-label {
+        font-size: 12px;
+        color: var(--text-muted, #ABBBC2);
+    }
+    
+    .step.completed .step-icon {
+        background-color: var(--success-color, #2ECC71);
+        color: white;
+    }
+    
+    .step.active .step-icon {
+        background-color: var(--accent-color, #EA7C69);
+        color: white;
+    }
+    
+    .step.completed .step-label,
+    .step.active .step-label {
+        color: var(--text-color, #fff);
+    }
+    
+    .step-connector {
+        height: 2px;
+        width: 60px;
+        background-color: rgba(255, 255, 255, 0.1);
+        margin: 0 8px;
+        position: relative;
+        top: -12px;
+    }
+    
+    .step-connector.completed {
+        background-color: var(--success-color, #2ECC71);
+    }
+    
+    /* Payment Content */
+    .payment-content {
+        display: flex;
+        gap: 24px;
+    }
+    
+    .payment-left {
+        flex: 1;
+    }
+    
+    .payment-right {
+        width: 320px;
+    }
+    
+    /* Form Sections */
+    .form-section {
+        background-color: var(--secondary-bg-color, #1F1D2B);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .form-section h2 {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 20px 0;
+        color: var(--text-color, #fff);
+    }
+    
+    /* Payment Methods */
+    .payment-methods {
+        display: flex;
+        gap: 16px;
+    }
+    
+    .payment-method {
+        flex: 1;
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .payment-method input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+    
+    .payment-method label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    
+    .payment-method label i {
+        font-size: 24px;
+        color: var(--text-muted, #ABBBC2);
+    }
+    
+    .payment-method.active label {
+        background-color: rgba(234, 124, 105, 0.1);
+        border-color: var(--accent-color, #EA7C69);
+    }
+    
+    .payment-method.active label i,
+    .payment-method.active label span {
+        color: var(--accent-color, #EA7C69);
+    }
+    
+    /* Credit Card Visual */
+    .credit-card-visual {
+        margin-bottom: 24px;
+    }
+    
+    .card-front {
+        height: 200px;
+        background: linear-gradient(135deg, #4a4fe1, #8f7be8);
+        border-radius: 16px;
+        padding: 24px;
+        position: relative;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+    }
+    
+    .card-front::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -20%;
+        width: 150%;
+        height: 150%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+        z-index: 0;
+    }
+    
+    .card-type {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 30px;
+    }
+    
+    .card-type i {
+        font-size: 32px;
+        color: white;
+    }
+    
+    .card-type i.hidden {
+        display: none;
+    }
+    
+    .card-number {
+        font-size: 22px;
+        letter-spacing: 2px;
+        color: white;
+        margin-bottom: 30px;
+        font-family: 'Courier New', monospace;
+    }
+    
+    .card-details {
+        display: flex;
+        justify-content: space-between;
+        color: white;
+    }
+    
+    .card-holder, .card-expiry {
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+    
+    .value {
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+    
+    /* Form Elements */
+    .form-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .form-group {
+        flex: 1;
+    }
+    
+    .form-group.full {
+        width: 100%;
+    }
+    
+    .form-group.half {
+        width: 50%;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 14px;
+        color: var(--text-color, #fff);
+        margin-bottom: 8px;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 16px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: var(--text-color, #fff);
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+        border-color: var(--accent-color, #EA7C69);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(234, 124, 105, 0.25);
+    }
+    
+    /* Order Summary */
+    .order-summary-card {
+        background-color: var(--secondary-bg-color, #1F1D2B);
+        border-radius: 16px;
+        padding: 24px;
+    }
+    
+    .order-summary-card h2 {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 20px 0;
+        color: var(--text-color, #fff);
+    }
+    
+    .order-items {
+        margin-bottom: 24px;
+        max-height: 240px;
+        overflow-y: auto;
+    }
+    
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .order-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    
+    .item-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .item-quantity {
+        color: var(--accent-color, #EA7C69);
+        font-weight: 600;
+    }
+    
+    .item-name {
+        color: var(--text-color, #fff);
+    }
+    
+    .item-price {
+        color: var(--text-color, #fff);
+        font-weight: 500;
+    }
+    
+    .order-totals {
+        padding-top: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        margin-bottom: 24px;
+    }
+    
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        color: var(--text-muted, #ABBBC2);
+    }
+    
+    .total-row.grand-total {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        font-weight: 600;
+        font-size: 18px;
+        color: var(--text-color, #fff);
+    }
+    
+    .total-row.discount {
+        color: #2ECC71;
+    }
+    
+    .promo-code {
+        background-color: rgba(46, 204, 113, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin-left: 4px;
+    }
+    
+    /* Estimated Delivery */
+    .estimated-delivery {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        margin-bottom: 24px;
+    }
+    
+    .delivery-icon {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(234, 124, 105, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-color, #EA7C69);
+        font-size: 20px;
+    }
+    
+    .delivery-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .delivery-label {
+        font-size: 12px;
+        color: var(--text-muted, #ABBBC2);
+    }
+    
+    .delivery-time {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--text-color, #fff);
+    }
+    
+    /* Promo Code Input */
+    .promo-code-input {
+        display: flex;
+        margin-bottom: 16px;
+    }
+    
+    .promo-code-input input {
+        flex: 1;
+        padding: 12px 16px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px 0 0 8px;
+        color: var(--text-color, #fff);
+        font-size: 14px;
+    }
+    
+    .promo-code-input button {
+        padding: 12px 16px;
+        background-color: rgba(46, 204, 113, 0.1);
+        border: 1px solid #2ECC71;
+        color: #2ECC71;
+        border-radius: 0 8px 8px 0;
+        cursor: pointer;
+        font-weight: 500;
+    }
+    
+    /* Secure Payment Note */
+    .secure-payment-note {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 16px;
+        color: var(--text-muted, #ABBBC2);
+        font-size: 12px;
+    }
+    
+    /* Action Buttons */
+    .payment-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 32px;
+    }
+    
+    .back-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: none;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-color, #fff);
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .back-btn:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .confirm-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: var(--accent-color, #EA7C69);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 24px rgba(234, 124, 105, 0.3);
+    }
+    
+    .confirm-btn:hover {
+        background-color: #d66c5a;
+        transform: translateY(-2px);
+    }
+    
+    .confirm-btn:active {
+        transform: translateY(0);
+    }
+    
+    /* Success Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .modal-content {
+        background-color: var(--secondary-bg-color, #1F1D2B);
+        padding: 48px;
+        border-radius: 16px;
+        text-align: center;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .success-animation {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 24px auto;
+    }
+    
+    .checkmark {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: block;
+        stroke-width: 2;
+        stroke: #2ECC71;
+        stroke-miterlimit: 10;
+        margin: 0 auto;
+        box-shadow: 0 0 0 #2ECC71;
+        animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s both;
+    }
+    
+    .checkmark-circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 2;
+        stroke: #2ECC71;
+        fill: none;
+        animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+    
+    .checkmark-check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+    }
+    
+    @@keyframes stroke {
+        100% {
+            stroke-dashoffset: 0;
+        }
+    }
+    
+    @@keyframes scale {
+        0%, 100% {
+            transform: none;
+        }
+        50% {
+            transform: scale3d(1.1, 1.1, 1);
+        }
+    }
+    
+    @@keyframes fill {
+        100% {
+            box-shadow: inset 0 0 0 50px rgba(46, 204, 113, 0.1);
+        }
+    }
+    
+    .modal-content h2 {
+        font-size: 24px;
+        color: var(--text-color, #fff);
+        margin: 0 0 16px 0;
+    }
+    
+    .modal-content p {
+        font-size: 16px;
+        color: var(--text-muted, #ABBBC2);
+        margin-bottom: 24px;
+    }
+    
+    .order-number {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-color, #fff);
+        background-color: rgba(255, 255, 255, 0.05);
+        padding: 12px 24px;
+        border-radius: 8px;
+        display: inline-block;
+        margin-bottom: 32px;
+    }
+    
+    .return-home-btn {
+        display: inline-block;
+        background-color: var(--accent-color, #EA7C69);
+        color: white;
+        padding: 12px 32px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .return-home-btn:hover {
+        background-color: #d66c5a;
+        transform: translateY(-2px);
+    }
+    
+    /* Alert */
+    .alert {
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+    }
+    
+    .alert-danger {
+        background-color: rgba(231, 76, 60, 0.1);
+        border: 1px solid rgba(231, 76, 60, 0.3);
+        color: #e74c3c;
+    }
+    
+    /* Responsive Design */
+    @@media (max-width: 992px) {
+        .payment-content {
+            flex-direction: column-reverse;
+        }
+        
+        .payment-right {
+            width: 100%;
+        }
+        
+        .checkout-steps {
+            display: none;
+        }
+    }
+    
+    @@media (max-width: 768px) {
+        .payment-methods {
+            flex-direction: column;
+            gap: 12px;
+        }
+    }
+</style> 

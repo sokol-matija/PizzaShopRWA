@@ -28,12 +28,14 @@ namespace PizzaShopWebApp.Pages.Dashboard
         public List<CategoryModel> Categories { get; set; } = new List<CategoryModel>();
         public List<MenuItemModel> MenuItems { get; set; } = new List<MenuItemModel>();
         public Dictionary<int, List<MenuItemModel>> FoodByCategory { get; set; } = new Dictionary<int, List<MenuItemModel>>();
+        public List<AllergenModel> Allergens { get; set; } = new List<AllergenModel>();
         
         public int? SelectedCategoryId { get; set; }
         public string SelectedCategorySlug { get; set; } = string.Empty;
         public string SearchTerm { get; set; } = string.Empty;
+        public List<int> ExcludedAllergenIds { get; set; } = new List<int>();
 
-        public async Task<IActionResult> OnGetAsync(string category = "", string searchTerm = "")
+        public async Task<IActionResult> OnGetAsync(string category = "", string searchTerm = "", string excludeAllergens = "")
         {
             // Check if user is authenticated
             if (!_userService.IsAuthenticated())
@@ -43,11 +45,23 @@ namespace PizzaShopWebApp.Pages.Dashboard
 
             SearchTerm = searchTerm;
             SelectedCategorySlug = category;
+            
+            // Parse excluded allergen IDs if any
+            if (!string.IsNullOrEmpty(excludeAllergens))
+            {
+                ExcludedAllergenIds = excludeAllergens.Split(',')
+                    .Where(id => int.TryParse(id, out _))
+                    .Select(int.Parse)
+                    .ToList();
+            }
 
             try
             {
                 // Load categories
                 Categories = (await _foodService.GetAllCategoriesAsync()).ToList();
+                
+                // Load allergens
+                Allergens = (await _foodService.GetAllAllergensAsync()).ToList();
                 
                 // If we have a category slug, find the matching category ID
                 if (!string.IsNullOrEmpty(category))
@@ -61,29 +75,23 @@ namespace PizzaShopWebApp.Pages.Dashboard
                     }
                 }
 
-                // Load all food items
+                // Load all food items by default, or filter by category/search if provided
                 if (string.IsNullOrEmpty(searchTerm) && !SelectedCategoryId.HasValue)
                 {
-                    // If no category is selected, default to 'Hot Dishes' or the first category
-                    var hotDishesCategory = Categories.FirstOrDefault(c => c.Name == "Hot Dishes");
-                    if (hotDishesCategory != null)
-                    {
-                        MenuItems = (await _foodService.GetFoodByCategoryAsync(hotDishesCategory.Id)).ToList();
-                    }
-                    else if (Categories.Any())
-                    {
-                        // Fall back to first category if 'Hot Dishes' doesn't exist
-                        MenuItems = (await _foodService.GetFoodByCategoryAsync(Categories.First().Id)).ToList();
-                    }
-                    else
-                    {
-                        // If no categories, show all food
-                        MenuItems = (await _foodService.GetAllFoodAsync()).ToList();
-                    }
+                    // Show all food items by default instead of filtering by "Hot Dishes"
+                    MenuItems = (await _foodService.GetAllFoodAsync()).ToList();
                 }
                 else
                 {
                     MenuItems = (await _foodService.SearchFoodAsync(searchTerm, SelectedCategoryId)).ToList();
+                }
+                
+                // Filter out foods with excluded allergens
+                if (ExcludedAllergenIds.Any())
+                {
+                    MenuItems = MenuItems
+                        .Where(food => !food.Allergens.Any(a => ExcludedAllergenIds.Contains(a.Id)))
+                        .ToList();
                 }
 
                 // Group food items by category

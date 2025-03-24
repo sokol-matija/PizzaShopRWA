@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace PizzaShopWebApp.Pages.Dashboard.Menu
 {
@@ -81,8 +82,6 @@ namespace PizzaShopWebApp.Pages.Dashboard.Menu
                     // For new item, create an empty model
                     MenuItem = new MenuItemModel
                     {
-                        IsVegetarian = false,
-                        IsPopular = false,
                         Price = 0,
                         PreparationTime = 15 // Default preparation time
                     };
@@ -98,70 +97,63 @@ namespace PizzaShopWebApp.Pages.Dashboard.Menu
             return Page();
         }
         
-        public async Task<IActionResult> OnPostAsync(int[] SelectedAllergens)
+        public async Task<IActionResult> OnPostAsync()
         {
-            try
+            if (!ModelState.IsValid)
             {
-                // Validate model state
-                if (!ModelState.IsValid)
+                // Reload categories and allergens on validation error
+                Categories = (await _foodService.GetAllCategoriesAsync()).ToList();
+                Allergens = (await _foodService.GetAllAllergensAsync()).ToList();
+                return Page();
+            }
+            
+            // Handle image upload
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                // Delete old image if exists
+                if (!string.IsNullOrEmpty(MenuItem.ImageUrl))
                 {
-                    // Reload categories and allergens on validation error
-                    Categories = (await _foodService.GetAllCategoriesAsync()).ToList();
-                    Allergens = (await _foodService.GetAllAllergensAsync()).ToList();
-                    SelectedAllergenIds = SelectedAllergens.ToList();
-                    return Page();
+                    DeleteOldImage(MenuItem.ImageUrl);
                 }
                 
-                // Handle image upload
-                if (ImageFile != null && ImageFile.Length > 0)
+                // Save new image
+                MenuItem.ImageUrl = await SaveImageAsync(ImageFile);
+            }
+            else if (RemoveImage)
+            {
+                // Delete image without replacement
+                if (!string.IsNullOrEmpty(MenuItem.ImageUrl))
                 {
-                    // Save uploaded image
-                    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "Dishes");
-                    Directory.CreateDirectory(uploadsFolder); // Ensure directory exists
-                    
-                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
-                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                    
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await ImageFile.CopyToAsync(fileStream);
-                    }
-                    
-                    // Update image path in model
-                    MenuItem.ImageUrl = "/Images/Dishes/" + uniqueFileName;
-                }
-                else if (RemoveImage)
-                {
-                    // Clear image if requested
+                    DeleteOldImage(MenuItem.ImageUrl);
                     MenuItem.ImageUrl = string.Empty;
                 }
+            }
+            
+            try
+            {
+                // Associate selected allergens with the menu item
+                MenuItem.Allergens = new List<AllergenModel>();
                 
-                // Map selected allergens to menu item
-                MenuItem.Allergens = Allergens
-                    .Where(a => SelectedAllergens.Contains(a.Id))
-                    .ToList();
-                
-                // Get category name for display
-                var category = Categories.FirstOrDefault(c => c.Id == MenuItem.FoodCategoryId);
-                if (category != null)
+                if (SelectedAllergenIds != null && SelectedAllergenIds.Any())
                 {
-                    MenuItem.FoodCategoryName = category.Name;
+                    var allAllergens = await _foodService.GetAllAllergensAsync();
+                    MenuItem.Allergens = allAllergens
+                        .Where(a => SelectedAllergenIds.Contains(a.Id))
+                        .ToList();
                 }
-
-                // In a real application, you would call your service to save the menu item
-                // Here we'll just show a success message
                 
+                // Save menu item
                 if (MenuItem.Id == 0)
                 {
-                    // Create new item
-                    // Normally: MenuItem = await _foodService.CreateFoodItemAsync(MenuItem);
-                    TempData["SuccessMessage"] = $"Dish '{MenuItem.Name}' created successfully.";
+                    // Create mode
+                    await _foodService.CreateFoodAsync(MenuItem);
+                    TempData["SuccessMessage"] = "Item created successfully.";
                 }
                 else
                 {
-                    // Update existing item
-                    // Normally: await _foodService.UpdateFoodItemAsync(MenuItem);
-                    TempData["SuccessMessage"] = $"Dish '{MenuItem.Name}' updated successfully.";
+                    // Edit mode
+                    await _foodService.UpdateFoodAsync(MenuItem);
+                    TempData["SuccessMessage"] = "Item updated successfully.";
                 }
                 
                 return RedirectToPage("/Dashboard/Menu");
@@ -169,14 +161,97 @@ namespace PizzaShopWebApp.Pages.Dashboard.Menu
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving menu item");
-                ModelState.AddModelError(string.Empty, "An error occurred while saving the menu item. Please try again.");
+                ModelState.AddModelError(string.Empty, ex.Message);
                 
                 // Reload categories and allergens on error
                 Categories = (await _foodService.GetAllCategoriesAsync()).ToList();
                 Allergens = (await _foodService.GetAllAllergensAsync()).ToList();
-                SelectedAllergenIds = SelectedAllergens.ToList();
+                SelectedAllergenIds = SelectedAllergenIds.ToList();
                 
                 return Page();
+            }
+        }
+        
+        public async Task<IActionResult> OnPostDeleteAsync(int id)
+        {
+            try
+            {
+                var item = await _foodService.GetFoodByIdAsync(id);
+                
+                if (item == null)
+                {
+                    TempData["ErrorMessage"] = "Item not found.";
+                    return RedirectToPage("/Dashboard/Menu");
+                }
+                
+                // Delete associated image
+                if (!string.IsNullOrEmpty(item.ImageUrl))
+                {
+                    DeleteOldImage(item.ImageUrl);
+                }
+                
+                // Delete the item
+                await _foodService.DeleteFoodAsync(id);
+                
+                TempData["SuccessMessage"] = "Item deleted successfully.";
+                return RedirectToPage("/Dashboard/Menu");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error deleting item: {ex.Message}";
+                return RedirectToPage("/Dashboard/Menu");
+            }
+        }
+        
+        private async Task<string> SaveImageAsync(IFormFile imageFile)
+        {
+            try
+            {
+                // Generate unique file name
+                string uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(imageFile.FileName)}";
+                string uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "MenuItems");
+                
+                // Create directory if it doesn't exist
+                if (!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
+                
+                // Save file
+                string filePath = Path.Combine(uploadPath, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(fileStream);
+                }
+                
+                // Return relative URL for the image
+                return $"/Images/MenuItems/{uniqueFileName}";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error uploading image: {ex.Message}", ex);
+            }
+        }
+        
+        private void DeleteOldImage(string imageUrl)
+        {
+            if (string.IsNullOrEmpty(imageUrl) || imageUrl.StartsWith("http"))
+                return; // Skip if it's a URL or empty
+                
+            try
+            {
+                // Get physical path from URL
+                string fileName = Path.GetFileName(imageUrl);
+                string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "MenuItems", fileName);
+                
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
+            }
+            catch
+            {
+                // Ignore errors when deleting files - may be in use or not exist
             }
         }
     }
