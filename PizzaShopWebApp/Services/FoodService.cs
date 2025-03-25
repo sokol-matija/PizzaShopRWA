@@ -165,7 +165,7 @@ namespace PizzaShopWebApp.Services
             try
             {
                 // Handle ImageUrl - ensure it's a valid URL
-                string imageUrl = null;
+                string? imageUrl = null;
                 if (!string.IsNullOrWhiteSpace(menuItem.ImageUrl))
                 {
                     // If it's already a full URL, use it as is
@@ -229,7 +229,7 @@ namespace PizzaShopWebApp.Services
             try
             {
                 // Handle ImageUrl - ensure it's a valid URL
-                string imageUrl = null;
+                string? imageUrl = null;
                 if (!string.IsNullOrWhiteSpace(menuItem.ImageUrl))
                 {
                     // If it's already a full URL, use it as is
