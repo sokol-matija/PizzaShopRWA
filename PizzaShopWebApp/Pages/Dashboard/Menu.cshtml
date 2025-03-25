@@ -48,7 +48,30 @@
                     <div class="allergen-filter @(Model.ExcludedAllergenIds.Contains(allergen.Id) ? "excluded" : "")" 
                          data-allergen-id="@allergen.Id" onclick="toggleAllergenFilter(@allergen.Id)">
                         <div class="allergen-icon">
-                            <i class='bx bx-food-tag'></i>
+                            @switch (allergen.Name.ToLower())
+                            {
+                                case "gluten":
+                                    <i class='bx bx-baguette'></i>
+                                    break;
+                                case "dairy":
+                                    <i class='bx bx-coffee'></i>
+                                    break;
+                                case "nuts":
+                                    <i class='bx bx-cookie'></i>
+                                    break;
+                                case "soy":
+                                    <i class='bx bx-leaf'></i>
+                                    break;
+                                case "shellfish":
+                                    <i class='bx bx-water'></i>
+                                    break;
+                                case "eggs":
+                                    <i class='bx bx-food-tag'></i>
+                                    break;
+                                default:
+                                    <i class='bx bx-error'></i>
+                                    break;
+                            }
                         </div>
                         <span>@allergen.Name</span>
                     </div>
@@ -112,25 +135,25 @@
                                         @switch (allergen.Name.ToLower())
                                         {
                                             case "gluten":
-                                                <i class='bx bx-cookie'></i>
+                                                <i class='bx bx-baguette'></i>
                                                 break;
                                             case "dairy":
-                                                <i class='bx bxs-drink'></i>
+                                                <i class='bx bx-coffee'></i>
                                                 break;
                                             case "nuts":
-                                                <i class='bx bx-food-menu'></i>
+                                                <i class='bx bx-cookie'></i>
                                                 break;
                                             case "soy":
-                                                <i class='bx bx-food-tag'></i>
+                                                <i class='bx bx-leaf'></i>
                                                 break;
                                             case "shellfish":
-                                                <i class='bx bx-bowl-hot'></i>
+                                                <i class='bx bx-water'></i>
                                                 break;
                                             case "eggs":
-                                                <i class='bx bx-dish'></i>
+                                                <i class='bx bx-food-tag'></i>
                                                 break;
                                             default:
-                                                <i class='bx bx-food-tag'></i>
+                                                <i class='bx bx-error'></i>
                                                 break;
                                         }
                                         <span class="allergen-name">@allergen.Name</span>
@@ -300,25 +323,25 @@
                         let icon = '';
                         switch(allergen.name.toLowerCase()) {
                             case "gluten":
-                                icon = '<i class="bx bx-cookie"></i>';
+                                icon = '<i class="bx bx-baguette"></i>';
                                 break;
                             case "dairy":
-                                icon = '<i class="bx bxs-drink"></i>';
+                                icon = '<i class="bx bx-coffee"></i>';
                                 break;
                             case "nuts":
-                                icon = '<i class="bx bx-food-menu"></i>';
+                                icon = '<i class="bx bx-cookie"></i>';
                                 break;
                             case "soy":
-                                icon = '<i class="bx bx-food-tag"></i>';
+                                icon = '<i class="bx bx-leaf"></i>';
                                 break;
                             case "shellfish":
-                                icon = '<i class="bx bx-bowl-hot"></i>';
+                                icon = '<i class="bx bx-water"></i>';
                                 break;
                             case "eggs":
-                                icon = '<i class="bx bx-dish"></i>';
+                                icon = '<i class="bx bx-food-tag"></i>';
                                 break;
                             default:
-                                icon = '<i class="bx bx-food-tag"></i>';
+                                icon = '<i class="bx bx-error"></i>';
                                 break;
                         }
                         
@@ -427,13 +450,14 @@
     }
     
     .search-bar {
+        
         position: relative;
         width: 320px;
     }
     
     .search-bar i {
         position: absolute;
-        left: 16px;
+        left: 36px;
         top: 50%;
         transform: translateY(-50%);
         color: var(--text-muted, #ABBBC2);
@@ -508,6 +532,7 @@
         display: flex;
         gap: 12px;
         margin-bottom: 20px;
+        padding-top: 12px;
         overflow-x: auto;
         padding-bottom: 12px;
         scrollbar-width: none;
@@ -532,13 +557,13 @@
     
     .tab-item:hover {
         background: rgba(255, 255, 255, 0.08);
-        transform: translateY(-2px);
+        transform: translateY(-4px);
     }
     
     .tab-item.active {
         background: linear-gradient(45deg, var(--accent-color, #EA7C69), #e96c57);
         color: #fff;
-        box-shadow: 0 8px 24px rgba(234, 124, 105, 0.3);
+        box-shadow: 0 4px 12px rgba(234, 124, 105, 0.4);
         border: none;
     }
     
@@ -562,7 +587,7 @@
     }
     
     .allergen-filter:hover {
-        transform: translateY(-2px);
+        transform: translateY(-4px);
         background: rgba(255, 255, 255, 0.08);
     }
     
@@ -585,7 +610,20 @@
     
     .allergen-icon {
         color: var(--accent-color, #EA7C69);
-        font-size: 18px;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+    }
+
+    .allergen-icon i {
+        width: 24px;
+        height: 24px;
+        stroke-width: 1.5;
+        display: block;
+        color: inherit;
     }
     
     .products-container {
@@ -597,6 +635,7 @@
     }
     
     .add-dish-card {
+        margin-top: 60px;
         background: linear-gradient(135deg, rgba(234, 124, 105, 0.1), rgba(234, 124, 105, 0.2));
         border: 2px dashed rgba(234, 124, 105, 0.3);
         border-radius: 20px;
@@ -983,8 +1022,12 @@
     }
     
     .allergen-badge i {
+        width: 16px;
+        height: 16px;
+        stroke-width: 1.5;
         margin-right: 6px;
-        font-size: 16px;
+        display: block;
+        color: inherit;
     }
     
     /* Enhanced Dish badges styling */
