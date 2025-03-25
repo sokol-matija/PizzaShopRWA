@@ -392,13 +392,14 @@
             });
         }
         
+        
         // Add animation class to cards on load
         document.addEventListener('DOMContentLoaded', () => {
             const cards = document.querySelectorAll('.dish-card');
             cards.forEach((card, index) => {
                 setTimeout(() => {
                     card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
+                    card.classList.add('card-loaded');
                 }, index * 100);
             });
         });
@@ -635,7 +636,8 @@
     }
     
     .add-dish-card {
-        margin-top: 60px;
+        margin-top: 40px;
+        padding-bottom: 29px;
         background: linear-gradient(135deg, rgba(234, 124, 105, 0.1), rgba(234, 124, 105, 0.2));
         border: 2px dashed rgba(234, 124, 105, 0.3);
         border-radius: 20px;
@@ -683,6 +685,9 @@
     }
     
     .dish-card {
+        opacity: 0;
+        transform: translateY(20px); /* Initial position */
+        transition: all 0.3s ease;
         background: rgba(255, 255, 255, 0.03);
         border-radius: 20px;
         overflow: visible;
@@ -694,17 +699,22 @@
         padding-top: 20px;
     }
     
+    .dish-card.card-loaded {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
     .dish-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-        border-color: rgba(234, 124, 105, 0.3);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 32px rgba(234, 124, 105, 0.2);
+        border-color: rgba(234, 124, 105, 0.5);
     }
     
     .dish-image-container {
         position: relative;
         height: 160px;
         overflow: visible;
-        margin-top: -40px;
+        margin-top: -70px;
         padding: 0 20px;
         display: flex;
         justify-content: center;
@@ -715,17 +725,11 @@
         width: 180px;
         height: 180px;
         border-radius: 50%;
-        object-fit: cover;
-        border: 4px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        object-fit: scale-down;
         transition: all 0.3s ease;
     }
     
-    .dish-card:hover .dish-image {
-        border-color: rgba(234, 124, 105, 0.3);
-        box-shadow: 0 8px 32px rgba(234, 124, 105, 0.2),
-                    0 0 0 6px rgba(234, 124, 105, 0.1);
-    }
+
     
     .dish-details {
         padding: 20px;
@@ -826,7 +830,7 @@
     
     .edit-dish-btn:hover, .view-dish-btn:hover {
         background-position: right center;
-        color: var(--accent-color, #EA7C69);
+        color: #fff;
     }
     
     /* Enhanced Modal styling */
@@ -1071,9 +1075,7 @@
         z-index: 0;
     }
     
-    .dish-card:hover::before {
-        opacity: 1;
-    }
+    
     
     /* Responsive improvements */
     @@media (max-width: 768px) {
@@ -1220,5 +1222,26 @@
     .empty-state p {
         color: var(--text-muted);
         margin-bottom: 24px;
+    }
+
+    .add-dish-card .bx-plus {
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .add-dish-card:hover .bx-plus {
+        transform: rotate(90deg);
+    }
+
+    /* Assuming your buttons have a class like .edit-button and .view-button */
+    .edit-button,
+    .view-button {
+        color: white; /* Default text color */
+        transition: color 0.3s ease; /* Smooth transition for color change */
+    }
+
+    .edit-button:hover,
+    .view-button:hover {
+        color: white; /* Keep text color white on hover */
+        background-color: rgba(255, 255, 255, 0.2); /* Optional: Change background color on hover */
     }
 </style> 
