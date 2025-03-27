@@ -7,6 +7,9 @@ using WebAPI.Services;
 
 namespace WebAPI.Controllers
 {
+    /// <summary>
+    /// Controller for managing travel guides
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class GuideController : ControllerBase
@@ -18,6 +21,13 @@ namespace WebAPI.Controllers
             _guideService = guideService;
         }
 
+        /// <summary>
+        /// Get all available guides
+        /// </summary>
+        /// <remarks>
+        /// This endpoint is publicly accessible - no authentication required
+        /// </remarks>
+        /// <returns>List of all guides</returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Guide>>> GetAllGuides()
         {
@@ -25,6 +35,14 @@ namespace WebAPI.Controllers
             return Ok(guides);
         }
 
+        /// <summary>
+        /// Get a specific guide by ID
+        /// </summary>
+        /// <param name="id">The guide ID to retrieve</param>
+        /// <remarks>
+        /// This endpoint is publicly accessible - no authentication required
+        /// </remarks>
+        /// <returns>Guide details if found</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<Guide>> GetGuide(int id)
         {
@@ -35,6 +53,14 @@ namespace WebAPI.Controllers
             return Ok(guide);
         }
 
+        /// <summary>
+        /// Get all guides assigned to a specific trip
+        /// </summary>
+        /// <param name="tripId">The trip ID to get guides for</param>
+        /// <remarks>
+        /// This endpoint is publicly accessible - no authentication required
+        /// </remarks>
+        /// <returns>List of guides assigned to the specified trip</returns>
         [HttpGet("trip/{tripId}")]
         public async Task<ActionResult<IEnumerable<Guide>>> GetGuidesByTrip(int tripId)
         {
@@ -42,6 +68,14 @@ namespace WebAPI.Controllers
             return Ok(guides);
         }
 
+        /// <summary>
+        /// Create a new guide
+        /// </summary>
+        /// <param name="guide">The guide details to create</param>
+        /// <remarks>
+        /// This endpoint requires Admin role access
+        /// </remarks>
+        /// <returns>The newly created guide</returns>
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Guide>> CreateGuide(Guide guide)
@@ -53,6 +87,15 @@ namespace WebAPI.Controllers
             return CreatedAtAction(nameof(GetGuide), new { id = createdGuide.Id }, createdGuide);
         }
 
+        /// <summary>
+        /// Update an existing guide
+        /// </summary>
+        /// <param name="id">The ID of the guide to update</param>
+        /// <param name="guide">The updated guide details</param>
+        /// <remarks>
+        /// This endpoint requires Admin role access
+        /// </remarks>
+        /// <returns>The updated guide</returns>
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Guide>> UpdateGuide(int id, Guide guide)
@@ -70,6 +113,14 @@ namespace WebAPI.Controllers
             return Ok(updatedGuide);
         }
 
+        /// <summary>
+        /// Delete a guide
+        /// </summary>
+        /// <param name="id">The ID of the guide to delete</param>
+        /// <remarks>
+        /// This endpoint requires Admin role access
+        /// </remarks>
+        /// <returns>No content if deletion is successful</returns>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteGuide(int id)

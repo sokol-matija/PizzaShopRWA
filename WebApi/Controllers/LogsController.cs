@@ -5,6 +5,12 @@ using WebAPI.Services;
 
 namespace WebAPI.Controllers
 {
+	/// <summary>
+	/// Controller for managing and retrieving system logs
+	/// </summary>
+	/// <remarks>
+	/// All endpoints in this controller require Admin role access
+	/// </remarks>
 	[Route("api/[controller]")]
 	[ApiController]
 	[Authorize(Roles = "Admin")]
@@ -17,7 +23,14 @@ namespace WebAPI.Controllers
 			_logService = logService;
 		}
 
-		// GET: api/logs/get/10
+		/// <summary>
+		/// Get the most recent logs up to the specified count
+		/// </summary>
+		/// <param name="count">Number of log entries to retrieve</param>
+		/// <remarks>
+		/// This endpoint requires Admin role access
+		/// </remarks>
+		/// <returns>The requested number of most recent log entries</returns>
 		[HttpGet("get/{count}")]
 		public async Task<IActionResult> Get(int count)
 		{
@@ -28,7 +41,13 @@ namespace WebAPI.Controllers
 			return Ok(logs);
 		}
 
-		// GET: api/logs/count
+		/// <summary>
+		/// Get the total count of log entries in the system
+		/// </summary>
+		/// <remarks>
+		/// This endpoint requires Admin role access
+		/// </remarks>
+		/// <returns>The total count of log entries</returns>
 		[HttpGet("count")]
 		public async Task<IActionResult> Count()
 		{

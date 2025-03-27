@@ -101,8 +101,12 @@ builder.Services.AddSwaggerGen(c =>
 	var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 	c.IncludeXmlComments(xmlPath);
 	
-	// Add custom filter to mark endpoints with [Authorize] attribute
+	// Add custom filters for Swagger documentation
 	c.OperationFilter<AuthorizeCheckOperationFilter>();
+	c.OperationFilter<OperationSummaryFilter>(); // Add operation summary filter to display summaries in list view
+	
+	// Use operation IDs in the URL path
+	c.CustomOperationIds(e => $"{e.ActionDescriptor.RouteValues["action"]}");
 });
 
 // Add Security Requirement Operation Filter to mark endpoints that require JWT
@@ -113,9 +117,40 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+	app.UseSwagger(c => 
+	{
+		// Customize the Swagger JSON to better show descriptions
+		c.RouteTemplate = "swagger/{documentName}/swagger.json";
+	});
+	
+	app.UseSwaggerUI(c => 
+	{
+		c.SwaggerEndpoint("/swagger/v1/swagger.json", "Travel Organization API v1");
+		
+		// Custom display options to show endpoint descriptions
+		c.DefaultModelsExpandDepth(-1); // Hide the models by default
+		c.DisplayRequestDuration(); // Show the request duration
+		c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List); // Show endpoints as a list
+		c.EnableFilter(); // Enable filtering
+		c.EnableDeepLinking(); // Enable deep linking for navigation
+		
+		// Show operation description in the list view
+		c.DefaultModelRendering(Swashbuckle.AspNetCore.SwaggerUI.ModelRendering.Example);
+		
+		// Additional configuration to show descriptions
+		c.ConfigObject.AdditionalItems.Add("tagsSorter", "alpha");
+		c.ConfigObject.AdditionalItems.Add("operationsSorter", "alpha");
+		c.ConfigObject.AdditionalItems.Add("displayOperationId", false); // Don't show operation ID
+		c.ConfigObject.AdditionalItems.Add("showExtensions", true);
+		c.ConfigObject.AdditionalItems.Add("showCommonExtensions", true);
+        
+        // Add custom CSS to enhance UI
+        c.InjectStylesheet("/swagger-ui/custom.css");
+	});
 }
+
+// Enable static files middleware to serve custom CSS
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 

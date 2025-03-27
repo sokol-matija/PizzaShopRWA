@@ -8,6 +8,12 @@ using WebAPI.Services;
 
 namespace WebAPI.Controllers
 {
+    /// <summary>
+    /// Controller for managing trip registrations (bookings)
+    /// </summary>
+    /// <remarks>
+    /// Base authentication required for all endpoints in this controller
+    /// </remarks>
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -20,6 +26,13 @@ namespace WebAPI.Controllers
             _registrationService = registrationService;
         }
 
+        /// <summary>
+        /// Get all trip registrations in the system
+        /// </summary>
+        /// <remarks>
+        /// This endpoint requires Admin role access
+        /// </remarks>
+        /// <returns>List of all trip registrations</returns>
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<TripRegistration>>> GetAllRegistrations()
@@ -28,6 +41,15 @@ namespace WebAPI.Controllers
             return Ok(registrations);
         }
 
+        /// <summary>
+        /// Get a specific trip registration by ID
+        /// </summary>
+        /// <param name="id">The registration ID to retrieve</param>
+        /// <remarks>
+        /// Regular users can only access their own registrations
+        /// Admins can access any registration
+        /// </remarks>
+        /// <returns>Registration details if found and authorized</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<TripRegistration>> GetRegistration(int id)
         {
@@ -43,6 +65,15 @@ namespace WebAPI.Controllers
             return Ok(registration);
         }
 
+        /// <summary>
+        /// Get all registrations for a specific user
+        /// </summary>
+        /// <param name="userId">The user ID to get registrations for</param>
+        /// <remarks>
+        /// Regular users can only access their own registrations
+        /// Admins can access any user's registrations
+        /// </remarks>
+        /// <returns>List of registrations for the specified user if authorized</returns>
         [HttpGet("user/{userId}")]
         public async Task<ActionResult<IEnumerable<TripRegistration>>> GetRegistrationsByUser(int userId)
         {
@@ -55,6 +86,14 @@ namespace WebAPI.Controllers
             return Ok(registrations);
         }
 
+        /// <summary>
+        /// Get all registrations for a specific trip
+        /// </summary>
+        /// <param name="tripId">The trip ID to get registrations for</param>
+        /// <remarks>
+        /// This endpoint requires Admin role access
+        /// </remarks>
+        /// <returns>List of registrations for the specified trip</returns>
         [HttpGet("trip/{tripId}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<TripRegistration>>> GetRegistrationsByTrip(int tripId)
@@ -63,6 +102,15 @@ namespace WebAPI.Controllers
             return Ok(registrations);
         }
 
+        /// <summary>
+        /// Create a new trip registration (book a trip)
+        /// </summary>
+        /// <param name="registration">The registration details to create</param>
+        /// <remarks>
+        /// Regular users can only create registrations for themselves
+        /// Admins can create registrations for any user
+        /// </remarks>
+        /// <returns>The newly created registration</returns>
         [HttpPost]
         public async Task<ActionResult<TripRegistration>> CreateRegistration(TripRegistration registration)
         {
@@ -81,6 +129,16 @@ namespace WebAPI.Controllers
             return CreatedAtAction(nameof(GetRegistration), new { id = createdRegistration.Id }, createdRegistration);
         }
 
+        /// <summary>
+        /// Update an existing trip registration
+        /// </summary>
+        /// <param name="id">The ID of the registration to update</param>
+        /// <param name="registration">The updated registration details</param>
+        /// <remarks>
+        /// Regular users can only update their own registrations
+        /// Admins can update any registration
+        /// </remarks>
+        /// <returns>The updated registration</returns>
         [HttpPut("{id}")]
         public async Task<ActionResult<TripRegistration>> UpdateRegistration(int id, TripRegistration registration)
         {
@@ -106,6 +164,15 @@ namespace WebAPI.Controllers
             return Ok(updatedRegistration);
         }
 
+        /// <summary>
+        /// Delete a trip registration (cancel a booking)
+        /// </summary>
+        /// <param name="id">The ID of the registration to delete</param>
+        /// <remarks>
+        /// Regular users can only delete their own registrations
+        /// Admins can delete any registration
+        /// </remarks>
+        /// <returns>No content if deletion is successful</returns>
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteRegistration(int id)
         {
@@ -125,6 +192,15 @@ namespace WebAPI.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Update the status of a trip registration
+        /// </summary>
+        /// <param name="id">The ID of the registration to update</param>
+        /// <param name="status">The new registration status</param>
+        /// <remarks>
+        /// This endpoint requires Admin role access
+        /// </remarks>
+        /// <returns>No content if status update is successful</returns>
         [HttpPatch("{id}/status")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> UpdateRegistrationStatus(int id, [FromBody] string status)

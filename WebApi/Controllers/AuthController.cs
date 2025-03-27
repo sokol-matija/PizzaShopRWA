@@ -7,6 +7,9 @@ using WebAPI.Services;
 
 namespace WebAPI.Controllers
 {
+	/// <summary>
+	/// Controller for handling authentication and user account operations
+	/// </summary>
 	[Route("api/[controller]")]
 	[ApiController]
 	public class AuthController : ControllerBase
@@ -22,6 +25,14 @@ namespace WebAPI.Controllers
 			_logService = logService;
 		}
 
+		/// <summary>
+		/// Register a new user account
+		/// </summary>
+		/// <param name="model">Registration information including username, password, email and personal details</param>
+		/// <remarks>
+		/// This endpoint is publicly accessible - no authentication required
+		/// </remarks>
+		/// <returns>Confirmation of successful registration</returns>
 		[HttpPost("register")]
 		public async Task<IActionResult> Register([FromBody] RegisterDTO model)
 		{
@@ -35,6 +46,14 @@ namespace WebAPI.Controllers
 			return Ok(new { message = "Registration successful" });
 		}
 
+		/// <summary>
+		/// Authenticate a user and generate JWT token
+		/// </summary>
+		/// <param name="model">Login credentials (username and password)</param>
+		/// <remarks>
+		/// This endpoint is publicly accessible - no authentication required
+		/// </remarks>
+		/// <returns>JWT token and user information if authentication is successful</returns>
 		[HttpPost("login")]
 		public async Task<IActionResult> Login([FromBody] LoginDTO model)
 		{
@@ -57,6 +76,14 @@ namespace WebAPI.Controllers
 			});
 		}
 
+		/// <summary>
+		/// Change the password for the currently authenticated user
+		/// </summary>
+		/// <param name="model">Password change details including current and new password</param>
+		/// <remarks>
+		/// This endpoint requires authentication (any user can change their own password)
+		/// </remarks>
+		/// <returns>Confirmation of successful password change</returns>
 		[Authorize]
 		[HttpPost("changepassword")]
 		public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO model)

@@ -9,6 +9,9 @@ using WebAPI.Models;
 
 namespace WebAPI.Controllers
 {
+    /// <summary>
+    /// Controller for user management operations
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -22,7 +25,14 @@ namespace WebAPI.Controllers
             _logService = logService;
         }
 
-        // GET: api/user/{id}
+        /// <summary>
+        /// Get a specific user by ID
+        /// </summary>
+        /// <param name="id">The user ID to retrieve</param>
+        /// <remarks>
+        /// This endpoint requires Admin role access
+        /// </remarks>
+        /// <returns>User details without sensitive information</returns>
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUser(int id)
@@ -46,7 +56,13 @@ namespace WebAPI.Controllers
             });
         }
 
-        // GET: api/user/current
+        /// <summary>
+        /// Get the currently authenticated user's information
+        /// </summary>
+        /// <remarks>
+        /// This endpoint requires authentication (any authenticated user can access their own information)
+        /// </remarks>
+        /// <returns>Current user details without sensitive information</returns>
         [HttpGet("current")]
         [Authorize]
         public async Task<IActionResult> GetCurrentUser()
@@ -75,7 +91,13 @@ namespace WebAPI.Controllers
             });
         }
 
-        // GET: api/user/all
+        /// <summary>
+        /// Get a list of all users in the system
+        /// </summary>
+        /// <remarks>
+        /// This endpoint requires Admin role access
+        /// </remarks>
+        /// <returns>List of all users without sensitive information</returns>
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUsers()
