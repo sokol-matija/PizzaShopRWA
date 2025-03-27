@@ -36,6 +36,6 @@ namespace WebAPI.Models
 		public bool IsAdmin { get; set; }
 
 		// Navigation property
-		public ICollection<Order> Orders { get; set; }
+		public ICollection<TripRegistration> TripRegistrations { get; set; }
 	}
 }

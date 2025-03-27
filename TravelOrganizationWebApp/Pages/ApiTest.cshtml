@@ -1,0 +1,146 @@
+@page
+@model TravelOrganizationWebApp.Pages.ApiTestModel
+@{
+    ViewData["Title"] = "API Services Test";
+}
+
+<div class="container">
+    <h1 class="mb-4">API Services Test</h1>
+
+    @if (Model.HasError)
+    {
+        <div class="alert alert-danger mb-4" role="alert">
+            <h4 class="alert-heading">Error</h4>
+            <p>@Model.ErrorMessage</p>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success mb-4" role="alert">
+            <h4 class="alert-heading">All Services Tested Successfully</h4>
+            <p>All service interfaces successfully communicated with the API.</p>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Destinations -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Destinations</h5>
+                    <span class="badge bg-primary rounded-pill">@Model.Destinations.Count</span>
+                </div>
+                <div class="card-body">
+                    @if (Model.Destinations.Count > 0)
+                    {
+                        <ul class="list-group">
+                            @foreach (var destination in Model.Destinations)
+                            {
+                                <li class="list-group-item">
+                                    <strong>@destination.Name</strong>
+                                    <p class="mb-0 text-muted">@destination.City, @destination.Country</p>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No destinations found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Trips -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Trips</h5>
+                    <span class="badge bg-primary rounded-pill">@Model.Trips.Count</span>
+                </div>
+                <div class="card-body">
+                    @if (Model.Trips.Count > 0)
+                    {
+                        <ul class="list-group">
+                            @foreach (var trip in Model.Trips)
+                            {
+                                <li class="list-group-item">
+                                    <strong>@trip.Name</strong>
+                                    <p class="mb-0 text-muted">@trip.StartDate.ToShortDateString() - @trip.EndDate.ToShortDateString()</p>
+                                    <p class="mb-0 text-muted">@trip.DestinationName</p>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No trips found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Guides -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Guides</h5>
+                    <span class="badge bg-primary rounded-pill">@Model.Guides.Count</span>
+                </div>
+                <div class="card-body">
+                    @if (Model.Guides.Count > 0)
+                    {
+                        <ul class="list-group">
+                            @foreach (var guide in Model.Guides)
+                            {
+                                <li class="list-group-item">
+                                    <strong>@guide.Name</strong>
+                                    <p class="mb-0 text-muted">@guide.Email</p>
+                                    <p class="mb-0 text-muted">@(guide.YearsOfExperience.HasValue ? $"{guide.YearsOfExperience} years experience" : "Experience not specified")</p>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No guides found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Trip Registrations -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Trip Registrations</h5>
+                    <span class="badge bg-primary rounded-pill">@Model.TripRegistrations.Count</span>
+                </div>
+                <div class="card-body">
+                    @if (Model.TripRegistrations.Count > 0)
+                    {
+                        <ul class="list-group">
+                            @foreach (var registration in Model.TripRegistrations)
+                            {
+                                <li class="list-group-item">
+                                    <strong>@registration.TripName</strong>
+                                    <p class="mb-0 text-muted">User: @registration.Username</p>
+                                    <p class="mb-0 text-muted">Status: @registration.Status</p>
+                                    <p class="mb-0 text-muted">Participants: @registration.NumberOfParticipants</p>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No trip registrations found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4 mb-5">
+        <a asp-page="Index" class="btn btn-primary">Back to Home</a>
+    </div>
+</div> 

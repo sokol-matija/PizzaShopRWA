@@ -5,6 +5,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using WebAPI.Data;
 using WebAPI.Services;
+using WebAPI.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,12 +29,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Add application services
 builder.Services.AddScoped<ILogService, LogService>();
-builder.Services.AddScoped<IFoodService, FoodService>();
-builder.Services.AddScoped<IFoodCategoryService, FoodCategoryService>();
-builder.Services.AddScoped<IAllergenService, AllergenService>();
+builder.Services.AddScoped<IDestinationService, DestinationService>();
+builder.Services.AddScoped<ITripService, TripService>();
+builder.Services.AddScoped<IGuideService, GuideService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
-builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ITripRegistrationService, TripRegistrationService>();
 
 // Configure JWT authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -64,12 +65,16 @@ builder.Services.AddAuthentication(x =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-	c.SwaggerDoc("v1", new OpenApiInfo { Title = "Pizzeria API", Version = "v1" });
+	c.SwaggerDoc("v1", new OpenApiInfo { 
+		Title = "Travel Organization API", 
+		Version = "v1",
+		Description = "API for Travel Organization System with authentication"
+	});
 
 	// Add JWT Authentication
 	c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 	{
-		Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
+		Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
 		Name = "Authorization",
 		In = ParameterLocation.Header,
 		Type = SecuritySchemeType.ApiKey,
@@ -90,7 +95,18 @@ builder.Services.AddSwaggerGen(c =>
 			new string[] { }
 		}
 	});
+	
+	// Include XML comments
+	var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+	var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+	c.IncludeXmlComments(xmlPath);
+	
+	// Add custom filter to mark endpoints with [Authorize] attribute
+	c.OperationFilter<AuthorizeCheckOperationFilter>();
 });
+
+// Add Security Requirement Operation Filter to mark endpoints that require JWT
+builder.Services.AddSingleton<AuthorizeCheckOperationFilter>();
 
 var app = builder.Build();
 
