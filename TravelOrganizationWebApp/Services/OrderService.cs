@@ -1,8 +1,9 @@
 using System.Net.Http.Json;
-using PizzaShopWebApp.Models;
+using TravelOrganizationWebApp.Models;
 
-namespace PizzaShopWebApp.Services
+namespace TravelOrganizationWebApp.Services
 {
+    [System.Obsolete("This service is deprecated. Use TripRegistrationService instead.")]
     public class OrderService : ApiServiceBase, IOrderService
     {
         public OrderService(

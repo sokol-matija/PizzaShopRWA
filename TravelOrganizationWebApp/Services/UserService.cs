@@ -1,10 +1,12 @@
 using System.Net.Http.Json;
-using PizzaShopWebApp.Models;
+using TravelOrganizationWebApp.Models;
 
-namespace PizzaShopWebApp.Services
+namespace TravelOrganizationWebApp.Services
 {
     public class UserService : ApiServiceBase, IUserService
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         public UserService(
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
@@ -12,6 +14,7 @@ namespace PizzaShopWebApp.Services
             ILogger<UserService> logger) 
             : base(httpClientFactory, httpContextAccessor, configuration, logger)
         {
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<bool> LoginAsync(string username, string password)

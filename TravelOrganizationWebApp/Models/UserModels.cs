@@ -1,4 +1,4 @@
-namespace PizzaShopWebApp.Models
+namespace TravelOrganizationWebApp.Models
 {
     public class LoginModel
     {

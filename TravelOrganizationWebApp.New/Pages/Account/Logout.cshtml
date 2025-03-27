@@ -1,0 +1,22 @@
+@page
+@model TravelOrganizationWebApp.Pages.Account.LogoutModel
+@{
+    ViewData["Title"] = "Logout";
+}
+
+<div class="text-center">
+    <h1>Logging out...</h1>
+    <p>Please wait while we log you out.</p>
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-redirect to home after a brief delay
+        setTimeout(function() {
+            window.location.href = '/';
+        }, 1500);
+    </script>
+} 

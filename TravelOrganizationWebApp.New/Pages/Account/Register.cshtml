@@ -1,0 +1,104 @@
+@page
+@model TravelOrganizationWebApp.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="auth-container">
+    <div class="auth-card register-card">
+        <div class="auth-header">
+            <h2 class="glow-text">Join Our Travel Community</h2>
+            <p>Create an account to start planning your dream adventures</p>
+        </div>
+        
+        <div class="auth-body">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            <input asp-for="RegisterInput.FirstName" class="form-control animated-input" placeholder="First Name" />
+                            <label asp-for="RegisterInput.FirstName"></label>
+                            <span asp-validation-for="RegisterInput.FirstName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            <input asp-for="RegisterInput.LastName" class="form-control animated-input" placeholder="Last Name" />
+                            <label asp-for="RegisterInput.LastName"></label>
+                            <span asp-validation-for="RegisterInput.LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-floating mb-3">
+                    <input asp-for="RegisterInput.Username" class="form-control animated-input" placeholder="Username" />
+                    <label asp-for="RegisterInput.Username"></label>
+                    <span asp-validation-for="RegisterInput.Username" class="text-danger"></span>
+                </div>
+                
+                <div class="form-floating mb-3">
+                    <input asp-for="RegisterInput.Email" class="form-control animated-input" placeholder="Email" />
+                    <label asp-for="RegisterInput.Email"></label>
+                    <span asp-validation-for="RegisterInput.Email" class="text-danger"></span>
+                </div>
+                
+                <div class="form-floating mb-3">
+                    <input asp-for="RegisterInput.Password" class="form-control animated-input" placeholder="Password" />
+                    <label asp-for="RegisterInput.Password"></label>
+                    <span asp-validation-for="RegisterInput.Password" class="text-danger"></span>
+                </div>
+                
+                <div class="form-floating mb-3">
+                    <input asp-for="RegisterInput.ConfirmPassword" class="form-control animated-input" placeholder="Confirm Password" />
+                    <label asp-for="RegisterInput.ConfirmPassword"></label>
+                    <span asp-validation-for="RegisterInput.ConfirmPassword" class="text-danger"></span>
+                </div>
+                
+                <div class="form-floating mb-3">
+                    <input asp-for="RegisterInput.PhoneNumber" class="form-control animated-input" placeholder="Phone Number" />
+                    <label asp-for="RegisterInput.PhoneNumber"></label>
+                    <span asp-validation-for="RegisterInput.PhoneNumber" class="text-danger"></span>
+                </div>
+                
+                <div class="form-floating mb-4">
+                    <input asp-for="RegisterInput.Address" class="form-control animated-input" placeholder="Address" />
+                    <label asp-for="RegisterInput.Address"></label>
+                    <span asp-validation-for="RegisterInput.Address" class="text-danger"></span>
+                </div>
+                
+                <div class="form-check mb-4">
+                    <input asp-for="RegisterInput.AgreeToTerms" class="form-check-input" />
+                    <label asp-for="RegisterInput.AgreeToTerms" class="form-check-label">
+                        I agree to the <a href="#" class="terms-link">terms and conditions</a>
+                    </label>
+                    <span asp-validation-for="RegisterInput.AgreeToTerms" class="text-danger d-block"></span>
+                </div>
+                
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg btn-animated">
+                        <i class="fas fa-user-plus me-2"></i> Register
+                    </button>
+                </div>
+            </form>
+            
+            <div class="auth-separator">
+                <span>ALREADY HAVE AN ACCOUNT?</span>
+            </div>
+            
+            <div class="d-grid">
+                <a href="/Account/Login" class="btn btn-outline-secondary btn-lg btn-animated">
+                    <i class="fas fa-sign-in-alt me-2"></i> Log In
+                </a>
+            </div>
+        </div>
+        
+        <div class="travel-bg register-bg"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} 

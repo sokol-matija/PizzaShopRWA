@@ -1,5 +1,7 @@
-namespace PizzaShopWebApp.Models
+namespace TravelOrganizationWebApp.Models
 {
+    // Keeping this model but marking it as obsolete, as some existing code might reference it
+    [System.Obsolete("Use appropriate travel models instead")]
     public class MenuItemModel
     {
         public int Id { get; set; }
@@ -16,6 +18,7 @@ namespace PizzaShopWebApp.Models
         public int OrderCount { get; set; }
     }
 
+    // Keeping these models as they might be useful for categorizing destinations or trips
     public class CategoryModel
     {
         public int Id { get; set; }
@@ -30,6 +33,7 @@ namespace PizzaShopWebApp.Models
         public string Description { get; set; } = string.Empty;
     }
 
+    // Generic paged result model that will be useful for any paginated API response
     public class PagedResultModel<T>
     {
         public List<T> Items { get; set; } = new List<T>();

@@ -1,0 +1,44 @@
+@using TravelOrganizationWebApp.Services
+@inject IAuthService AuthService
+
+<ul class="navbar-nav">
+@if (AuthService.IsAuthenticated())
+{
+    <li class="nav-item mx-2">
+        <a class="nav-link text-dark" asp-page="/Account/Profile" title="Profile">
+            <i class="fas fa-user-circle me-1"></i>
+            <span>Profile</span>
+        </a>
+    </li>
+    @if (AuthService.IsAdmin())
+    {
+        <li class="nav-item mx-2">
+            <a class="nav-link text-dark" asp-page="/Admin/Index" title="Admin">
+                <i class="fas fa-cog me-1"></i>
+                <span>Admin</span>
+            </a>
+        </li>
+    }
+    <li class="nav-item mx-2">
+        <a class="nav-link text-dark" asp-page="/Account/Logout" title="Logout">
+            <i class="fas fa-sign-out-alt me-1"></i>
+            <span>Logout</span>
+        </a>
+    </li>
+}
+else
+{
+    <li class="nav-item mx-2">
+        <a class="nav-link text-dark" asp-page="/Account/Register" title="Register">
+            <i class="fas fa-user-plus me-1"></i>
+            <span>Register</span>
+        </a>
+    </li>
+    <li class="nav-item mx-2">
+        <a class="nav-link text-dark" asp-page="/Account/Login" title="Login">
+            <i class="fas fa-sign-in-alt me-1"></i>
+            <span>Login</span>
+        </a>
+    </li>
+}
+</ul> 

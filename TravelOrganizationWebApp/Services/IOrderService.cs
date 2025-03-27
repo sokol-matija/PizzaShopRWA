@@ -1,8 +1,9 @@
-using PizzaShopWebApp.Models;
+using TravelOrganizationWebApp.Models;
 
-namespace PizzaShopWebApp.Services
+namespace TravelOrganizationWebApp.Services
 {
-    public interface IOrderService : IApiService
+    [System.Obsolete("This interface is deprecated. Use trip registration service instead.")]
+    public interface IOrderService
     {
         Task<IEnumerable<OrderModel>> GetUserOrdersAsync();
         Task<OrderModel> GetOrderByIdAsync(int id);

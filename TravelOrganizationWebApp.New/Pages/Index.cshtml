@@ -1,0 +1,185 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<style>
+    .hero-section {
+        position: relative;
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.8), rgba(46, 204, 113, 0.8)), 
+                    url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1121&q=80') no-repeat center center;
+        background-size: cover;
+        color: white;
+        padding: 6rem 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .hero-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .hero-section h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: white;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .hero-section .lead {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        font-weight: 300;
+        text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    .section-title {
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        color: var(--dark-color);
+    }
+    
+    .section-subtitle {
+        text-align: center;
+        color: var(--gray-color);
+        margin-bottom: 2rem;
+    }
+    
+    .destination-card {
+        height: 100%;
+    }
+    
+    .feature-card {
+        text-align: center;
+        padding: 2rem;
+        border-radius: 12px;
+        background-color: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: all var(--transition-medium) ease;
+        height: 100%;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-card h4 {
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    @@media (max-width: 768px) {
+        .hero-section {
+            padding: 4rem 1rem;
+        }
+        
+        .hero-section h1 {
+            font-size: 2.2rem;
+        }
+        
+        .hero-section .lead {
+            font-size: 1.2rem;
+        }
+    }
+</style>
+
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="glow-text">Discover Your Next Adventure</h1>
+        <p class="lead">Explore amazing destinations and create unforgettable memories</p>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
+            <a asp-page="/Destinations/Index" class="btn btn-primary btn-lg px-4 me-md-2 btn-animated">
+                <i class="fas fa-search me-2"></i> Explore Destinations
+            </a>
+            <a asp-page="/Trips/Index" class="btn btn-outline-secondary btn-lg px-4 btn-animated">
+                <i class="fas fa-plane me-2"></i> Find Trips
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <h2 class="section-title">Featured Destinations</h2>
+        <p class="section-subtitle">Popular places loved by our travelers</p>
+    </div>
+</div>
+
+<div class="destinations-grid mt-4">
+    <div class="card destination-card">
+        <img src="https://images.unsplash.com/photo-1499678329028-101435549a4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" class="card-img-top" alt="Paris">
+        <div class="card-body">
+            <h5 class="card-title">Paris, France</h5>
+            <p class="card-text">Experience the charm of the City of Light with its iconic landmarks and exquisite cuisine.</p>
+            <a href="#" class="btn btn-sm btn-primary btn-animated">View Details</a>
+        </div>
+    </div>
+    
+    <div class="card destination-card">
+        <img src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" class="card-img-top" alt="Bali">
+        <div class="card-body">
+            <h5 class="card-title">Bali, Indonesia</h5>
+            <p class="card-text">Discover tropical paradise with beautiful beaches, lush rice terraces, and vibrant culture.</p>
+            <a href="#" class="btn btn-sm btn-primary btn-animated">View Details</a>
+        </div>
+    </div>
+    
+    <div class="card destination-card">
+        <img src="https://images.unsplash.com/photo-1543158266-0066955047b1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" class="card-img-top" alt="New York">
+        <div class="card-body">
+            <h5 class="card-title">New York City, USA</h5>
+            <p class="card-text">Explore the Big Apple with its iconic skyline, Broadway shows, and diverse neighborhoods.</p>
+            <a href="#" class="btn btn-sm btn-primary btn-animated">View Details</a>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <h2 class="section-title">Why Choose Us</h2>
+    </div>
+</div>
+
+<div class="row mt-3 g-4">
+    <div class="col-md-4">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-thumbs-up"></i>
+            </div>
+            <h4>Best Price Guarantee</h4>
+            <p>We offer the best prices for your travel needs with no hidden fees.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-headset"></i>
+            </div>
+            <h4>24/7 Customer Support</h4>
+            <p>Our dedicated team is available anytime to assist with your travel questions.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h4>Safe & Secure Booking</h4>
+            <p>Your personal information is protected with our secure booking system.</p>
+        </div>
+    </div>
+</div>

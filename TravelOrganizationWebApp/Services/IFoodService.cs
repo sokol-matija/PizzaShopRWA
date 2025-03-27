@@ -1,8 +1,9 @@
-using PizzaShopWebApp.Models;
+using TravelOrganizationWebApp.Models;
 
-namespace PizzaShopWebApp.Services
+namespace TravelOrganizationWebApp.Services
 {
-    public interface IFoodService : IApiService
+    [System.Obsolete("This interface is deprecated. Use destination and trip service interfaces instead.")]
+    public interface IFoodService
     {
         Task<IEnumerable<MenuItemModel>> GetAllFoodAsync(int page = 1, int count = 10);
         Task<IEnumerable<MenuItemModel>> GetFoodByCategoryAsync(int categoryId, int page = 1, int count = 10);

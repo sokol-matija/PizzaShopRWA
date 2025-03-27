@@ -1,8 +1,8 @@
-using PizzaShopWebApp.Models;
+using TravelOrganizationWebApp.Models;
 
-namespace PizzaShopWebApp.Services
+namespace TravelOrganizationWebApp.Services
 {
-    public interface IUserService : IApiService
+    public interface IUserService
     {
         Task<bool> LoginAsync(string username, string password);
         Task<bool> RegisterAsync(RegisterModel model);

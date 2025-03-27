@@ -1,5 +1,6 @@
-namespace PizzaShopWebApp.Models
+namespace TravelOrganizationWebApp.Models
 {
+    [System.Obsolete("Use TripRegistration models instead")]
     public class OrderModel
     {
         public int Id { get; set; }
@@ -13,6 +14,7 @@ namespace PizzaShopWebApp.Models
         public List<OrderItemModel> Items { get; set; } = new List<OrderItemModel>();
     }
 
+    [System.Obsolete("Use TripRegistration detail models instead")]
     public class OrderItemModel
     {
         public int Id { get; set; }
@@ -22,18 +24,21 @@ namespace PizzaShopWebApp.Models
         public decimal Price { get; set; }
     }
 
+    [System.Obsolete("Use TripRegistration create models instead")]
     public class OrderCreateModel
     {
         public string DeliveryAddress { get; set; } = string.Empty;
         public List<OrderItemCreateModel> Items { get; set; } = new List<OrderItemCreateModel>();
     }
 
+    [System.Obsolete("Use TripRegistration detail create models instead")]
     public class OrderItemCreateModel
     {
         public int FoodId { get; set; }
         public int Quantity { get; set; }
     }
 
+    [System.Obsolete("Use Trip or Destination models instead")]
     public class CartItemModel
     {
         public int Id { get; set; }
