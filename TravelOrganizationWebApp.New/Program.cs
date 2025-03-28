@@ -13,6 +13,14 @@ builder.Services.AddControllers();
 // Add HttpClient factory
 builder.Services.AddHttpClient();
 
+// Add HttpClient for Unsplash with proper configuration
+builder.Services.AddHttpClient<UnsplashService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.unsplash.com/");
+    client.DefaultRequestHeaders.Add("Accept-Version", "v1");
+    // Auth header will be added in the service
+});
+
 // Add HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 
