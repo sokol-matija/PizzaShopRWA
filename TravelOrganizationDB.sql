@@ -1,3 +1,5 @@
+
+
 --create database TravelOrganizationDB
 --go
 
@@ -132,3 +134,9 @@ INSERT INTO TripRegistration (UserId, TripId, RegistrationDate, NumberOfParticip
 (2, 3, DATEADD(day, -5, GETDATE()), 1, 1150.00, 'Pending'),   -- John Doe registered for Barcelona Beach & Culture with 1 participant
 (3, 2, DATEADD(day, -7, GETDATE()), 2, 2700.00, 'Confirmed'), -- Jane Smith registered for Rome Historical Experience with 2 participants
 (3, 4, DATEADD(day, -3, GETDATE()), 1, 1400.00, 'Cancelled'); -- Jane Smith registered for London Theater Week but cancelled
+
+select * from [User]
+
+select * from [Destination]
+
+select * from TripRegistration

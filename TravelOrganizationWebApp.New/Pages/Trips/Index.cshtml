@@ -1,0 +1,112 @@
+@page
+@model TravelOrganizationWebApp.Pages.Trips.IndexModel
+@{
+    ViewData["Title"] = "Available Trips";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">@ViewData["Title"]</h1>
+    
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @Model.ErrorMessage
+        </div>
+    }
+    
+    <!-- Destination Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Filter Trips</h5>
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label asp-for="DestinationId" class="form-label">Destination</label>
+                    <select asp-for="DestinationId" asp-items="Model.Destinations" class="form-select">
+                        <option value="">-- All Destinations --</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-primary">Apply Filter</button>
+                    <a asp-page="./Index" class="btn btn-outline-secondary">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Trip Listings -->
+    @if (Model.Trips.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var trip in Model.Trips)
+            {
+                <div class="col">
+                    <div class="card h-100">
+                        @if (!string.IsNullOrEmpty(trip.ImageUrl))
+                        {
+                            <img src="@trip.ImageUrl" class="card-img-top" alt="@trip.Title" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <img src="~/images/trip-placeholder.jpg" class="card-img-top" alt="@trip.Title" style="height: 200px; object-fit: cover;">
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@trip.Title</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">@trip.DestinationName</h6>
+                            <p class="card-text">
+                                @(trip.Description.Length > 150 ? trip.Description.Substring(0, 150) + "..." : trip.Description)
+                            </p>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <i class="bi bi-calendar"></i> 
+                                @trip.StartDate.ToString("d") - @trip.EndDate.ToString("d")
+                                <span class="badge bg-secondary float-end">@trip.DurationInDays days</span>
+                            </li>
+                            <li class="list-group-item">
+                                <i class="bi bi-currency-dollar"></i> @trip.FormattedPrice
+                            </li>
+                            <li class="list-group-item">
+                                <i class="bi bi-people"></i> @trip.AvailableSlots available of @trip.Capacity
+                                @if (trip.IsFull)
+                                {
+                                    <span class="badge bg-danger float-end">Fully Booked</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success float-end">Available</span>
+                                }
+                            </li>
+                        </ul>
+                        <div class="card-body">
+                            <a asp-page="./Details" asp-route-id="@trip.Id" class="btn btn-primary">View Details</a>
+                            @if (!trip.IsFull)
+                            {
+                                <a asp-page="./Book" asp-route-id="@trip.Id" class="btn btn-success">Book Now</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            No trips found. Please try a different filter or check back later.
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Optional enhancement: Auto-submit form when destination changes
+        document.addEventListener('DOMContentLoaded', function () {
+            const destinationSelect = document.getElementById('DestinationId');
+            if (destinationSelect) {
+                destinationSelect.addEventListener('change', function() {
+                    this.form.submit();
+                });
+            }
+        });
+    </script>
+} 

@@ -1,0 +1,61 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+@inject ILogger<UnsplashImage> Logger
+
+@code {
+    [Parameter]
+    public string Query { get; set; } = "travel";
+
+    [Parameter]
+    public string? PhotoId { get; set; }
+
+    [Parameter]
+    public string Class { get; set; } = "img-fluid";
+
+    [Parameter]
+    public string Alt { get; set; } = "Travel Image";
+
+    private string? imageUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(PhotoId))
+            {
+                imageUrl = await JSRuntime.InvokeAsync<string>("unsplashService.getImageById", PhotoId);
+            }
+            else
+            {
+                imageUrl = await JSRuntime.InvokeAsync<string>("unsplashService.getRandomImage", Query);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading Unsplash image");
+        }
+    }
+}
+
+@if (!string.IsNullOrEmpty(imageUrl))
+{
+    <img src="@imageUrl" class="@Class" alt="@Alt" />
+}
+else
+{
+    <div class="placeholder-image">
+        <i class="fas fa-image"></i>
+    </div>
+}
+
+<style>
+    .placeholder-image {
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+        color: #6c757d;
+        font-size: 2rem;
+    }
+</style> 

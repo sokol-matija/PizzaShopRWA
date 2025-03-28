@@ -10,6 +10,12 @@
             <span>Profile</span>
         </a>
     </li>
+    <li class="nav-item mx-2">
+        <a class="nav-link text-dark" asp-page="/Account/ChangePassword" title="Change Password">
+            <i class="fas fa-key me-1"></i>
+            <span>Change Password</span>
+        </a>
+    </li>
     @if (AuthService.IsAdmin())
     {
         <li class="nav-item mx-2">

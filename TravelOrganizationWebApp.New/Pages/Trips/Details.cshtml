@@ -1,0 +1,171 @@
+@page "{id:int}"
+@model TravelOrganizationWebApp.Pages.Trips.DetailsModel
+@{
+    ViewData["Title"] = Model.Trip?.Title ?? "Trip Details";
+}
+
+<div class="container mt-4">
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @Model.ErrorMessage
+        </div>
+    }
+    
+    @if (Model.Trip != null)
+    {
+        <div class="row">
+            <!-- Trip Image and Core Info -->
+            <div class="col-md-5">
+                @if (!string.IsNullOrEmpty(Model.Trip.ImageUrl))
+                {
+                    <img src="@Model.Trip.ImageUrl" class="img-fluid rounded" alt="@Model.Trip.Title">
+                }
+                else
+                {
+                    <img src="~/images/trip-placeholder.jpg" class="img-fluid rounded" alt="@Model.Trip.Title">
+                }
+                
+                <div class="mt-4">
+                    <h5>Trip Overview</h5>
+                    <table class="table">
+                        <tr>
+                            <th><i class="bi bi-calendar-date"></i> Dates</th>
+                            <td>@Model.Trip.StartDate.ToString("d") - @Model.Trip.EndDate.ToString("d")</td>
+                        </tr>
+                        <tr>
+                            <th><i class="bi bi-clock"></i> Duration</th>
+                            <td>@Model.Trip.DurationInDays days</td>
+                        </tr>
+                        <tr>
+                            <th><i class="bi bi-geo-alt"></i> Destination</th>
+                            <td>@Model.Trip.DestinationName</td>
+                        </tr>
+                        <tr>
+                            <th><i class="bi bi-currency-dollar"></i> Price</th>
+                            <td>@Model.Trip.FormattedPrice per person</td>
+                        </tr>
+                        <tr>
+                            <th><i class="bi bi-people"></i> Availability</th>
+                            <td>
+                                @Model.Trip.AvailableSlots of @Model.Trip.Capacity spots available
+                                @if (Model.Trip.IsFull)
+                                {
+                                    <span class="badge bg-danger ms-2">Fully Booked</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success ms-2">Available</span>
+                                }
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Trip Details -->
+            <div class="col-md-7">
+                <nav aria-label="breadcrumb" class="mb-3">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a asp-page="/Index">Home</a></li>
+                        <li class="breadcrumb-item"><a asp-page="./Index">Trips</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">@Model.Trip.Title</li>
+                    </ol>
+                </nav>
+                
+                <h1 class="mb-3">@Model.Trip.Title</h1>
+                
+                <div class="trip-description mb-4">
+                    @Model.Trip.Description
+                </div>
+                
+                @if (Model.Destination != null)
+                {
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Destination Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <h6>@Model.Destination.Name, @Model.Destination.Country</h6>
+                            <p>@Model.Destination.Description</p>
+                            
+                            @if (!string.IsNullOrEmpty(Model.Destination.Climate))
+                            {
+                                <div class="mb-2">
+                                    <strong>Climate:</strong> @Model.Destination.Climate
+                                </div>
+                            }
+                            
+                            @if (!string.IsNullOrEmpty(Model.Destination.BestTimeToVisit))
+                            {
+                                <div>
+                                    <strong>Best Time to Visit:</strong> @Model.Destination.BestTimeToVisit
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                
+                @if (Model.Trip.Guides != null && Model.Trip.Guides.Any())
+                {
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-person me-2"></i>Trip Guides</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                @foreach (var guide in Model.Trip.Guides)
+                                {
+                                    <div class="col-md-6 mb-3">
+                                        <div class="d-flex">
+                                            @if (!string.IsNullOrEmpty(guide.PhotoUrl))
+                                            {
+                                                <img src="@guide.PhotoUrl" class="rounded-circle me-3" alt="@guide.FullName" style="width: 60px; height: 60px; object-fit: cover;">
+                                            }
+                                            else
+                                            {
+                                                <div class="rounded-circle bg-secondary text-white me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                    <i class="bi bi-person-fill fs-3"></i>
+                                                </div>
+                                            }
+                                            <div>
+                                                <h6 class="mb-1">@guide.FullName</h6>
+                                                @if (guide.YearsExperience.HasValue)
+                                                {
+                                                    <div class="small text-muted">@guide.YearsExperience years experience</div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(guide.Languages))
+                                                {
+                                                    <div class="small text-muted">Languages: @guide.Languages</div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
+                    <a asp-page="./Index" class="btn btn-outline-secondary me-md-2">Back to Trips</a>
+                    
+                    @if (!Model.Trip.IsFull)
+                    {
+                        <a asp-page="./Book" asp-route-id="@Model.Trip.Id" class="btn btn-primary">Book This Trip</a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-secondary" disabled>Fully Booked</button>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else if (string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-warning" role="alert">
+            Trip not found. <a asp-page="./Index" class="alert-link">Return to trips listing</a>.
+        </div>
+    }
+</div> 

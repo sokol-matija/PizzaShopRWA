@@ -44,5 +44,14 @@ namespace TravelOrganizationWebApp.Services
         /// </summary>
         /// <returns>True if admin, false otherwise</returns>
         bool IsAdmin();
+        
+        /// <summary>
+        /// Changes the password for the currently authenticated user
+        /// </summary>
+        /// <param name="currentPassword">The user's current password</param>
+        /// <param name="newPassword">The new password to set</param>
+        /// <param name="confirmPassword">Confirmation of the new password</param>
+        /// <returns>True if password change was successful, false otherwise</returns>
+        Task<bool> ChangePasswordAsync(string currentPassword, string newPassword, string confirmPassword);
     }
 } 

@@ -26,12 +26,7 @@ namespace TravelOrganizationWebApp.Models
         public string? Address { get; set; }
         
         public bool IsAdmin { get; set; }
-        
-        // Additional properties
+
         public string FullName => $"{FirstName} {LastName}".Trim();
-        
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        
-        public DateTime? LastLoginAt { get; set; }
     }
 } 

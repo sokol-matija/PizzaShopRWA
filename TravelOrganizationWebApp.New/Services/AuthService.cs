@@ -81,6 +81,16 @@ namespace TravelOrganizationWebApp.Services
                             ExpiresUtc = DateTimeOffset.UtcNow.AddDays(loginModel.RememberMe ? 30 : 1)
                         };
 
+                        // Store the token in the authentication ticket properties
+                        authProperties.StoreTokens(new List<AuthenticationToken>
+                        {
+                            new AuthenticationToken
+                            {
+                                Name = "access_token",
+                                Value = tokenResponse.Token
+                            }
+                        });
+
                         await _httpContextAccessor.HttpContext!.SignInAsync(
                             CookieAuthenticationDefaults.AuthenticationScheme,
                             new ClaimsPrincipal(claimsIdentity),
@@ -184,25 +194,59 @@ namespace TravelOrganizationWebApp.Services
         {
             try
             {
+                // Get token from session
                 var token = _httpContextAccessor.HttpContext?.Session.GetString("Token");
                 
                 if (string.IsNullOrEmpty(token))
                 {
+                    _logger.LogWarning("GetCurrentUserAsync failed: No token found in session");
                     return null;
                 }
                 
-                // Set the authorization header
+                // Clear any existing headers
+                _httpClient.DefaultRequestHeaders.Authorization = null;
+                
+                // Set the authorization header exactly as in the curl example
                 _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
                 
+                // Log the API request with full details for debugging
+                _logger.LogInformation("Getting current user profile from {ApiUrl} with token: {TokenPreview}...", 
+                    $"{_apiBaseUrl}User/current", 
+                    token.Substring(0, Math.Min(20, token.Length)) + "...");
+                
                 // Make the API request to get the current user
-                var response = await _httpClient.GetAsync($"{_apiBaseUrl}user/profile");
+                var response = await _httpClient.GetAsync($"{_apiBaseUrl}User/current");
+                
+                // Log full details of the response
+                var responseContent = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation("API response: Status={StatusCode}, Content={Content}", 
+                    response.StatusCode, 
+                    responseContent);
                 
                 if (response.IsSuccessStatusCode)
                 {
-                    return await response.Content.ReadFromJsonAsync<UserModel>();
+                    var user = JsonSerializer.Deserialize<UserModel>(responseContent, new JsonSerializerOptions 
+                    { 
+                        PropertyNameCaseInsensitive = true 
+                    });
+                    
+                    if (user != null)
+                    {
+                        _logger.LogInformation("Successfully retrieved user: {Username}", user.Username);
+                        return user;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("API returned success but user object was null");
+                        return null;
+                    }
                 }
-                
-                return null;
+                else
+                {
+                    _logger.LogWarning("Failed to get current user: API returned {StatusCode} with message: {ErrorMessage}",
+                        response.StatusCode, responseContent);
+                    return null;
+                }
             }
             catch (Exception ex)
             {
@@ -225,6 +269,67 @@ namespace TravelOrganizationWebApp.Services
         public bool IsAdmin()
         {
             return _httpContextAccessor.HttpContext?.User.IsInRole("Admin") ?? false;
+        }
+        
+        /// <summary>
+        /// Changes the password for the currently authenticated user
+        /// </summary>
+        public async Task<bool> ChangePasswordAsync(string currentPassword, string newPassword, string confirmPassword)
+        {
+            try
+            {
+                // Validate that the new password and confirm password match
+                if (newPassword != confirmPassword)
+                {
+                    _logger.LogWarning("Password change failed: New password and confirmation do not match");
+                    return false;
+                }
+                
+                // Get the token from session
+                var token = _httpContextAccessor.HttpContext?.Session.GetString("Token");
+                
+                if (string.IsNullOrEmpty(token))
+                {
+                    _logger.LogWarning("Password change failed: User not authenticated");
+                    return false;
+                }
+                
+                // Set the authorization header
+                _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                
+                // Create the DTO for the API
+                var changePasswordDto = new ChangePasswordDTO
+                {
+                    CurrentPassword = currentPassword,
+                    NewPassword = newPassword,
+                    ConfirmNewPassword = confirmPassword
+                };
+                
+                // Log the API request for debugging
+                _logger.LogInformation("Sending password change request to {ApiUrl}", $"{_apiBaseUrl}Auth/changepassword");
+                
+                // Make the API request to change password
+                var response = await _httpClient.PostAsJsonAsync($"{_apiBaseUrl}Auth/changepassword", changePasswordDto);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    _logger.LogInformation("Password changed successfully");
+                    return true;
+                }
+                else
+                {
+                    // Read error message from response
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Password change failed: API returned {StatusCode} with message: {ErrorMessage}", 
+                        response.StatusCode, errorContent);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during password change");
+                return false;
+            }
         }
     }
 } 

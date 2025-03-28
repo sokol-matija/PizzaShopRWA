@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Options;
 using TravelOrganizationWebApp.Services;
+using TravelOrganizationWebApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
 
 // Add HttpClient factory
 builder.Services.AddHttpClient();
@@ -12,8 +15,15 @@ builder.Services.AddHttpClient();
 // Add HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 
+// Add Memory Cache
+builder.Services.AddMemoryCache();
+
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITripService, TripService>();
+builder.Services.AddScoped<IDestinationService, DestinationService>();
+builder.Services.AddScoped<ITripRegistrationService, TripRegistrationService>();
+builder.Services.AddScoped<IUnsplashService, UnsplashService>();
 
 // Add session support
 builder.Services.AddDistributedMemoryCache();
@@ -35,6 +45,14 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Account/AccessDenied";
         options.SlidingExpiration = true;
     });
+
+// Configure Unsplash settings
+builder.Services.Configure<UnsplashSettings>(
+    builder.Configuration.GetSection("UnsplashSettings"));
+
+// Register UnsplashSettings as a singleton
+builder.Services.AddSingleton(sp => 
+    sp.GetRequiredService<IOptions<UnsplashSettings>>().Value);
 
 var app = builder.Build();
 

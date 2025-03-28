@@ -1,0 +1,211 @@
+@page "{id:int}"
+@model TravelOrganizationWebApp.Pages.Trips.BookModel
+@{
+    ViewData["Title"] = "Book Trip";
+}
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-page="/Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-page="./Index">Trips</a></li>
+            @if (Model.Trip != null)
+            {
+                <li class="breadcrumb-item"><a asp-page="./Details" asp-route-id="@Model.Trip.Id">@Model.Trip.Title</a></li>
+            }
+            <li class="breadcrumb-item active" aria-current="page">Book</li>
+        </ol>
+    </nav>
+    
+    <h1 class="mb-4">@ViewData["Title"]</h1>
+    
+    @if (Model.Trip != null)
+    {
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Trip Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <h5>@Model.Trip.Title</h5>
+                        <p class="text-muted">@Model.Trip.DestinationName</p>
+                        
+                        <div class="mb-3">
+                            @if (!string.IsNullOrEmpty(Model.Trip.ImageUrl))
+                            {
+                                <img src="@Model.Trip.ImageUrl" class="img-fluid rounded" alt="@Model.Trip.Title">
+                            }
+                            else
+                            {
+                                <img src="~/images/trip-placeholder.jpg" class="img-fluid rounded" alt="@Model.Trip.Title">
+                            }
+                        </div>
+                        
+                        <table class="table table-sm">
+                            <tr>
+                                <th><i class="bi bi-calendar"></i> Dates</th>
+                                <td>@Model.Trip.StartDate.ToString("d") - @Model.Trip.EndDate.ToString("d")</td>
+                            </tr>
+                            <tr>
+                                <th><i class="bi bi-currency-dollar"></i> Price</th>
+                                <td>@Model.Trip.FormattedPrice per person</td>
+                            </tr>
+                            <tr>
+                                <th><i class="bi bi-people"></i> Available</th>
+                                <td>@Model.Trip.AvailableSlots of @Model.Trip.Capacity spots</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Booking Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                            
+                            <input type="hidden" asp-for="Input.TripId" />
+                            
+                            <div class="mb-3">
+                                <label asp-for="Input.Participants" class="form-label"></label>
+                                <input asp-for="Input.Participants" class="form-control" type="number" min="1" max="@Model.Trip.AvailableSlots" />
+                                <span asp-validation-for="Input.Participants" class="text-danger"></span>
+                                <div id="participantsHelp" class="form-text">Maximum @Model.Trip.AvailableSlots participants for this trip.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label asp-for="Input.SpecialRequests" class="form-label"></label>
+                                <textarea asp-for="Input.SpecialRequests" class="form-control" rows="3" placeholder="Dietary restrictions, accessibility needs, etc."></textarea>
+                                <span asp-validation-for="Input.SpecialRequests" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="mb-3 card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Price Details</h6>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Trip price per person:</span>
+                                        <span>@Model.Trip.FormattedPrice</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Number of participants:</span>
+                                        <span id="participantsCount">1</span>
+                                    </div>
+                                    <hr />
+                                    <div class="d-flex justify-content-between fw-bold">
+                                        <span>Total price:</span>
+                                        <span id="totalPrice">@Model.Trip.FormattedPrice</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" value="" id="termsCheck" required>
+                                <label class="form-check-label" for="termsCheck">
+                                    I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">terms and conditions</a>
+                                </label>
+                                <div class="invalid-feedback">
+                                    You must agree to the terms and conditions to proceed.
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex">
+                                <a asp-page="./Details" asp-route-id="@Model.Trip.Id" class="btn btn-outline-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Complete Booking</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Terms and Conditions Modal -->
+        <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Booking Terms</h6>
+                        <p>By booking this trip, you agree to the following terms:</p>
+                        <ul>
+                            <li>Reservations are confirmed upon successful payment processing.</li>
+                            <li>Cancellations made at least 30 days before departure date receive a full refund.</li>
+                            <li>Cancellations made 15-29 days before departure date receive a 50% refund.</li>
+                            <li>Cancellations made less than 15 days before departure date are non-refundable.</li>
+                            <li>The company reserves the right to cancel trips due to insufficient participation, acts of nature, or other unforeseen circumstances.</li>
+                            <li>In case of company cancellation, full refunds will be provided.</li>
+                        </ul>
+                        
+                        <h6>Traveler Responsibilities</h6>
+                        <p>All travelers are responsible for:</p>
+                        <ul>
+                            <li>Ensuring they have valid travel documents and visas where required.</li>
+                            <li>Providing accurate contact and medical information.</li>
+                            <li>Having appropriate travel insurance coverage.</li>
+                            <li>Adhering to the itinerary and respecting local customs and regulations.</li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">I Understand</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            Trip information is not available. <a asp-page="./Index" class="alert-link">View all trips</a>.
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const participantsInput = document.getElementById('Input_Participants');
+            const participantsCount = document.getElementById('participantsCount');
+            const totalPrice = document.getElementById('totalPrice');
+            const pricePerPerson = @Html.Raw(Json.Serialize(Model.Trip?.Price ?? 0));
+            
+            // Update price calculation when participants change
+            participantsInput?.addEventListener('change', updatePrice);
+            participantsInput?.addEventListener('input', updatePrice);
+            
+            function updatePrice() {
+                const count = parseInt(participantsInput.value) || 1;
+                participantsCount.textContent = count;
+                
+                // Calculate and format total price
+                const total = (pricePerPerson * count).toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD'
+                });
+                
+                totalPrice.textContent = total;
+            }
+            
+            // Initialize form validation
+            const form = document.querySelector('form');
+            const termsCheck = document.getElementById('termsCheck');
+            
+            form?.addEventListener('submit', function(event) {
+                if (!termsCheck.checked) {
+                    termsCheck.classList.add('is-invalid');
+                    event.preventDefault();
+                    event.stopPropagation();
+                } else {
+                    termsCheck.classList.remove('is-invalid');
+                }
+            });
+        });
+    </script>
+} 
