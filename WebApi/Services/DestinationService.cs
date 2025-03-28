@@ -45,6 +45,7 @@ namespace WebAPI.Services
             existingDestination.Description = destination.Description;
             existingDestination.Country = destination.Country;
             existingDestination.City = destination.City;
+            existingDestination.ImageUrl = destination.ImageUrl;
 
             await _context.SaveChangesAsync();
             await _logService.LogInformationAsync($"Updated destination: {destination.Name}");
@@ -57,15 +58,22 @@ namespace WebAPI.Services
             if (destination == null)
                 return false;
 
-            // Check if there are any trips associated with this destination
-            bool hasTrips = await _context.Trips.AnyAsync(t => t.DestinationId == id);
-            if (hasTrips)
-                return false;
-
             _context.Destinations.Remove(destination);
             await _context.SaveChangesAsync();
             await _logService.LogInformationAsync($"Deleted destination: {destination.Name}");
             return true;
         }
+
+        public async Task<bool> UpdateImageUrlAsync(int id, string imageUrl)
+        {
+            var destination = await _context.Destinations.FindAsync(id);
+            if (destination == null)
+                return false;
+
+            destination.ImageUrl = imageUrl;
+            await _context.SaveChangesAsync();
+            await _logService.LogInformationAsync($"Updated image URL for destination: {destination.Name}");
+            return true;
+        }
     }
-} 
+}

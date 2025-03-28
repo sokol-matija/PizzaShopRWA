@@ -22,7 +22,11 @@ namespace WebAPI.Models
         [StringLength(100)]
         public string City { get; set; }
 
-        // Navigation property
-        public ICollection<Trip> Trips { get; set; }
+        [StringLength(500)]
+        public string? ImageUrl { get; set; }
+        
+        // Navigation property - this is needed for Entity Framework relationships
+        // but won't be serialized in API responses
+        public virtual ICollection<Trip>? Trips { get; set; }
     }
-} 
+}

@@ -1,6 +1,6 @@
 @page
 @using TravelOrganizationWebApp.Pages.Components
-@model TravelOrganizationWebApp.Pages.Destinations.IndexModel
+@model TravelOrganizationWebApp.Pages.Destinations.DestinationsIndexModel
 @{
     ViewData["Title"] = "Destinations";
 }
@@ -19,6 +19,18 @@
     @if (Model.Destinations.Any())
     {
         <div class="row row-cols-1 row-cols-md-3 g-4">
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="col">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <h5 class="card-title">Add New Destination</h5>
+                            <p class="card-text">Create a new destination to offer to travelers</p>
+                            <a asp-page="./Create" class="btn btn-primary mt-auto">Add Destination</a>
+                        </div>
+                    </div>
+                </div>
+            }
             @foreach (var destination in Model.Destinations)
             {
                 <div class="col">
@@ -29,14 +41,19 @@
                         }
                         else
                         {
-                            <img src="https://source.unsplash.com/random/800x600/?travel,@destination.Country" class="card-img-top" alt="@destination.Name" style="height: 200px; object-fit: cover;">
+                            <div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height: 200px;">
+                                <i class="fas fa-image text-muted" style="font-size: 3rem;"></i>
+                            </div>
                         }
                         <div class="card-body">
                             <h5 class="card-title">@destination.Name</h5>
                             <h6 class="card-subtitle mb-2 text-muted">@destination.Location</h6>
-                            <p class="card-text">
-                                @(destination.Description.Length > 150 ? destination.Description.Substring(0, 150) + "..." : destination.Description)
-                            </p>
+                            @if (!string.IsNullOrEmpty(destination.Description))
+                            {
+                                <p class="card-text">
+                                    @(destination.Description.Length > 150 ? destination.Description.Substring(0, 150) + "..." : destination.Description)
+                                </p>
+                            }
                             @if (!string.IsNullOrEmpty(destination.Climate))
                             {
                                 <p class="card-text"><small class="text-muted"><i class="fas fa-sun"></i> @destination.Climate</small></p>

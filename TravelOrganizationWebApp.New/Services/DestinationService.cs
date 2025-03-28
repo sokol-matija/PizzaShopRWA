@@ -16,6 +16,7 @@ namespace TravelOrganizationWebApp.Services
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<DestinationService> _logger;
+        private readonly IUnsplashService _unsplashService;
         private readonly string _apiBaseUrl;
         private readonly JsonSerializerOptions _jsonOptions;
 
@@ -23,11 +24,13 @@ namespace TravelOrganizationWebApp.Services
             HttpClient httpClient,
             IHttpContextAccessor httpContextAccessor,
             ILogger<DestinationService> logger,
+            IUnsplashService unsplashService,
             IConfiguration configuration)
         {
             _httpClient = httpClient;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
+            _unsplashService = unsplashService;
             _apiBaseUrl = configuration["ApiSettings:BaseUrl"] ?? "http://localhost:16000/api/";
             
             // Configure JSON options
@@ -72,7 +75,23 @@ namespace TravelOrganizationWebApp.Services
                 var response = await _httpClient.GetAsync($"{_apiBaseUrl}Destination");
                 if (response.IsSuccessStatusCode)
                 {
-                    return await response.Content.ReadFromJsonAsync<List<DestinationModel>>() ?? new List<DestinationModel>();
+                    var destinations = await response.Content.ReadFromJsonAsync<List<DestinationModel>>() ?? new List<DestinationModel>();
+                    
+                    // Get Unsplash images for destinations without an image URL and update them
+                    foreach (var destination in destinations.Where(d => string.IsNullOrEmpty(d.ImageUrl)))
+                    {
+                        var searchQuery = $"{destination.City} {destination.Country} travel";
+                        var imageUrl = await _unsplashService.GetRandomImageUrlAsync(searchQuery);
+                        
+                        if (!string.IsNullOrEmpty(imageUrl))
+                        {
+                            destination.ImageUrl = imageUrl;
+                            // Update the destination in the database with the new image URL
+                            await UpdateDestinationImageAsync(destination.Id, imageUrl);
+                        }
+                    }
+                    
+                    return destinations;
                 }
                 else
                 {
@@ -84,6 +103,23 @@ namespace TravelOrganizationWebApp.Services
             {
                 _logger.LogError(ex, "Error getting destinations");
                 return new List<DestinationModel>();
+            }
+        }
+
+        private async Task<bool> UpdateDestinationImageAsync(int destinationId, string imageUrl)
+        {
+            try
+            {
+                await SetAuthHeaderAsync();
+                var response = await _httpClient.PutAsync(
+                    $"{_apiBaseUrl}Destination/{destinationId}/image",
+                    new StringContent(JsonSerializer.Serialize(new { imageUrl }), Encoding.UTF8, "application/json"));
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating destination image");
+                return false;
             }
         }
 
@@ -119,16 +155,8 @@ namespace TravelOrganizationWebApp.Services
         {
             try
             {
-                // Get token from session
-                var token = _httpContextAccessor.HttpContext?.Session.GetString("Token");
-                if (string.IsNullOrEmpty(token))
-                {
-                    _logger.LogWarning("CreateDestinationAsync failed: No token found in session");
-                    return null;
-                }
-
-                // Set the authorization header
-                _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                // Set authentication token from cookie
+                await SetAuthHeaderAsync();
 
                 // Create the request content
                 var content = new StringContent(

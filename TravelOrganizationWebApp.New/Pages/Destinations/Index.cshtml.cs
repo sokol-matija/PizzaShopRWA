@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TravelOrganizationWebApp.Models;
@@ -11,15 +12,19 @@ namespace TravelOrganizationWebApp.Pages.Destinations
     /// <summary>
     /// Page model for displaying all destinations
     /// </summary>
-    [Authorize(Roles = "Admin")]
-    public class IndexModel : PageModel
+    public class DestinationsIndexModel : PageModel
     {
         private readonly IDestinationService _destinationService;
-        private readonly ILogger<IndexModel> _logger;
+        private readonly IUnsplashService _unsplashService;
+        private readonly ILogger<DestinationsIndexModel> _logger;
 
-        public IndexModel(IDestinationService destinationService, ILogger<IndexModel> logger)
+        public DestinationsIndexModel(
+            IDestinationService destinationService,
+            IUnsplashService unsplashService,
+            ILogger<DestinationsIndexModel> logger)
         {
             _destinationService = destinationService;
+            _unsplashService = unsplashService;
             _logger = logger;
         }
 
@@ -31,7 +36,7 @@ namespace TravelOrganizationWebApp.Pages.Destinations
         /// <summary>
         /// Error message if API call fails
         /// </summary>
-        public string? ErrorMessage { get; set; }
+        public string ErrorMessage { get; set; } = string.Empty;
 
         [BindProperty]
         public CreateDestinationModel NewDestination { get; set; } = new CreateDestinationModel();
@@ -44,6 +49,17 @@ namespace TravelOrganizationWebApp.Pages.Destinations
             try
             {
                 Destinations = await _destinationService.GetAllDestinationsAsync();
+                
+                // Get images for destinations that don't have one
+                foreach (var destination in Destinations.Where(d => string.IsNullOrEmpty(d.ImageUrl)))
+                {
+                    var imageUrl = await _unsplashService.GetRandomImageUrlAsync($"{destination.City} {destination.Country}");
+                    if (!string.IsNullOrEmpty(imageUrl))
+                    {
+                        destination.ImageUrl = imageUrl;
+                    }
+                }
+                
                 return Page();
             }
             catch (Exception ex)
@@ -54,6 +70,7 @@ namespace TravelOrganizationWebApp.Pages.Destinations
             }
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> OnPostCreateAsync()
         {
             if (!ModelState.IsValid)

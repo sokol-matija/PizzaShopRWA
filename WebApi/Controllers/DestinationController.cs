@@ -116,5 +116,30 @@ namespace WebAPI.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Update a destination's image URL
+        /// </summary>
+        /// <param name="id">The ID of the destination</param>
+        /// <param name="request">The image URL update request</param>
+        /// <returns>No content if update is successful</returns>
+        [HttpPut("{id}/image")]
+        public async Task<ActionResult> UpdateDestinationImage(int id, [FromBody] ImageUrlUpdateRequest request)
+        {
+            if (string.IsNullOrEmpty(request.ImageUrl))
+                return BadRequest("Image URL is required");
+
+            var destination = await _destinationService.GetDestinationByIdAsync(id);
+            if (destination == null)
+                return NotFound();
+
+            destination.ImageUrl = request.ImageUrl;
+            
+            var result = await _destinationService.UpdateDestinationAsync(id, destination);
+            if (result == null)
+                return BadRequest("Failed to update destination image");
+
+            return NoContent();
+        }
     }
 } 

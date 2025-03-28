@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
-using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using TravelOrganizationWebApp.Models;
 
 namespace TravelOrganizationWebApp.Services
@@ -21,15 +21,18 @@ namespace TravelOrganizationWebApp.Services
         public UnsplashService(
             HttpClient httpClient,
             IMemoryCache cache,
-            UnsplashSettings settings,
+            IOptions<UnsplashSettings> settings,
             ILogger<UnsplashService> logger)
         {
             _httpClient = httpClient;
             _cache = cache;
-            _settings = settings;
+            _settings = settings.Value;
             _logger = logger;
 
-            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Client-ID {_settings.AccessKey}");
+            _httpClient.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Client-ID", _settings.AccessKey);
+            _httpClient.DefaultRequestHeaders.Add("Accept-Version", "v1");
+            _httpClient.BaseAddress = new Uri("https://api.unsplash.com/");
         }
 
         public async Task<string?> GetRandomImageUrlAsync(string query)
@@ -45,9 +48,7 @@ namespace TravelOrganizationWebApp.Services
 
             try
             {
-                var response = await _httpClient.GetAsync(
-                    $"https://api.unsplash.com/photos/random?query={Uri.EscapeDataString(query)}&orientation=landscape");
-
+                var response = await _httpClient.GetAsync($"photos/random?query={Uri.EscapeDataString(query)}&orientation=landscape");
                 if (response.IsSuccessStatusCode)
                 {
                     var photo = await response.Content.ReadFromJsonAsync<UnsplashPhoto>();
@@ -86,8 +87,7 @@ namespace TravelOrganizationWebApp.Services
 
             try
             {
-                var response = await _httpClient.GetAsync($"https://api.unsplash.com/photos/{photoId}");
-
+                var response = await _httpClient.GetAsync($"photos/{photoId}");
                 if (response.IsSuccessStatusCode)
                 {
                     var photo = await response.Content.ReadFromJsonAsync<UnsplashPhoto>();
