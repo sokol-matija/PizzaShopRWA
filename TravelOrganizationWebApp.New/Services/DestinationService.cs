@@ -31,7 +31,13 @@ namespace TravelOrganizationWebApp.Services
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
             _unsplashService = unsplashService;
-            _apiBaseUrl = configuration["ApiSettings:BaseUrl"] ?? "http://localhost:16000/api/";
+            
+            // Configure base address from settings
+            _httpClient.BaseAddress = new Uri(configuration["ApiSettings:BaseUrl"] ?? 
+                "http://localhost:16000/api/");
+                
+            // Set API base URL to empty as BaseAddress already has the api/ prefix
+            _apiBaseUrl = "";
             
             // Configure JSON options
             _jsonOptions = new JsonSerializerOptions
@@ -66,28 +72,83 @@ namespace TravelOrganizationWebApp.Services
         }
 
         /// <summary>
-        /// Get all available destinations
+        /// Get all destinations
         /// </summary>
         public async Task<List<DestinationModel>> GetAllDestinationsAsync()
         {
             try
             {
+                _logger.LogInformation("Fetching all destinations from API");
                 var response = await _httpClient.GetAsync($"{_apiBaseUrl}Destination");
+                
                 if (response.IsSuccessStatusCode)
                 {
-                    var destinations = await response.Content.ReadFromJsonAsync<List<DestinationModel>>() ?? new List<DestinationModel>();
+                    // Read response content as string first to handle the reference-preserving format
+                    var content = await response.Content.ReadAsStringAsync();
+                    
+                    // Configure JSON options to handle reference preservation
+                    var jsonOptions = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+                    };
+                    
+                    List<DestinationModel> destinations;
+                    
+                    try {
+                        // Try to parse directly first
+                        destinations = JsonSerializer.Deserialize<List<DestinationModel>>(content, jsonOptions);
+                        if (destinations == null)
+                        {
+                            destinations = new List<DestinationModel>();
+                        }
+                    }
+                    catch
+                    {
+                        // If direct parsing fails, try to extract the $values array from reference-preserving format
+                        try
+                        {
+                            var responseObj = JsonSerializer.Deserialize<JsonDocument>(content, jsonOptions);
+                            // Check if the root has a $values property (reference-preserving format)
+                            if (responseObj?.RootElement.TryGetProperty("$values", out var valuesElement) == true)
+                            {
+                                destinations = JsonSerializer.Deserialize<List<DestinationModel>>(
+                                    valuesElement.GetRawText(), jsonOptions) ?? new List<DestinationModel>();
+                            }
+                            else
+                            {
+                                // Fallback if structure is different
+                                destinations = new List<DestinationModel>();
+                                _logger.LogWarning("Unexpected JSON format from API");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Failed to parse destination data");
+                            destinations = new List<DestinationModel>();
+                        }
+                    }
                     
                     // Get Unsplash images for destinations without an image URL and update them
                     foreach (var destination in destinations.Where(d => string.IsNullOrEmpty(d.ImageUrl)))
                     {
-                        var searchQuery = $"{destination.City} {destination.Country} travel";
-                        var imageUrl = await _unsplashService.GetRandomImageUrlAsync(searchQuery);
-                        
-                        if (!string.IsNullOrEmpty(imageUrl))
+                        try
                         {
-                            destination.ImageUrl = imageUrl;
-                            // Update the destination in the database with the new image URL
-                            await UpdateDestinationImageAsync(destination.Id, imageUrl);
+                            var searchQuery = $"{destination.City} {destination.Country} travel";
+                            var imageUrl = await _unsplashService.GetRandomImageUrlAsync(searchQuery);
+                            
+                            if (!string.IsNullOrEmpty(imageUrl))
+                            {
+                                destination.ImageUrl = imageUrl;
+                                // Update the destination in the database with the new image URL
+                                await UpdateDestinationImageAsync(destination.Id, imageUrl);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error getting Unsplash image for {City}, {Country}", 
+                                destination.City, destination.Country);
+                            // Continue processing other destinations
                         }
                     }
                     
@@ -157,16 +218,16 @@ namespace TravelOrganizationWebApp.Services
             {
                 // Set authentication token from cookie
                 await SetAuthHeaderAsync();
-
+                
                 // Create the request content
                 var content = new StringContent(
                     JsonSerializer.Serialize(destination),
                     Encoding.UTF8,
                     "application/json");
-
+                
                 // Make the API request
                 var response = await _httpClient.PostAsync($"{_apiBaseUrl}Destination", content);
-
+                
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();

@@ -8,6 +8,14 @@
 <div class="container mt-4">
     <h1 class="mb-4">@ViewData["Title"]</h1>
     
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"]?.ToString()))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
         <div class="alert alert-danger" role="alert">
@@ -31,6 +39,30 @@
                     </div>
                 </div>
             }
+
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete <strong id="deleteDestinationName"></strong>?</p>
+                            <p class="text-danger">This action cannot be undone.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form id="deleteForm" method="post" asp-page-handler="Delete">
+                                <input type="hidden" id="deleteDestinationId" name="id" />
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             @foreach (var destination in Model.Destinations)
             {
                 <div class="col">
@@ -64,8 +96,26 @@
                             }
                         </div>
                         <div class="card-footer bg-transparent">
-                            <a asp-page="./Details" asp-route-id="@destination.Id" class="btn btn-sm btn-primary">View Details</a>
-                            <a asp-page="/Trips/Index" asp-route-destinationId="@destination.Id" class="btn btn-sm btn-outline-secondary">View Trips</a>
+                            <div class="d-flex gap-2">
+                                <a asp-page="./Details" asp-route-id="@destination.Id" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-info-circle me-1"></i> Details
+                                </a>
+                                <a asp-page="/Trips/Index" asp-route-destinationId="@destination.Id" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-plane-departure me-1"></i> Trips
+                                </a>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <div class="ms-auto">
+                                        <a asp-page="./Edit" asp-route-id="@destination.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                onclick="confirmDelete(@destination.Id, '@destination.Name')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -82,4 +132,17 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    @if (User.IsInRole("Admin"))
+    {
+        <script>
+            function confirmDelete(id, name) {
+                document.getElementById('deleteDestinationId').value = id;
+                document.getElementById('deleteDestinationName').textContent = name;
+                
+                // Show the modal
+                var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                deleteModal.show();
+            }
+        </script>
+    }
 } 

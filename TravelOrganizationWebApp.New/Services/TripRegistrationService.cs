@@ -17,6 +17,7 @@ namespace TravelOrganizationWebApp.Services
         private readonly IConfiguration _configuration;
         private readonly JsonSerializerOptions _jsonOptions;
         private readonly ILogger<TripRegistrationService> _logger;
+        private readonly string _apiBaseUrl;
 
         public TripRegistrationService(
             HttpClient httpClient,
@@ -29,9 +30,8 @@ namespace TravelOrganizationWebApp.Services
             _configuration = configuration;
             _logger = logger;
             
-            // Configure base address from settings
-            _httpClient.BaseAddress = new Uri(_configuration["ApiSettings:BaseUrl"] ?? 
-                throw new InvalidOperationException("API BaseUrl not configured"));
+            // Set API base URL - no additional prefix since BaseAddress already includes it
+            _apiBaseUrl = "";
             
             // Configure JSON options
             _jsonOptions = new JsonSerializerOptions
@@ -295,6 +295,117 @@ namespace TravelOrganizationWebApp.Services
             {
                 _logger.LogError(ex, "Error updating registration {Id} status", id);
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Get all trips booked by the current user
+        /// </summary>
+        public async Task<List<TripRegistrationModel>> GetUserTripsAsync()
+        {
+            try
+            {
+                // Set authentication token
+                await SetAuthHeaderAsync();
+                
+                // Get the current user ID
+                var currentUser = await _httpClient.GetAsync($"{_apiBaseUrl}User/current");
+                if (!currentUser.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to get current user: {StatusCode}", currentUser.StatusCode);
+                    return new List<TripRegistrationModel>();
+                }
+                
+                var userContent = await currentUser.Content.ReadAsStringAsync();
+                var jsonOptions = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+                };
+                
+                UserModel user;
+                try 
+                {
+                    user = JsonSerializer.Deserialize<UserModel>(userContent, jsonOptions);
+                } 
+                catch 
+                {
+                    // Try with reference-preserving format
+                    try 
+                    {
+                        var responseObj = JsonSerializer.Deserialize<JsonDocument>(userContent, jsonOptions);
+                        user = responseObj?.RootElement.EnumerateObject().Count() > 0 
+                            ? JsonSerializer.Deserialize<UserModel>(userContent, jsonOptions) 
+                            : null;
+                    }
+                    catch 
+                    {
+                        user = null;
+                    }
+                }
+                
+                if (user == null)
+                {
+                    _logger.LogWarning("Current user is null");
+                    return new List<TripRegistrationModel>();
+                }
+                
+                // Get the bookings for this user
+                var response = await _httpClient.GetAsync($"{_apiBaseUrl}TripRegistration/user/{user.Id}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    _logger.LogDebug("API Response for user trips: {Content}", content);
+                    
+                    List<TripRegistrationModel> bookings;
+                    
+                    try {
+                        // Try to parse directly first
+                        bookings = JsonSerializer.Deserialize<List<TripRegistrationModel>>(content, jsonOptions);
+                        if (bookings == null)
+                        {
+                            bookings = new List<TripRegistrationModel>();
+                        }
+                    }
+                    catch
+                    {
+                        // If direct parsing fails, try to extract the $values array from reference-preserving format
+                        try
+                        {
+                            var responseObj = JsonSerializer.Deserialize<JsonDocument>(content, jsonOptions);
+                            // Check if the root has a $values property (reference-preserving format)
+                            if (responseObj?.RootElement.TryGetProperty("$values", out var valuesElement) == true)
+                            {
+                                bookings = JsonSerializer.Deserialize<List<TripRegistrationModel>>(
+                                    valuesElement.GetRawText(), jsonOptions) ?? new List<TripRegistrationModel>();
+                            }
+                            else
+                            {
+                                // Fallback if structure is different
+                                bookings = new List<TripRegistrationModel>();
+                                _logger.LogWarning("Unexpected JSON format from API");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Failed to parse booking data");
+                            bookings = new List<TripRegistrationModel>();
+                        }
+                    }
+                    
+                    return bookings;
+                }
+                
+                // Handle errors
+                _logger.LogWarning("Failed to get user trips: {StatusCode}", response.StatusCode);
+                return new List<TripRegistrationModel>();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                _logger.LogError(ex, "Exception in GetUserTripsAsync");
+                return new List<TripRegistrationModel>();
             }
         }
     }

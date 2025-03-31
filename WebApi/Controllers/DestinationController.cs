@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebAPI.Models;
 using WebAPI.Services;
+using WebAPI.DTOs;
+using System.Linq;
 
 namespace WebAPI.Controllers
 {
     /// <summary>
-    /// Controller for managing travel destinations
+    /// Controller for managing destinations
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
@@ -22,17 +24,18 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Get all available destinations
+        /// Get all destinations
         /// </summary>
         /// <remarks>
         /// This endpoint is publicly accessible - no authentication required
         /// </remarks>
         /// <returns>List of all destinations</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Destination>>> GetAllDestinations()
+        public async Task<ActionResult<IEnumerable<DestinationDTO>>> GetAllDestinations()
         {
             var destinations = await _destinationService.GetAllDestinationsAsync();
-            return Ok(destinations);
+            var destinationDtos = destinations.Select(MapDestinationToDto).ToList();
+            return Ok(destinationDtos);
         }
 
         /// <summary>
@@ -44,58 +47,80 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns>Destination details if found</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Destination>> GetDestination(int id)
+        public async Task<ActionResult<DestinationDTO>> GetDestination(int id)
         {
             var destination = await _destinationService.GetDestinationByIdAsync(id);
             if (destination == null)
                 return NotFound();
 
-            return Ok(destination);
+            return Ok(MapDestinationToDto(destination));
         }
 
         /// <summary>
         /// Create a new destination
         /// </summary>
-        /// <param name="destination">The destination details to create</param>
+        /// <param name="destinationDto">The destination details to create</param>
         /// <remarks>
         /// This endpoint requires Admin role access
         /// </remarks>
         /// <returns>The newly created destination</returns>
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Destination>> CreateDestination(Destination destination)
+        public async Task<ActionResult<DestinationDTO>> CreateDestination(CreateDestinationDTO destinationDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // Map DTO to entity
+            var destination = new Destination
+            {
+                Name = destinationDto.Name,
+                Description = destinationDto.Description,
+                Country = destinationDto.Country,
+                City = destinationDto.City,
+                ImageUrl = destinationDto.ImageUrl
+            };
+
             var createdDestination = await _destinationService.CreateDestinationAsync(destination);
-            return CreatedAtAction(nameof(GetDestination), new { id = createdDestination.Id }, createdDestination);
+            return CreatedAtAction(nameof(GetDestination), new { id = createdDestination.Id }, 
+                MapDestinationToDto(createdDestination));
         }
 
         /// <summary>
         /// Update an existing destination
         /// </summary>
         /// <param name="id">The ID of the destination to update</param>
-        /// <param name="destination">The updated destination details</param>
+        /// <param name="destinationDto">The updated destination details</param>
         /// <remarks>
         /// This endpoint requires Admin role access
         /// </remarks>
         /// <returns>The updated destination</returns>
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Destination>> UpdateDestination(int id, Destination destination)
+        public async Task<ActionResult<DestinationDTO>> UpdateDestination(int id, UpdateDestinationDTO destinationDto)
         {
-            if (id != destination.Id)
+            if (id != destinationDto.Id)
                 return BadRequest();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // Map DTO to entity
+            var destination = new Destination
+            {
+                Id = destinationDto.Id,
+                Name = destinationDto.Name,
+                Description = destinationDto.Description,
+                Country = destinationDto.Country,
+                City = destinationDto.City,
+                ImageUrl = destinationDto.ImageUrl
+            };
+
             var updatedDestination = await _destinationService.UpdateDestinationAsync(id, destination);
             if (updatedDestination == null)
                 return NotFound();
 
-            return Ok(updatedDestination);
+            return Ok(MapDestinationToDto(updatedDestination));
         }
 
         /// <summary>
@@ -120,26 +145,53 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Update a destination's image URL
         /// </summary>
-        /// <param name="id">The ID of the destination</param>
-        /// <param name="request">The image URL update request</param>
+        /// <param name="id">The ID of the destination to update</param>
+        /// <param name="imageUrl">The new image URL</param>
+        /// <remarks>
+        /// This endpoint requires Admin role access
+        /// </remarks>
         /// <returns>No content if update is successful</returns>
         [HttpPut("{id}/image")]
-        public async Task<ActionResult> UpdateDestinationImage(int id, [FromBody] ImageUrlUpdateRequest request)
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> UpdateDestinationImage(int id, [FromBody] UpdateDestinationImageDTO model)
         {
-            if (string.IsNullOrEmpty(request.ImageUrl))
-                return BadRequest("Image URL is required");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
+            // Get the destination first
             var destination = await _destinationService.GetDestinationByIdAsync(id);
             if (destination == null)
                 return NotFound();
 
-            destination.ImageUrl = request.ImageUrl;
+            // Update the image URL
+            destination.ImageUrl = model.ImageUrl;
             
+            // Save the changes
             var result = await _destinationService.UpdateDestinationAsync(id, destination);
             if (result == null)
                 return BadRequest("Failed to update destination image");
 
             return NoContent();
         }
+
+        // Helper method to map Destination entity to DestinationDTO
+        private DestinationDTO MapDestinationToDto(Destination destination)
+        {
+            return new DestinationDTO
+            {
+                Id = destination.Id,
+                Name = destination.Name,
+                Description = destination.Description ?? string.Empty,
+                Country = destination.Country,
+                City = destination.City,
+                ImageUrl = destination.ImageUrl
+            };
+        }
+    }
+
+    // DTO for updating destination image
+    public class UpdateDestinationImageDTO
+    {
+        public string ImageUrl { get; set; }
     }
 } 

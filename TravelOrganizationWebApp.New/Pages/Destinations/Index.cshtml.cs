@@ -112,5 +112,30 @@ namespace TravelOrganizationWebApp.Pages.Destinations
                 return Page();
             }
         }
+
+        /// <summary>
+        /// Handle POST request to delete a destination (for admin users)
+        /// </summary>
+        public async Task<IActionResult> OnPostDeleteAsync(int id)
+        {
+            if (!User.IsInRole("Admin"))
+            {
+                return Forbid();
+            }
+
+            try
+            {
+                await _destinationService.DeleteDestinationAsync(id);
+                _logger.LogInformation("Destination deleted successfully: {Id}", id);
+                TempData["SuccessMessage"] = "Destination deleted successfully.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting destination: {Id}", id);
+                TempData["ErrorMessage"] = "An error occurred while deleting the destination.";
+            }
+
+            return RedirectToPage();
+        }
     }
 } 

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebAPI.Models;
 using WebAPI.Services;
+using WebAPI.DTOs;
+using System.Linq;
 
 namespace WebAPI.Controllers
 {
@@ -29,10 +31,11 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns>List of all trips</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Trip>>> GetAllTrips()
+        public async Task<ActionResult<IEnumerable<TripDTO>>> GetAllTrips()
         {
             var trips = await _tripService.GetAllTripsAsync();
-            return Ok(trips);
+            var tripDtos = trips.Select(MapTripToDto).ToList();
+            return Ok(tripDtos);
         }
 
         /// <summary>
@@ -44,13 +47,13 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns>Trip details if found</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Trip>> GetTrip(int id)
+        public async Task<ActionResult<TripDTO>> GetTrip(int id)
         {
             var trip = await _tripService.GetTripByIdAsync(id);
             if (trip == null)
                 return NotFound();
 
-            return Ok(trip);
+            return Ok(MapTripToDto(trip));
         }
 
         /// <summary>
@@ -62,55 +65,117 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns>List of trips for the specified destination</returns>
         [HttpGet("destination/{destinationId}")]
-        public async Task<ActionResult<IEnumerable<Trip>>> GetTripsByDestination(int destinationId)
+        public async Task<ActionResult<IEnumerable<TripDTO>>> GetTripsByDestination(int destinationId)
         {
             var trips = await _tripService.GetTripsByDestinationAsync(destinationId);
-            return Ok(trips);
+            var tripDtos = trips.Select(MapTripToDto).ToList();
+            return Ok(tripDtos);
         }
 
         /// <summary>
         /// Create a new trip
         /// </summary>
-        /// <param name="trip">The trip details to create</param>
+        /// <param name="tripDto">The trip details to create</param>
         /// <remarks>
         /// This endpoint requires Admin role access
         /// </remarks>
         /// <returns>The newly created trip</returns>
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Trip>> CreateTrip(Trip trip)
+        public async Task<ActionResult<TripDTO>> CreateTrip(CreateTripDTO tripDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // Map DTO to entity
+            var trip = new Trip
+            {
+                Name = tripDto.Name,
+                Description = tripDto.Description,
+                StartDate = tripDto.StartDate,
+                EndDate = tripDto.EndDate,
+                Price = tripDto.Price,
+                ImageUrl = tripDto.ImageUrl,
+                MaxParticipants = tripDto.MaxParticipants,
+                DestinationId = tripDto.DestinationId
+            };
+
             var createdTrip = await _tripService.CreateTripAsync(trip);
-            return CreatedAtAction(nameof(GetTrip), new { id = createdTrip.Id }, createdTrip);
+            return CreatedAtAction(nameof(GetTrip), new { id = createdTrip.Id }, MapTripToDto(createdTrip));
         }
 
         /// <summary>
         /// Update an existing trip
         /// </summary>
         /// <param name="id">The ID of the trip to update</param>
-        /// <param name="trip">The updated trip details</param>
+        /// <param name="tripDto">The updated trip details</param>
         /// <remarks>
         /// This endpoint requires Admin role access
         /// </remarks>
         /// <returns>The updated trip</returns>
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Trip>> UpdateTrip(int id, Trip trip)
+        public async Task<ActionResult<TripDTO>> UpdateTrip(int id, UpdateTripDTO tripDto)
         {
-            if (id != trip.Id)
+            if (id != tripDto.Id)
                 return BadRequest();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // Map DTO to entity
+            var trip = new Trip
+            {
+                Id = tripDto.Id,
+                Name = tripDto.Name,
+                Description = tripDto.Description,
+                StartDate = tripDto.StartDate,
+                EndDate = tripDto.EndDate,
+                Price = tripDto.Price,
+                ImageUrl = tripDto.ImageUrl,
+                MaxParticipants = tripDto.MaxParticipants,
+                DestinationId = tripDto.DestinationId
+            };
+
             var updatedTrip = await _tripService.UpdateTripAsync(id, trip);
             if (updatedTrip == null)
                 return NotFound();
 
-            return Ok(updatedTrip);
+            return Ok(MapTripToDto(updatedTrip));
+        }
+
+        // Helper method to map Trip entity to TripDTO
+        private TripDTO MapTripToDto(Trip trip)
+        {
+            return new TripDTO
+            {
+                Id = trip.Id,
+                Name = trip.Name,
+                Description = trip.Description ?? string.Empty,
+                StartDate = trip.StartDate,
+                EndDate = trip.EndDate,
+                Price = trip.Price,
+                // Always use the destination's image URL since trips don't have their own images
+                ImageUrl = trip.Destination?.ImageUrl ?? string.Empty,
+                MaxParticipants = trip.MaxParticipants,
+                DestinationId = trip.DestinationId,
+                DestinationName = trip.Destination?.Name ?? string.Empty,
+                Country = trip.Destination?.Country ?? string.Empty,
+                City = trip.Destination?.City ?? string.Empty,
+                // Calculate available spots
+                AvailableSpots = trip.MaxParticipants - (trip.TripRegistrations?.Count ?? 0),
+                // Map guides if available
+                Guides = trip.TripGuides?.Select(tg => new GuideDTO
+                {
+                    Id = tg.Guide.Id,
+                    Name = tg.Guide.Name,
+                    Bio = tg.Guide.Bio ?? string.Empty,
+                    Email = tg.Guide.Email,
+                    Phone = tg.Guide.Phone ?? string.Empty,
+                    ImageUrl = tg.Guide.ImageUrl ?? string.Empty,
+                    YearsOfExperience = tg.Guide.YearsOfExperience
+                }).ToList() ?? new List<GuideDTO>()
+            };
         }
 
         /// <summary>

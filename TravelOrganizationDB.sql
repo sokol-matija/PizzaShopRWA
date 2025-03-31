@@ -135,6 +135,16 @@ INSERT INTO TripRegistration (UserId, TripId, RegistrationDate, NumberOfParticip
 (3, 2, DATEADD(day, -7, GETDATE()), 2, 2700.00, 'Confirmed'), -- Jane Smith registered for Rome Historical Experience with 2 participants
 (3, 4, DATEADD(day, -3, GETDATE()), 1, 1400.00, 'Cancelled'); -- Jane Smith registered for London Theater Week but cancelled
 
+INSERT INTO Destination (Name, Description, Country, City, ImageUrl) VALUES 
+('Cairo', 'Experience the wonders of ancient Egypt', 'Egypt', 'Cairo', NULL),
+('New York City', 'The city that never sleeps', 'USA', 'New York', NULL),
+('Sydney', 'Explore Australia’s iconic landmarks', 'Australia', 'Sydney', NULL),
+('Cape Town', 'A vibrant city with stunning landscapes', 'South Africa', 'Cape Town', NULL),
+('Rio de Janeiro', 'Famous for its beaches and Carnival', 'Brazil', 'Rio de Janeiro', NULL);
+
+
+ALTER TABLE [Destination] ADD ImageUrl NVARCHAR(500) NULL;
+
 select * from [User]
 
 select * from [Destination]

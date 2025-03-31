@@ -17,19 +17,29 @@ namespace TravelOrganizationWebApp.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfiguration _configuration;
         private readonly JsonSerializerOptions _jsonOptions;
+        private readonly string _apiBaseUrl;
+        private readonly ILogger<TripService> _logger;
+        private readonly IDestinationService _destinationService;
 
         public TripService(
             HttpClient httpClient,
             IHttpContextAccessor httpContextAccessor,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ILogger<TripService> logger,
+            IDestinationService destinationService)
         {
             _httpClient = httpClient;
             _httpContextAccessor = httpContextAccessor;
             _configuration = configuration;
+            _logger = logger;
+            _destinationService = destinationService;
             
             // Configure base address from settings
             _httpClient.BaseAddress = new Uri(_configuration["ApiSettings:BaseUrl"] ?? 
                 throw new InvalidOperationException("API BaseUrl not configured"));
+            
+            // Set API base URL
+            _apiBaseUrl = ""; // No additional prefix
             
             // Configure JSON options
             _jsonOptions = new JsonSerializerOptions
@@ -70,21 +80,67 @@ namespace TravelOrganizationWebApp.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync("Trip");
+                // Log the request
+                _logger.LogInformation("Fetching all trips from API");
+                
+                var response = await _httpClient.GetAsync($"{_apiBaseUrl}Trip");
                 
                 if (response.IsSuccessStatusCode)
                 {
+                    // Read response content as string first to handle the reference-preserving format
                     var content = await response.Content.ReadAsStringAsync();
-                    var trips = JsonSerializer.Deserialize<List<TripModel>>(content, _jsonOptions);
-                    return trips ?? new List<TripModel>();
+                    _logger.LogDebug("API Response for all trips: {Content}", content);
+                    
+                    // Configure JSON options to handle reference preservation
+                    var jsonOptions = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+                    };
+                    
+                    var trips = new List<TripModel>();
+                    
+                    // First try direct deserialization
+                    try
+                    {
+                        trips = JsonSerializer.Deserialize<List<TripModel>>(content, jsonOptions) ?? new List<TripModel>();
+                    }
+                    catch
+                    {
+                        // If that fails, try to see if it's in a $values property (reference-preserving format)
+                        try
+                        {
+                            var jsonDoc = JsonDocument.Parse(content);
+                            if (jsonDoc.RootElement.TryGetProperty("$values", out var valuesElement))
+                            {
+                                trips = JsonSerializer.Deserialize<List<TripModel>>(valuesElement.GetRawText(), jsonOptions) ?? new List<TripModel>();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Error parsing trips JSON");
+                        }
+                    }
+                    
+                    // Enrich trips with destination images if needed
+                    await EnrichTripsWithDestinationImagesAsync(trips);
+                    
+                    return trips;
+                }
+                else
+                {
+                    // Log the error
+                    _logger.LogWarning("API Error: {StatusCode} - {ErrorContent}", 
+                        response.StatusCode, await response.Content.ReadAsStringAsync());
                 }
                 
                 // Handle errors
                 return new List<TripModel>();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Log exception in a real application
+                // Log exception
+                _logger.LogError(ex, "Exception in GetAllTripsAsync");
                 return new List<TripModel>();
             }
         }
@@ -96,20 +152,50 @@ namespace TravelOrganizationWebApp.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync($"Trip/{id}");
+                var response = await _httpClient.GetAsync($"{_apiBaseUrl}Trip/{id}");
                 
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    return JsonSerializer.Deserialize<TripModel>(content, _jsonOptions);
+                    
+                    // Configure JSON options to handle reference preservation
+                    var jsonOptions = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+                    };
+                    
+                    try
+                    {
+                        // Try direct deserialization first
+                        return JsonSerializer.Deserialize<TripModel>(content, jsonOptions);
+                    }
+                    catch
+                    {
+                        // For complex formats or nested objects
+                        try
+                        {
+                            var responseObj = JsonSerializer.Deserialize<JsonDocument>(content, jsonOptions);
+                            // Check if there's a full object with properties rather than a $values array
+                            // Single objects don't have $values but should deserialize directly
+                            return JsonSerializer.Deserialize<TripModel>(content, jsonOptions);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Failed to parse trip data for ID {TripId}", id);
+                            return null;
+                        }
+                    }
                 }
                 
                 // Handle errors
+                _logger.LogWarning("Failed to get trip {Id}: {StatusCode}", id, response.StatusCode);
                 return null;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Log exception in a real application
+                // Log exception
+                _logger.LogError(ex, "Exception in GetTripByIdAsync: {Id}", id);
                 return null;
             }
         }
@@ -121,21 +207,66 @@ namespace TravelOrganizationWebApp.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync($"Trip/destination/{destinationId}");
+                // Log the request
+                _logger.LogInformation("Fetching trips for destination {DestinationId}", destinationId);
+                
+                var response = await _httpClient.GetAsync($"{_apiBaseUrl}Trip/destination/{destinationId}");
                 
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    var trips = JsonSerializer.Deserialize<List<TripModel>>(content, _jsonOptions);
-                    return trips ?? new List<TripModel>();
+                    _logger.LogDebug("API Response for destination {DestinationId}: {Content}", destinationId, content);
+                    
+                    // Configure JSON options to handle reference preservation
+                    var jsonOptions = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+                    };
+                    
+                    var trips = new List<TripModel>();
+                    
+                    // First try direct deserialization
+                    try
+                    {
+                        trips = JsonSerializer.Deserialize<List<TripModel>>(content, jsonOptions) ?? new List<TripModel>();
+                    }
+                    catch
+                    {
+                        // If that fails, try to see if it's in a $values property (reference-preserving format)
+                        try
+                        {
+                            var jsonDoc = JsonDocument.Parse(content);
+                            if (jsonDoc.RootElement.TryGetProperty("$values", out var valuesElement))
+                            {
+                                trips = JsonSerializer.Deserialize<List<TripModel>>(valuesElement.GetRawText(), jsonOptions) ?? new List<TripModel>();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Error parsing destination trips JSON");
+                        }
+                    }
+                    
+                    // Enrich trips with destination images if needed
+                    await EnrichTripsWithDestinationImagesAsync(trips);
+                    
+                    return trips;
+                }
+                else
+                {
+                    // Log the error
+                    _logger.LogWarning("API Error: {StatusCode} - {ErrorContent}", 
+                        response.StatusCode, await response.Content.ReadAsStringAsync());
                 }
                 
                 // Handle errors
                 return new List<TripModel>();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Log exception in a real application
+                // Log exception
+                _logger.LogError(ex, "Exception in GetTripsByDestinationAsync: {DestinationId}", destinationId);
                 return new List<TripModel>();
             }
         }
@@ -153,7 +284,7 @@ namespace TravelOrganizationWebApp.Services
                 var json = JsonSerializer.Serialize(trip);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 
-                var response = await _httpClient.PostAsync("Trip", content);
+                var response = await _httpClient.PostAsync($"{_apiBaseUrl}Trip", content);
                 
                 if (response.IsSuccessStatusCode)
                 {
@@ -162,11 +293,13 @@ namespace TravelOrganizationWebApp.Services
                 }
                 
                 // Handle errors
+                _logger.LogWarning("Failed to create trip: {StatusCode}", response.StatusCode);
                 return null;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Log exception in a real application
+                // Log exception
+                _logger.LogError(ex, "Exception in CreateTripAsync");
                 return null;
             }
         }
@@ -184,7 +317,7 @@ namespace TravelOrganizationWebApp.Services
                 var json = JsonSerializer.Serialize(trip);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 
-                var response = await _httpClient.PutAsync($"Trip/{id}", content);
+                var response = await _httpClient.PutAsync($"{_apiBaseUrl}Trip/{id}", content);
                 
                 if (response.IsSuccessStatusCode)
                 {
@@ -193,11 +326,13 @@ namespace TravelOrganizationWebApp.Services
                 }
                 
                 // Handle errors
+                _logger.LogWarning("Failed to update trip {Id}: {StatusCode}", id, response.StatusCode);
                 return null;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Log exception in a real application
+                // Log exception
+                _logger.LogError(ex, "Exception in UpdateTripAsync: {Id}", id);
                 return null;
             }
         }
@@ -212,13 +347,19 @@ namespace TravelOrganizationWebApp.Services
                 // Set authentication token
                 await SetAuthHeaderAsync();
                 
-                var response = await _httpClient.DeleteAsync($"Trip/{id}");
+                var response = await _httpClient.DeleteAsync($"{_apiBaseUrl}Trip/{id}");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to delete trip {Id}: {StatusCode}", id, response.StatusCode);
+                }
                 
                 return response.IsSuccessStatusCode;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Log exception in a real application
+                // Log exception
+                _logger.LogError(ex, "Exception in DeleteTripAsync: {Id}", id);
                 return false;
             }
         }
@@ -233,13 +374,20 @@ namespace TravelOrganizationWebApp.Services
                 // Set authentication token
                 await SetAuthHeaderAsync();
                 
-                var response = await _httpClient.PostAsync($"Trip/{tripId}/guides/{guideId}", null);
+                var response = await _httpClient.PostAsync($"{_apiBaseUrl}Trip/{tripId}/guides/{guideId}", null);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to assign guide {GuideId} to trip {TripId}: {StatusCode}", 
+                        guideId, tripId, response.StatusCode);
+                }
                 
                 return response.IsSuccessStatusCode;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Log exception in a real application
+                // Log exception
+                _logger.LogError(ex, "Exception in AssignGuideToTripAsync: {TripId}, {GuideId}", tripId, guideId);
                 return false;
             }
         }
@@ -254,14 +402,180 @@ namespace TravelOrganizationWebApp.Services
                 // Set authentication token
                 await SetAuthHeaderAsync();
                 
-                var response = await _httpClient.DeleteAsync($"Trip/{tripId}/guides/{guideId}");
+                var response = await _httpClient.DeleteAsync($"{_apiBaseUrl}Trip/{tripId}/guides/{guideId}");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to remove guide {GuideId} from trip {TripId}: {StatusCode}", 
+                        guideId, tripId, response.StatusCode);
+                }
                 
                 return response.IsSuccessStatusCode;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Log exception in a real application
+                // Log exception
+                _logger.LogError(ex, "Exception in RemoveGuideFromTripAsync: {TripId}, {GuideId}", tripId, guideId);
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Book a trip for the current user
+        /// </summary>
+        public async Task<bool> BookTripAsync(int tripId, int numberOfParticipants)
+        {
+            try
+            {
+                // Set authentication token
+                await SetAuthHeaderAsync();
+                
+                // Get the trip to calculate total price
+                var trip = await GetTripByIdAsync(tripId);
+                if (trip == null)
+                {
+                    _logger.LogWarning("Cannot book trip {TripId}: trip not found", tripId);
+                    return false;
+                }
+                
+                // Create the booking request
+                var booking = new TripRegistrationModel
+                {
+                    TripId = tripId,
+                    NumberOfParticipants = numberOfParticipants,
+                    TotalPrice = trip.Price * numberOfParticipants,
+                    Status = "Pending"
+                };
+                
+                var json = JsonSerializer.Serialize(booking);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                
+                var response = await _httpClient.PostAsync($"{_apiBaseUrl}TripRegistration", content);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to book trip {TripId}: {StatusCode}", tripId, response.StatusCode);
+                }
+                
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                _logger.LogError(ex, "Exception in BookTripAsync: {TripId}", tripId);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Get all trips booked by the current user
+        /// </summary>
+        public async Task<List<TripRegistrationModel>> GetUserTripsAsync()
+        {
+            try
+            {
+                // Set authentication token
+                await SetAuthHeaderAsync();
+                
+                // Get the current user ID
+                var currentUser = await _httpClient.GetAsync($"{_apiBaseUrl}User/current");
+                if (!currentUser.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to get current user: {StatusCode}", currentUser.StatusCode);
+                    return new List<TripRegistrationModel>();
+                }
+                
+                var userContent = await currentUser.Content.ReadAsStringAsync();
+                var user = JsonSerializer.Deserialize<UserModel>(userContent, _jsonOptions);
+                
+                if (user == null)
+                {
+                    _logger.LogWarning("Current user is null");
+                    return new List<TripRegistrationModel>();
+                }
+                
+                // Get the bookings for this user
+                var response = await _httpClient.GetAsync($"{_apiBaseUrl}TripRegistration/user/{user.Id}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var bookings = JsonSerializer.Deserialize<List<TripRegistrationModel>>(content, _jsonOptions);
+                    return bookings ?? new List<TripRegistrationModel>();
+                }
+                
+                // Handle errors
+                _logger.LogWarning("Failed to get user trips: {StatusCode}", response.StatusCode);
+                return new List<TripRegistrationModel>();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                _logger.LogError(ex, "Exception in GetUserTripsAsync");
+                return new List<TripRegistrationModel>();
+            }
+        }
+
+        /// <summary>
+        /// Enrich trips with destination images for those that don't have images
+        /// </summary>
+        private async Task EnrichTripsWithDestinationImagesAsync(List<TripModel> trips)
+        {
+            if (trips == null || !trips.Any())
+                return;
+
+            try
+            {
+                _logger.LogInformation("Starting image enrichment for {TripCount} trips", trips.Count);
+                
+                // Create a set of all destination IDs from the trips
+                var destinationIds = trips.Select(t => t.DestinationId).Distinct().ToList();
+                _logger.LogInformation("Found {DestCount} distinct destinations to load", destinationIds.Count);
+                
+                // Load all needed destinations at once for better performance
+                var destinations = new Dictionary<int, DestinationModel>();
+                
+                foreach (var destId in destinationIds)
+                {
+                    var destination = await _destinationService.GetDestinationByIdAsync(destId);
+                    if (destination != null)
+                    {
+                        destinations[destId] = destination;
+                        _logger.LogInformation("Loaded destination {DestId}: {DestName} with ImageUrl: {ImageUrl}", 
+                            destination.Id, destination.Name, destination.ImageUrl ?? "none");
+                    }
+                }
+                
+                // Enrich all trips with their destination data
+                int enrichedTripCount = 0;
+                foreach (var trip in trips)
+                {
+                    // Always set the destination name if available
+                    if (destinations.TryGetValue(trip.DestinationId, out var destination))
+                    {
+                        trip.DestinationName = destination.Name;
+                        
+                        // If trip has no image but destination does, use the destination's image
+                        if (string.IsNullOrEmpty(trip.ImageUrl) && !string.IsNullOrEmpty(destination.ImageUrl))
+                        {
+                            trip.ImageUrl = destination.ImageUrl;
+                            enrichedTripCount++;
+                            _logger.LogInformation("Enriched trip {TripId} with destination image from {DestId}", 
+                                trip.Id, destination.Id);
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Trip {TripId} references unknown destination {DestId}", 
+                            trip.Id, trip.DestinationId);
+                    }
+                }
+                
+                _logger.LogInformation("Successfully enriched {EnrichedCount} trips with destination images", enrichedTripCount);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error enriching trips with destination images");
             }
         }
     }

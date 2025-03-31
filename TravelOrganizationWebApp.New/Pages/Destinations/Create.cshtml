@@ -134,7 +134,7 @@
                     // This matches how the Index page does it
                     try {
                         // First try the API endpoint
-                        const response = await fetch(`/api/unsplash/random?query=${encodeURIComponent(query)}`);
+                        const response = await fetch(`/api/unsplash/random?query=${encodeURIComponent(query)}&t=${Date.now()}`);
                         console.log('API Response status:', response.status);
                         
                         if (response.ok) {
@@ -157,13 +157,15 @@
                         
                         // If API fails, fallback to direct URL which always works
                         console.log('Falling back to direct Unsplash URL');
-                        const fallbackUrl = `https://source.unsplash.com/random/800x600/?${encodeURIComponent(query)}`;
+                        const timestamp = Date.now();
+                        const fallbackUrl = `https://source.unsplash.com/random/800x600/?${encodeURIComponent(query)}&t=${timestamp}`;
                         
                         // Display the fallback image
                         imagePreview.src = fallbackUrl;
                         imagePreview.style.display = 'block';
                         imageUrlInput.value = fallbackUrl;
                         noImagePlaceholder.style.display = 'none';
+                        refreshImageBtn.disabled = false;
                     } catch (fetchError) {
                         console.error('Fetch error:', fetchError);
                         // Last resort fallback

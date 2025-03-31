@@ -46,5 +46,15 @@ namespace TravelOrganizationWebApp.Services
         /// Remove a guide from a trip (admin only)
         /// </summary>
         Task<bool> RemoveGuideFromTripAsync(int tripId, int guideId);
+
+        /// <summary>
+        /// Book a trip for the current user
+        /// </summary>
+        Task<bool> BookTripAsync(int tripId, int numberOfParticipants);
+
+        /// <summary>
+        /// Get all trips booked by the current user
+        /// </summary>
+        Task<List<TripRegistrationModel>> GetUserTripsAsync();
     }
 } 

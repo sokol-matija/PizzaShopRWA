@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -15,11 +16,16 @@ namespace TravelOrganizationWebApp.Pages.Trips
     {
         private readonly ITripService _tripService;
         private readonly IDestinationService _destinationService;
+        private readonly ILogger<IndexModel> _logger;
 
-        public IndexModel(ITripService tripService, IDestinationService destinationService)
+        public IndexModel(
+            ITripService tripService, 
+            IDestinationService destinationService,
+            ILogger<IndexModel> logger)
         {
             _tripService = tripService;
             _destinationService = destinationService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -50,19 +56,27 @@ namespace TravelOrganizationWebApp.Pages.Trips
         {
             try
             {
+                _logger.LogInformation("Loading trips page with destination filter: {DestinationId}", DestinationId);
+                
                 // Get all destinations for the filter dropdown
                 var destinations = await _destinationService.GetAllDestinationsAsync();
                 Destinations = new SelectList(destinations, nameof(DestinationModel.Id), nameof(DestinationModel.Name));
                 
+                _logger.LogInformation("Loaded {Count} destinations for filter", destinations.Count);
+                
                 // Get trips (filtered by destination if selected)
                 if (DestinationId.HasValue && DestinationId.Value > 0)
                 {
+                    _logger.LogInformation("Fetching trips for destination: {DestinationId}", DestinationId.Value);
                     Trips = await _tripService.GetTripsByDestinationAsync(DestinationId.Value);
                 }
                 else
                 {
+                    _logger.LogInformation("Fetching all trips");
                     Trips = await _tripService.GetAllTripsAsync();
                 }
+                
+                _logger.LogInformation("Loaded {Count} trips", Trips.Count);
                 
                 // Fetch destination names for each trip 
                 foreach (var trip in Trips)
@@ -76,8 +90,40 @@ namespace TravelOrganizationWebApp.Pages.Trips
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error loading trips");
                 ErrorMessage = $"Error loading trips: {ex.Message}";
             }
+        }
+
+        /// <summary>
+        /// Handle POST request to delete a trip (for admin users)
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> OnPostDeleteAsync(int id)
+        {
+            try
+            {
+                _logger.LogInformation("Deleting trip: {Id}", id);
+                var result = await _tripService.DeleteTripAsync(id);
+                
+                if (result)
+                {
+                    _logger.LogInformation("Trip deleted successfully: {Id}", id);
+                    TempData["SuccessMessage"] = "Trip deleted successfully.";
+                }
+                else
+                {
+                    _logger.LogWarning("Failed to delete trip: {Id}", id);
+                    TempData["ErrorMessage"] = "Failed to delete the trip. Please try again.";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting trip: {Id}", id);
+                TempData["ErrorMessage"] = $"An error occurred while deleting the trip: {ex.Message}";
+            }
+
+            return RedirectToPage();
         }
     }
 } 

@@ -10,6 +10,7 @@ namespace WebAPI.DTOs
         public string Description { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
     }
 
     // DTO for POST operations - used when creating a new destination
@@ -29,6 +30,9 @@ namespace WebAPI.DTOs
         [Required]
         [StringLength(100)]
         public string City { get; set; } = string.Empty;
+        
+        [StringLength(500)]
+        public string? ImageUrl { get; set; }
     }
 
     // DTO for PUT operations - used when updating a destination
@@ -50,5 +54,8 @@ namespace WebAPI.DTOs
         [Required]
         [StringLength(100)]
         public string City { get; set; } = string.Empty;
+        
+        [StringLength(500)]
+        public string? ImageUrl { get; set; }
     }
 } 

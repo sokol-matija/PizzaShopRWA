@@ -7,6 +7,14 @@
 <div class="container mt-4">
     <h1 class="mb-4">@ViewData["Title"]</h1>
     
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"]?.ToString()))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
         <div class="alert alert-danger" role="alert">
@@ -34,9 +42,22 @@
     </div>
     
     <!-- Trip Listings -->
-    @if (Model.Trips.Any())
+    @if (Model.Trips != null && Model.Trips.Any())
     {
         <div class="row row-cols-1 row-cols-md-3 g-4">
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="col">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <h5 class="card-title">Add New Trip</h5>
+                            <p class="card-text">Create a new trip for travelers</p>
+                            <a asp-page="./Create" class="btn btn-primary mt-auto">Add Trip</a>
+                        </div>
+                    </div>
+                </div>
+            }
+            
             @foreach (var trip in Model.Trips)
             {
                 <div class="col">
@@ -47,42 +68,67 @@
                         }
                         else
                         {
-                            <img src="~/images/trip-placeholder.jpg" class="card-img-top" alt="@trip.Title" style="height: 200px; object-fit: cover;">
+                            <!-- Static placeholder instead of dynamic Unsplash -->
+                            <div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height: 200px;">
+                                <div class="text-center">
+                                    <i class="fas fa-plane-departure text-muted" style="font-size: 3rem;"></i>
+                                    <p class="text-muted mb-0">No image available</p>
+                                </div>
+                            </div>
                         }
                         <div class="card-body">
                             <h5 class="card-title">@trip.Title</h5>
                             <h6 class="card-subtitle mb-2 text-muted">@trip.DestinationName</h6>
                             <p class="card-text">
-                                @(trip.Description.Length > 150 ? trip.Description.Substring(0, 150) + "..." : trip.Description)
+                                @(trip.Description?.Length > 150 ? trip.Description.Substring(0, 150) + "..." : trip.Description)
                             </p>
                         </div>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item">
-                                <i class="bi bi-calendar"></i> 
-                                @trip.StartDate.ToString("d") - @trip.EndDate.ToString("d")
+                                <i class="fas fa-calendar"></i> 
+                                @trip.StartDate.ToString("MMM d, yyyy") - @trip.EndDate.ToString("MMM d, yyyy")
                                 <span class="badge bg-secondary float-end">@trip.DurationInDays days</span>
                             </li>
                             <li class="list-group-item">
-                                <i class="bi bi-currency-dollar"></i> @trip.FormattedPrice
+                                <i class="fas fa-dollar-sign"></i> @trip.FormattedPrice
                             </li>
                             <li class="list-group-item">
-                                <i class="bi bi-people"></i> @trip.AvailableSlots available of @trip.Capacity
-                                @if (trip.IsFull)
+                                <i class="fas fa-users"></i> 
+                                @if (trip.CurrentBookings < trip.Capacity)
                                 {
-                                    <span class="badge bg-danger float-end">Fully Booked</span>
+                                    <span>@(trip.Capacity - trip.CurrentBookings) spots left</span>
+                                    <span class="badge bg-success float-end">Available</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-success float-end">Available</span>
+                                    <span>Fully booked</span>
+                                    <span class="badge bg-danger float-end">Sold Out</span>
                                 }
                             </li>
                         </ul>
                         <div class="card-body">
-                            <a asp-page="./Details" asp-route-id="@trip.Id" class="btn btn-primary">View Details</a>
-                            @if (!trip.IsFull)
-                            {
-                                <a asp-page="./Book" asp-route-id="@trip.Id" class="btn btn-success">Book Now</a>
-                            }
+                            <div class="d-flex gap-2">
+                                <a asp-page="./Details" asp-route-id="@trip.Id" class="btn btn-primary">
+                                    <i class="fas fa-info-circle me-1"></i> Details
+                                </a>
+                                @if (User.Identity?.IsAuthenticated == true && trip.CurrentBookings < trip.Capacity)
+                                {
+                                    <a asp-page="./Book" asp-route-id="@trip.Id" class="btn btn-success">
+                                        <i class="fas fa-ticket-alt me-1"></i> Book
+                                    </a>
+                                }
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <div class="ms-auto">
+                                        <a asp-page="./Edit" asp-route-id="@trip.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete(@trip.Id, '@trip.Title')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -92,14 +138,40 @@
     else
     {
         <div class="alert alert-info" role="alert">
-            No trips found. Please try a different filter or check back later.
+            <i class="fas fa-info-circle me-2"></i> No trips found. Please try a different filter or check back later.
         </div>
     }
 </div>
 
+<!-- Delete Confirmation Modal -->
+@if (User.IsInRole("Admin"))
+{
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <strong id="deleteTripName"></strong>?</p>
+                    <p class="text-danger">This action cannot be undone and will cancel all existing bookings.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteForm" method="post" asp-page-handler="Delete">
+                        <input type="hidden" id="deleteTripId" name="id" />
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @section Scripts {
     <script>
-        // Optional enhancement: Auto-submit form when destination changes
+        // Auto-submit form when destination changes
         document.addEventListener('DOMContentLoaded', function () {
             const destinationSelect = document.getElementById('DestinationId');
             if (destinationSelect) {
@@ -108,5 +180,14 @@
                 });
             }
         });
+        
+        // Delete confirmation
+        function confirmDelete(id, name) {
+            document.getElementById('deleteTripId').value = id;
+            document.getElementById('deleteTripName').textContent = name;
+            
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
     </script>
 } 

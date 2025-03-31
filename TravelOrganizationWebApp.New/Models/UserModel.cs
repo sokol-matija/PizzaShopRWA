@@ -9,24 +9,33 @@ namespace TravelOrganizationWebApp.Models
     {
         public int Id { get; set; }
         
-        [Required(ErrorMessage = "Username is required")]
-        [StringLength(50, ErrorMessage = "Username cannot be longer than 50 characters")]
+        [Required]
+        [StringLength(100)]
         public string Username { get; set; } = string.Empty;
         
-        [Required(ErrorMessage = "Email is required")]
-        [EmailAddress(ErrorMessage = "Invalid email address")]
+        [Required]
+        [EmailAddress]
+        [StringLength(100)]
         public string Email { get; set; } = string.Empty;
         
+        [StringLength(100)]
         public string? FirstName { get; set; }
         
+        [StringLength(100)]
         public string? LastName { get; set; }
         
+        [Phone]
+        [StringLength(20)]
         public string? PhoneNumber { get; set; }
         
+        [StringLength(200)]
         public string? Address { get; set; }
         
         public bool IsAdmin { get; set; }
-
-        public string FullName => $"{FirstName} {LastName}".Trim();
+        
+        // Computed properties
+        public string FullName => string.IsNullOrEmpty(FirstName) && string.IsNullOrEmpty(LastName) 
+            ? Username 
+            : $"{FirstName} {LastName}".Trim();
     }
 } 

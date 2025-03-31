@@ -21,14 +21,23 @@
                 {
                     <img src="@Model.Trip.ImageUrl" class="img-fluid rounded" alt="@Model.Trip.Title">
                 }
+                else if (Model.Destination != null && !string.IsNullOrEmpty(Model.Destination.ImageUrl))
+                {
+                    <img src="@Model.Destination.ImageUrl" class="img-fluid rounded" alt="@Model.Trip.Title">
+                }
+                else if (!string.IsNullOrEmpty(Model.Trip.DestinationName))
+                {
+                    <!-- Use a destination-based placeholder with Unsplash -->
+                    <img src="https://source.unsplash.com/800x500/?@(Model.Trip.DestinationName.Replace(" ", "+")),travel" class="img-fluid rounded" alt="@Model.Trip.Title">
+                }
                 else
                 {
                     <img src="~/images/trip-placeholder.jpg" class="img-fluid rounded" alt="@Model.Trip.Title">
                 }
                 
                 <div class="mt-4">
-                    <h5>Trip Overview</h5>
-                    <table class="table">
+                    <h5 class="text-white">Trip Overview</h5>
+                    <table class="table trip-overview-table">
                         <tr>
                             <th><i class="bi bi-calendar-date"></i> Dates</th>
                             <td>@Model.Trip.StartDate.ToString("d") - @Model.Trip.EndDate.ToString("d")</td>
