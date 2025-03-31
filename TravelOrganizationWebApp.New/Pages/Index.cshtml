@@ -58,26 +58,37 @@
         text-align: center;
         padding: 2rem;
         border-radius: 12px;
-        background-color: white;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        background: linear-gradient(135deg, #2c3e50, #34495e);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         transition: all var(--transition-medium) ease;
         height: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     .feature-card:hover {
         transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        background: linear-gradient(135deg, #34495e, #2c3e50);
+        border-color: rgba(255, 255, 255, 0.2);
     }
     
     .feature-icon {
         font-size: 2.5rem;
-        color: var(--primary-color);
         margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
     
     .feature-card h4 {
         margin-bottom: 1rem;
         font-weight: 600;
+        color: #ecf0f1;
+    }
+    
+    .feature-card p {
+        color: #bdc3c7;
+        margin-bottom: 0;
     }
     
     @@media (max-width: 768px) {
