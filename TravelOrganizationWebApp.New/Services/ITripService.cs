@@ -56,5 +56,10 @@ namespace TravelOrganizationWebApp.Services
         /// Get all trips booked by the current user
         /// </summary>
         Task<List<TripRegistrationModel>> GetUserTripsAsync();
+
+        /// <summary>
+        /// Cancel a trip booking for the current user
+        /// </summary>
+        Task<bool> CancelBookingAsync(int bookingId);
     }
 } 

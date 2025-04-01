@@ -15,6 +15,14 @@
         </div>
     }
     
+    @if (!string.IsNullOrEmpty(TempData["ErrorMessage"]?.ToString()))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
         <div class="alert alert-danger" role="alert">
@@ -54,7 +62,22 @@
                                     }
                                     else
                                     {
-                                        <p class="text-muted">Trip details not available</p>
+                                        <h5 class="card-title">@(string.IsNullOrEmpty(booking.TripName) ? "Trip" : booking.TripName)</h5>
+                                        @if (!string.IsNullOrEmpty(booking.DestinationName))
+                                        {
+                                            <p class="text-muted mb-1">@booking.DestinationName</p>
+                                        }
+                                        @if (booking.StartDate != default && booking.EndDate != default)
+                                        {
+                                            <p class="mb-1">
+                                                <i class="fas fa-calendar me-2"></i>
+                                                @booking.StartDate.ToString("MMM d, yyyy") - @booking.EndDate.ToString("MMM d, yyyy")
+                                            </p>
+                                        }
+                                        <p class="mb-0">
+                                            <i class="fas fa-users me-2"></i>
+                                            @booking.NumberOfParticipants participant(s)
+                                        </p>
                                     }
                                 </div>
                                 <div class="col-md-4">
@@ -62,17 +85,14 @@
                                     <p class="mb-1">Total Amount: <strong>@booking.TotalPrice.ToString("C")</strong></p>
                                 </div>
                                 <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    @if (booking.Trip != null)
-                                    {
-                                        <a asp-page="./Details" asp-route-id="@booking.Trip.Id" class="btn btn-primary">
-                                            <i class="fas fa-info-circle me-1"></i> Trip Details
-                                        </a>
-                                    }
+                                    <a asp-page="./Details" asp-route-id="@booking.TripId" class="btn btn-primary">
+                                        <i class="fas fa-info-circle me-1"></i> Trip Details
+                                    </a>
                                     
                                     @if (booking.IsCancellable)
                                     {
                                         <button type="button" class="btn btn-danger" 
-                                                onclick="confirmCancel(@booking.Id, '@booking.Trip?.Title')">
+                                                onclick="confirmCancel(@booking.Id, '@(booking.Trip?.Title ?? booking.TripName ?? "this trip")')">
                                             <i class="fas fa-times-circle me-1"></i> Cancel Booking
                                         </button>
                                     }

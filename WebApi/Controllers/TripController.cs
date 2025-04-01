@@ -16,6 +16,7 @@ namespace WebAPI.Controllers
     [ApiController]
     public class TripController : ControllerBase
     {
+        private const string DEFAULT_GUIDE_PROFILE_IMAGE = "/images/default-guide-profile.jpg";
         private readonly ITripService _tripService;
 
         public TripController(ITripService tripService)
@@ -172,7 +173,7 @@ namespace WebAPI.Controllers
                     Bio = tg.Guide.Bio ?? string.Empty,
                     Email = tg.Guide.Email,
                     Phone = tg.Guide.Phone ?? string.Empty,
-                    ImageUrl = tg.Guide.ImageUrl ?? string.Empty,
+                    ImageUrl = tg.Guide.ImageUrl ?? DEFAULT_GUIDE_PROFILE_IMAGE,
                     YearsOfExperience = tg.Guide.YearsOfExperience
                 }).ToList() ?? new List<GuideDTO>()
             };

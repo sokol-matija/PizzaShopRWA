@@ -60,17 +60,29 @@ namespace TravelOrganizationWebApp.Services
             var httpContext = _httpContextAccessor.HttpContext;
             if (httpContext == null) return;
             
-            // Check if user is authenticated
+            // First try to get token from session (like AuthService does)
+            var sessionToken = httpContext.Session.GetString("Token");
+            if (!string.IsNullOrEmpty(sessionToken))
+            {
+                _logger.LogInformation("Using token from session for API request");
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessionToken);
+                return;
+            }
+            
+            // If no session token, try from authentication cookie
             if (httpContext.User.Identity?.IsAuthenticated == true)
             {
                 // Get the token from the authentication cookie
-                var token = await httpContext.GetTokenAsync(CookieAuthenticationDefaults.AuthenticationScheme, "access_token");
-                if (!string.IsNullOrEmpty(token))
+                var cookieToken = await httpContext.GetTokenAsync(CookieAuthenticationDefaults.AuthenticationScheme, "access_token");
+                if (!string.IsNullOrEmpty(cookieToken))
                 {
-                    // Add the token to request headers
-                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    _logger.LogInformation("Using token from authentication cookie for API request");
+                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", cookieToken);
+                    return;
                 }
             }
+            
+            _logger.LogWarning("No authentication token found in session or cookie");
         }
 
         /// <summary>
@@ -620,7 +632,7 @@ namespace TravelOrganizationWebApp.Services
                 // Set authentication token
                 await SetAuthHeaderAsync();
                 
-                // Get the trip to calculate total price
+                // Get the trip to validate it exists
                 var trip = await GetTripByIdAsync(tripId);
                 if (trip == null)
                 {
@@ -628,14 +640,33 @@ namespace TravelOrganizationWebApp.Services
                     return false;
                 }
                 
-                // Create the booking request
-                var booking = new TripRegistrationModel
+                // Get the current user ID
+                var currentUser = await _httpClient.GetAsync($"{_apiBaseUrl}User/current");
+                if (!currentUser.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to get current user: {StatusCode}", currentUser.StatusCode);
+                    return false;
+                }
+                
+                var userContent = await currentUser.Content.ReadAsStringAsync();
+                var user = JsonSerializer.Deserialize<UserModel>(userContent, _jsonOptions);
+                
+                if (user == null)
+                {
+                    _logger.LogWarning("Current user is null");
+                    return false;
+                }
+                
+                // Create the booking request with only the essential fields
+                var booking = new
                 {
                     TripId = tripId,
-                    NumberOfParticipants = numberOfParticipants,
-                    TotalPrice = trip.Price * numberOfParticipants,
-                    Status = "Pending"
+                    UserId = user.Id,
+                    NumberOfParticipants = numberOfParticipants
                 };
+                
+                _logger.LogInformation("Creating booking for userId: {UserId}, tripId: {TripId}, participants: {Participants}", 
+                    user.Id, tripId, numberOfParticipants);
                 
                 var json = JsonSerializer.Serialize(booking);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -644,10 +675,14 @@ namespace TravelOrganizationWebApp.Services
                 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Failed to book trip {TripId}: {StatusCode}", tripId, response.StatusCode);
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Failed to book trip {TripId}: {StatusCode}, Error: {Error}", 
+                        tripId, response.StatusCode, errorContent);
+                    return false;
                 }
                 
-                return response.IsSuccessStatusCode;
+                _logger.LogInformation("Successfully booked trip {TripId} for user {UserId}", tripId, user.Id);
+                return true;
             }
             catch (Exception ex)
             {
@@ -669,14 +704,18 @@ namespace TravelOrganizationWebApp.Services
                 
                 // Get the current user ID
                 var currentUser = await _httpClient.GetAsync($"{_apiBaseUrl}User/current");
+                var currentUserContent = await currentUser.Content.ReadAsStringAsync();
+                
+                _logger.LogInformation("User/current API response: Status={Status}, Content={Content}", 
+                    currentUser.StatusCode, currentUserContent);
+                    
                 if (!currentUser.IsSuccessStatusCode)
                 {
                     _logger.LogWarning("Failed to get current user: {StatusCode}", currentUser.StatusCode);
                     return new List<TripRegistrationModel>();
                 }
                 
-                var userContent = await currentUser.Content.ReadAsStringAsync();
-                var user = JsonSerializer.Deserialize<UserModel>(userContent, _jsonOptions);
+                var user = JsonSerializer.Deserialize<UserModel>(currentUserContent, _jsonOptions);
                 
                 if (user == null)
                 {
@@ -684,14 +723,65 @@ namespace TravelOrganizationWebApp.Services
                     return new List<TripRegistrationModel>();
                 }
                 
+                _logger.LogInformation("Successfully retrieved current user: ID={UserId}, Username={Username}", 
+                    user.Id, user.Username);
+                
                 // Get the bookings for this user
-                var response = await _httpClient.GetAsync($"{_apiBaseUrl}TripRegistration/user/{user.Id}");
+                var registrationUrl = $"{_apiBaseUrl}TripRegistration/user/{user.Id}";
+                _logger.LogInformation("Requesting user bookings from: {Url}", registrationUrl);
+                
+                var response = await _httpClient.GetAsync(registrationUrl);
+                var responseContent = await response.Content.ReadAsStringAsync();
+                
+                _logger.LogInformation("TripRegistration API response: Status={Status}, Content={Content}", 
+                    response.StatusCode, responseContent);
                 
                 if (response.IsSuccessStatusCode)
                 {
-                    var content = await response.Content.ReadAsStringAsync();
-                    var bookings = JsonSerializer.Deserialize<List<TripRegistrationModel>>(content, _jsonOptions);
-                    return bookings ?? new List<TripRegistrationModel>();
+                    try
+                    {
+                        // First, try parsing the response with standard options
+                        var jsonOptions = new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true,
+                            ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+                        };
+                        
+                        var bookings = JsonSerializer.Deserialize<List<TripRegistrationModel>>(responseContent, jsonOptions);
+                        
+                        if (bookings != null)
+                        {
+                            _logger.LogInformation("Successfully deserialized {Count} bookings", bookings.Count);
+                            return bookings;
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Deserialized bookings collection is null");
+                        }
+                        
+                        // If direct parsing fails, try to extract from reference-preserving format
+                        var responseObj = JsonSerializer.Deserialize<JsonDocument>(responseContent, jsonOptions);
+                        if (responseObj?.RootElement.TryGetProperty("$values", out var valuesElement) == true)
+                        {
+                            _logger.LogInformation("Found $values property in response, trying to deserialize from it");
+                            bookings = JsonSerializer.Deserialize<List<TripRegistrationModel>>(
+                                valuesElement.GetRawText(), jsonOptions);
+                                
+                            if (bookings != null)
+                            {
+                                _logger.LogInformation("Successfully deserialized {Count} bookings from $values", bookings.Count);
+                                return bookings;
+                            }
+                        }
+                        
+                        _logger.LogWarning("All deserialization attempts failed");
+                        return new List<TripRegistrationModel>();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error deserializing bookings response");
+                        return new List<TripRegistrationModel>();
+                    }
                 }
                 
                 // Handle errors
@@ -766,6 +856,39 @@ namespace TravelOrganizationWebApp.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error enriching trips with destination images");
+            }
+        }
+
+        /// <summary>
+        /// Cancel a trip booking for the current user
+        /// </summary>
+        public async Task<bool> CancelBookingAsync(int bookingId)
+        {
+            try
+            {
+                // Set authentication token
+                await SetAuthHeaderAsync();
+                
+                _logger.LogInformation("Attempting to cancel booking {BookingId}", bookingId);
+                
+                var response = await _httpClient.DeleteAsync($"{_apiBaseUrl}TripRegistration/{bookingId}");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Failed to cancel booking {BookingId}: {StatusCode}, Error: {Error}", 
+                        bookingId, response.StatusCode, errorContent);
+                    return false;
+                }
+                
+                _logger.LogInformation("Successfully cancelled booking {BookingId}", bookingId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                _logger.LogError(ex, "Exception in CancelBookingAsync: {BookingId}", bookingId);
+                return false;
             }
         }
 

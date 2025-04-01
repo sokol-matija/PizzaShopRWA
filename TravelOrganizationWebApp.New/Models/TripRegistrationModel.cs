@@ -12,8 +12,18 @@ namespace TravelOrganizationWebApp.Models
         [Required]
         public int UserId { get; set; }
         
+        public string Username { get; set; } = string.Empty;
+        
         [Required]
         public int TripId { get; set; }
+        
+        public string TripName { get; set; } = string.Empty;
+        
+        public string DestinationName { get; set; } = string.Empty;
+        
+        public DateTime StartDate { get; set; }
+        
+        public DateTime EndDate { get; set; }
         
         public DateTime RegistrationDate { get; set; } = DateTime.Now;
         

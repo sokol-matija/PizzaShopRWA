@@ -15,6 +15,7 @@ namespace TravelOrganizationWebApp.Pages.Trips
         private readonly ITripService _tripService;
         private readonly ILogger<MyBookingsModel> _logger;
 
+        // Simple constructor with fewer dependencies
         public MyBookingsModel(
             ITripService tripService,
             ILogger<MyBookingsModel> logger)
@@ -49,20 +50,28 @@ namespace TravelOrganizationWebApp.Pages.Trips
         {
             try
             {
-                _logger.LogInformation("Cancelling booking: {BookingId}", id);
+                _logger.LogInformation("Attempting to cancel booking {BookingId}", id);
                 
-                // TODO: Implement cancellation logic with the API
-                // For now, we'll simulate cancellation success
+                var result = await _tripService.CancelBookingAsync(id);
                 
-                TempData["SuccessMessage"] = "Your booking has been cancelled successfully.";
-                return RedirectToPage();
+                if (result)
+                {
+                    _logger.LogInformation("Successfully cancelled booking {BookingId}", id);
+                    TempData["SuccessMessage"] = "Your booking has been successfully cancelled.";
+                }
+                else
+                {
+                    _logger.LogWarning("Failed to cancel booking {BookingId}", id);
+                    TempData["ErrorMessage"] = "Failed to cancel your booking. Please try again later.";
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error cancelling booking: {BookingId}", id);
-                TempData["ErrorMessage"] = "An error occurred while cancelling your booking. Please try again.";
-                return RedirectToPage();
+                _logger.LogError(ex, "Error cancelling booking {BookingId}", id);
+                TempData["ErrorMessage"] = "An error occurred while cancelling your booking. Please try again later.";
             }
+            
+            return RedirectToPage();
         }
     }
 } 
