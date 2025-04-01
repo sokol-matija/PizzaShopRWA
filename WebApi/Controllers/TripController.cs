@@ -16,7 +16,7 @@ namespace WebAPI.Controllers
     [ApiController]
     public class TripController : ControllerBase
     {
-        private const string DEFAULT_GUIDE_PROFILE_IMAGE = "/images/default-guide-profile.jpg";
+        private const string DEFAULT_GUIDE_PROFILE_IMAGE = "/images/default-guide-profile.svg";
         private readonly ITripService _tripService;
 
         public TripController(ITripService tripService)
