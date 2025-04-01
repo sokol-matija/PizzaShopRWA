@@ -56,6 +56,7 @@ namespace TravelOrganizationWebApp.Models
         
         public int DurationInDays => (EndDate - StartDate).Days + 1;
         
-        public string FormattedPrice => Price.ToString("C");
+        // Format price in USD regardless of system culture
+        public string FormattedPrice => $"${Price:0.00}";
     }
 } 

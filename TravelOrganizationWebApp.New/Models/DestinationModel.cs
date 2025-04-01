@@ -34,6 +34,13 @@ namespace TravelOrganizationWebApp.Models
         [StringLength(200, ErrorMessage = "Best time to visit description cannot exceed 200 characters")]
         public string? BestTimeToVisit { get; set; }
         
+        /// <summary>
+        /// Nickname or famous tagline for the destination (e.g., "The City of Light" for Paris)
+        /// </summary>
+        [Display(Name = "Tagline")]
+        [StringLength(200, ErrorMessage = "Tagline cannot exceed 200 characters")]
+        public string? Tagline { get; set; }
+        
         // Navigation property for related trips (optional)
         public List<TripModel>? Trips { get; set; }
         

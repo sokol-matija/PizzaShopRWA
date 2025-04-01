@@ -194,7 +194,40 @@ namespace TravelOrganizationWebApp.Services
                 var response = await _httpClient.GetAsync($"{_apiBaseUrl}Destination/{id}");
                 if (response.IsSuccessStatusCode)
                 {
-                    return await response.Content.ReadFromJsonAsync<DestinationModel>();
+                    var content = await response.Content.ReadAsStringAsync();
+                    _logger.LogDebug("Destination API response: {Content}", content);
+                    
+                    var destination = await response.Content.ReadFromJsonAsync<DestinationModel>();
+                    
+                    if (destination != null)
+                    {
+                        // Add well-known taglines for famous destinations
+                        destination.Tagline = GetDestinationTagline(destination);
+                    
+                        // If the destination doesn't have an image URL, try to get one from Unsplash
+                        if (string.IsNullOrEmpty(destination.ImageUrl))
+                        {
+                            try
+                            {
+                                var searchQuery = $"{destination.City} {destination.Country} travel";
+                                var imageUrl = await _unsplashService.GetRandomImageUrlAsync(searchQuery);
+                                
+                                if (!string.IsNullOrEmpty(imageUrl))
+                                {
+                                    destination.ImageUrl = imageUrl;
+                                    // Update the destination in the database with the new image URL
+                                    await UpdateDestinationImageAsync(destination.Id, imageUrl);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "Error getting Unsplash image for destination {Id}", id);
+                                // Continue processing
+                            }
+                        }
+                    }
+                    
+                    return destination;
                 }
                 else
                 {
@@ -207,6 +240,28 @@ namespace TravelOrganizationWebApp.Services
                 _logger.LogError(ex, "Error getting destination {Id}", id);
                 return null;
             }
+        }
+        
+        /// <summary>
+        /// Returns a well-known tagline for a destination based on city and country
+        /// </summary>
+        private string? GetDestinationTagline(DestinationModel destination)
+        {
+            // Match based on city name (case insensitive)
+            return (destination.City?.ToLowerInvariant(), destination.Country?.ToLowerInvariant()) switch
+            {
+                ("paris", "france") => "The City of Light",
+                ("new york", "united states") => "The Big Apple",
+                ("rome", "italy") => "The Eternal City",
+                ("venice", "italy") => "The Floating City",
+                ("barcelona", "spain") => "The City of Gaudi",
+                ("london", "united kingdom") => "The Big Smoke",
+                ("tokyo", "japan") => "The Eastern Capital",
+                ("dubai", "united arab emirates") => "City of Gold",
+                ("rio de janeiro", "brazil") => "Marvelous City",
+                ("las vegas", "united states") => "Sin City",
+                _ => null // No tagline for other destinations
+            };
         }
 
         /// <summary>

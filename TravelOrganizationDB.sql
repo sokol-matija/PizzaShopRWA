@@ -147,6 +147,12 @@ ALTER TABLE [Destination] ADD ImageUrl NVARCHAR(500) NULL;
 
 select * from [User]
 
+select * from TripRegistration
+
+select * from Trip
+
 select * from [Destination]
 
-select * from TripRegistration
+select * from [Guide]
+
+

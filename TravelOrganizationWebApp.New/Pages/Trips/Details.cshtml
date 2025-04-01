@@ -96,6 +96,12 @@
                         </div>
                         <div class="card-body">
                             <h6>@Model.Destination.Name, @Model.Destination.Country</h6>
+                            @if (!string.IsNullOrEmpty(Model.Destination.Tagline))
+                            {
+                                <div class="text-primary mb-2 fst-italic">
+                                    @Model.Destination.Tagline
+                                </div>
+                            }
                             <p>@Model.Destination.Description</p>
                             
                             @if (!string.IsNullOrEmpty(Model.Destination.Climate))
@@ -139,13 +145,25 @@
                                             }
                                             <div>
                                                 <h6 class="mb-1">@guide.FullName</h6>
+                                                @if (!string.IsNullOrEmpty(guide.Bio))
+                                                {
+                                                    <p class="small mb-1">@guide.Bio</p>
+                                                }
                                                 @if (guide.YearsExperience.HasValue)
                                                 {
                                                     <div class="small text-muted">@guide.YearsExperience years experience</div>
                                                 }
-                                                @if (!string.IsNullOrEmpty(guide.Languages))
+                                                @if (!string.IsNullOrEmpty(guide.Email))
                                                 {
-                                                    <div class="small text-muted">Languages: @guide.Languages</div>
+                                                    <div class="small text-muted">
+                                                        <i class="bi bi-envelope-fill me-1"></i>@guide.Email
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(guide.PhoneNumber))
+                                                {
+                                                    <div class="small text-muted">
+                                                        <i class="bi bi-telephone-fill me-1"></i>@guide.PhoneNumber
+                                                    </div>
                                                 }
                                             </div>
                                         </div>

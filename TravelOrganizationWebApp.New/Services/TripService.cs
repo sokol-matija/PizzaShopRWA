@@ -100,25 +100,98 @@ namespace TravelOrganizationWebApp.Services
                     
                     var trips = new List<TripModel>();
                     
-                    // First try direct deserialization
+                    // Parse JSON document to manually extract properties
                     try
                     {
-                        trips = JsonSerializer.Deserialize<List<TripModel>>(content, jsonOptions) ?? new List<TripModel>();
+                        var jsonDoc = JsonDocument.Parse(content);
+                        
+                        // Handle different response formats ($values array or direct array)
+                        JsonElement tripsArray;
+                        if (jsonDoc.RootElement.TryGetProperty("$values", out var valuesElement))
+                        {
+                            tripsArray = valuesElement;
+                        }
+                        else if (jsonDoc.RootElement.ValueKind == JsonValueKind.Array)
+                        {
+                            tripsArray = jsonDoc.RootElement;
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Unexpected JSON structure in GetAllTripsAsync");
+                            return new List<TripModel>();
+                        }
+                        
+                        // Process each trip in the array
+                        foreach (var tripElement in tripsArray.EnumerateArray())
+                        {
+                            var trip = new TripModel
+                            {
+                                Id = GetIntProperty(tripElement, "id"),
+                                Title = GetStringProperty(tripElement, "name") ?? string.Empty,
+                                Description = GetStringProperty(tripElement, "description") ?? string.Empty,
+                                StartDate = GetDateTimeProperty(tripElement, "startDate"),
+                                EndDate = GetDateTimeProperty(tripElement, "endDate"),
+                                Price = GetDecimalProperty(tripElement, "price"),
+                                ImageUrl = GetStringProperty(tripElement, "imageUrl"),
+                                DestinationId = GetIntProperty(tripElement, "destinationId"),
+                                DestinationName = GetStringProperty(tripElement, "destinationName"),
+                                // Map capacity and bookings from API
+                                Capacity = GetIntProperty(tripElement, "maxParticipants"),
+                                CurrentBookings = GetIntProperty(tripElement, "maxParticipants") - GetIntProperty(tripElement, "availableSpots")
+                            };
+                            
+                            // Process guides if present
+                            if (tripElement.TryGetProperty("guides", out var guidesElement) && 
+                                guidesElement.TryGetProperty("$values", out var guidesValues))
+                            {
+                                trip.Guides = new List<GuideModel>();
+                                
+                                foreach (var guideElement in guidesValues.EnumerateArray())
+                                {
+                                    var guide = new GuideModel
+                                    {
+                                        Id = GetIntProperty(guideElement, "id"),
+                                        // Split name into first and last name
+                                        FirstName = SplitName(GetStringProperty(guideElement, "name")).firstName,
+                                        LastName = SplitName(GetStringProperty(guideElement, "name")).lastName,
+                                        Bio = GetStringProperty(guideElement, "bio"),
+                                        Email = GetStringProperty(guideElement, "email"),
+                                        PhoneNumber = GetStringProperty(guideElement, "phone"),
+                                        PhotoUrl = GetStringProperty(guideElement, "imageUrl"),
+                                        YearsExperience = GetIntProperty(guideElement, "yearsOfExperience")
+                                    };
+                                    
+                                    trip.Guides.Add(guide);
+                                }
+                            }
+                            
+                            trips.Add(trip);
+                        }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // If that fails, try to see if it's in a $values property (reference-preserving format)
+                        _logger.LogError(ex, "Error manually parsing trips JSON, falling back to automatic deserialization");
+                        
+                        // Fallback to old method if parsing fails
                         try
                         {
-                            var jsonDoc = JsonDocument.Parse(content);
-                            if (jsonDoc.RootElement.TryGetProperty("$values", out var valuesElement))
-                            {
-                                trips = JsonSerializer.Deserialize<List<TripModel>>(valuesElement.GetRawText(), jsonOptions) ?? new List<TripModel>();
-                            }
+                            trips = JsonSerializer.Deserialize<List<TripModel>>(content, jsonOptions) ?? new List<TripModel>();
                         }
-                        catch (Exception ex)
+                        catch
                         {
-                            _logger.LogWarning(ex, "Error parsing trips JSON");
+                            try
+                            {
+                                var jsonDoc = JsonDocument.Parse(content);
+                                if (jsonDoc.RootElement.TryGetProperty("$values", out var valuesElement))
+                                {
+                                    trips = JsonSerializer.Deserialize<List<TripModel>>(valuesElement.GetRawText(), jsonOptions) ?? new List<TripModel>();
+                                }
+                            }
+                            catch (Exception innerEx)
+                            {
+                                _logger.LogError(innerEx, "All parsing methods failed for trips JSON");
+                                return new List<TripModel>();
+                            }
                         }
                     }
                     
@@ -157,6 +230,7 @@ namespace TravelOrganizationWebApp.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
+                    _logger.LogDebug("API Response for trip {TripId}: {Content}", id, content);
                     
                     // Configure JSON options to handle reference preservation
                     var jsonOptions = new JsonSerializerOptions
@@ -167,22 +241,65 @@ namespace TravelOrganizationWebApp.Services
                     
                     try
                     {
-                        // Try direct deserialization first
-                        return JsonSerializer.Deserialize<TripModel>(content, jsonOptions);
+                        // Parse JSON document to manually extract properties
+                        var jsonDoc = JsonDocument.Parse(content);
+                        var rootElement = jsonDoc.RootElement;
+                        
+                        // Create and populate a TripModel with values from the API
+                        var trip = new TripModel
+                        {
+                            Id = GetIntProperty(rootElement, "id"),
+                            Title = GetStringProperty(rootElement, "name") ?? string.Empty,
+                            Description = GetStringProperty(rootElement, "description") ?? string.Empty,
+                            StartDate = GetDateTimeProperty(rootElement, "startDate"),
+                            EndDate = GetDateTimeProperty(rootElement, "endDate"),
+                            Price = GetDecimalProperty(rootElement, "price"),
+                            ImageUrl = GetStringProperty(rootElement, "imageUrl"),
+                            DestinationId = GetIntProperty(rootElement, "destinationId"),
+                            DestinationName = GetStringProperty(rootElement, "destinationName"),
+                            // Map capacity and bookings from API
+                            Capacity = GetIntProperty(rootElement, "maxParticipants"),
+                            CurrentBookings = GetIntProperty(rootElement, "maxParticipants") - GetIntProperty(rootElement, "availableSpots")
+                        };
+                        
+                        // Process guides if present
+                        if (rootElement.TryGetProperty("guides", out var guidesElement) && guidesElement.TryGetProperty("$values", out var guidesValues))
+                        {
+                            trip.Guides = new List<GuideModel>();
+                            
+                            foreach (var guideElement in guidesValues.EnumerateArray())
+                            {
+                                var guide = new GuideModel
+                                {
+                                    Id = GetIntProperty(guideElement, "id"),
+                                    // Split name into first and last name
+                                    FirstName = SplitName(GetStringProperty(guideElement, "name")).firstName,
+                                    LastName = SplitName(GetStringProperty(guideElement, "name")).lastName,
+                                    Bio = GetStringProperty(guideElement, "bio"),
+                                    Email = GetStringProperty(guideElement, "email"),
+                                    PhoneNumber = GetStringProperty(guideElement, "phone"),
+                                    PhotoUrl = GetStringProperty(guideElement, "imageUrl"),
+                                    YearsExperience = GetIntProperty(guideElement, "yearsOfExperience")
+                                };
+                                
+                                trip.Guides.Add(guide);
+                            }
+                        }
+                        
+                        return trip;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // For complex formats or nested objects
+                        _logger.LogError(ex, "Failed to parse trip data for ID {TripId}", id);
+                        
+                        // Fall back to standard deserialization as backup
                         try
                         {
-                            var responseObj = JsonSerializer.Deserialize<JsonDocument>(content, jsonOptions);
-                            // Check if there's a full object with properties rather than a $values array
-                            // Single objects don't have $values but should deserialize directly
                             return JsonSerializer.Deserialize<TripModel>(content, jsonOptions);
                         }
-                        catch (Exception ex)
+                        catch
                         {
-                            _logger.LogError(ex, "Failed to parse trip data for ID {TripId}", id);
+                            _logger.LogError("Both parsing methods failed for trip ID {TripId}", id);
                             return null;
                         }
                     }
@@ -226,25 +343,98 @@ namespace TravelOrganizationWebApp.Services
                     
                     var trips = new List<TripModel>();
                     
-                    // First try direct deserialization
+                    // Parse JSON document to manually extract properties
                     try
                     {
-                        trips = JsonSerializer.Deserialize<List<TripModel>>(content, jsonOptions) ?? new List<TripModel>();
+                        var jsonDoc = JsonDocument.Parse(content);
+                        
+                        // Handle different response formats ($values array or direct array)
+                        JsonElement tripsArray;
+                        if (jsonDoc.RootElement.TryGetProperty("$values", out var valuesElement))
+                        {
+                            tripsArray = valuesElement;
+                        }
+                        else if (jsonDoc.RootElement.ValueKind == JsonValueKind.Array)
+                        {
+                            tripsArray = jsonDoc.RootElement;
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Unexpected JSON structure in GetTripsByDestinationAsync");
+                            return new List<TripModel>();
+                        }
+                        
+                        // Process each trip in the array
+                        foreach (var tripElement in tripsArray.EnumerateArray())
+                        {
+                            var trip = new TripModel
+                            {
+                                Id = GetIntProperty(tripElement, "id"),
+                                Title = GetStringProperty(tripElement, "name") ?? string.Empty,
+                                Description = GetStringProperty(tripElement, "description") ?? string.Empty,
+                                StartDate = GetDateTimeProperty(tripElement, "startDate"),
+                                EndDate = GetDateTimeProperty(tripElement, "endDate"),
+                                Price = GetDecimalProperty(tripElement, "price"),
+                                ImageUrl = GetStringProperty(tripElement, "imageUrl"),
+                                DestinationId = GetIntProperty(tripElement, "destinationId"),
+                                DestinationName = GetStringProperty(tripElement, "destinationName"),
+                                // Map capacity and bookings from API
+                                Capacity = GetIntProperty(tripElement, "maxParticipants"),
+                                CurrentBookings = GetIntProperty(tripElement, "maxParticipants") - GetIntProperty(tripElement, "availableSpots")
+                            };
+                            
+                            // Process guides if present
+                            if (tripElement.TryGetProperty("guides", out var guidesElement) && 
+                                guidesElement.TryGetProperty("$values", out var guidesValues))
+                            {
+                                trip.Guides = new List<GuideModel>();
+                                
+                                foreach (var guideElement in guidesValues.EnumerateArray())
+                                {
+                                    var guide = new GuideModel
+                                    {
+                                        Id = GetIntProperty(guideElement, "id"),
+                                        // Split name into first and last name
+                                        FirstName = SplitName(GetStringProperty(guideElement, "name")).firstName,
+                                        LastName = SplitName(GetStringProperty(guideElement, "name")).lastName,
+                                        Bio = GetStringProperty(guideElement, "bio"),
+                                        Email = GetStringProperty(guideElement, "email"),
+                                        PhoneNumber = GetStringProperty(guideElement, "phone"),
+                                        PhotoUrl = GetStringProperty(guideElement, "imageUrl"),
+                                        YearsExperience = GetIntProperty(guideElement, "yearsOfExperience")
+                                    };
+                                    
+                                    trip.Guides.Add(guide);
+                                }
+                            }
+                            
+                            trips.Add(trip);
+                        }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // If that fails, try to see if it's in a $values property (reference-preserving format)
+                        _logger.LogError(ex, "Error manually parsing trips JSON for destination {DestinationId}, falling back to automatic deserialization", destinationId);
+                        
+                        // Fallback to old method if parsing fails
                         try
                         {
-                            var jsonDoc = JsonDocument.Parse(content);
-                            if (jsonDoc.RootElement.TryGetProperty("$values", out var valuesElement))
-                            {
-                                trips = JsonSerializer.Deserialize<List<TripModel>>(valuesElement.GetRawText(), jsonOptions) ?? new List<TripModel>();
-                            }
+                            trips = JsonSerializer.Deserialize<List<TripModel>>(content, jsonOptions) ?? new List<TripModel>();
                         }
-                        catch (Exception ex)
+                        catch
                         {
-                            _logger.LogWarning(ex, "Error parsing destination trips JSON");
+                            try
+                            {
+                                var jsonDoc = JsonDocument.Parse(content);
+                                if (jsonDoc.RootElement.TryGetProperty("$values", out var valuesElement))
+                                {
+                                    trips = JsonSerializer.Deserialize<List<TripModel>>(valuesElement.GetRawText(), jsonOptions) ?? new List<TripModel>();
+                                }
+                            }
+                            catch (Exception innerEx)
+                            {
+                                _logger.LogError(innerEx, "All parsing methods failed for destination trips JSON");
+                                return new List<TripModel>();
+                            }
                         }
                     }
                     
@@ -577,6 +767,65 @@ namespace TravelOrganizationWebApp.Services
             {
                 _logger.LogError(ex, "Error enriching trips with destination images");
             }
+        }
+
+        // Helper methods for JSON property extraction
+        private string? GetStringProperty(JsonElement element, string propertyName)
+        {
+            if (element.TryGetProperty(propertyName, out var prop) && prop.ValueKind != JsonValueKind.Null)
+            {
+                return prop.GetString();
+            }
+            return null;
+        }
+        
+        private int GetIntProperty(JsonElement element, string propertyName, int defaultValue = 0)
+        {
+            if (element.TryGetProperty(propertyName, out var prop) && prop.ValueKind != JsonValueKind.Null)
+            {
+                if (prop.TryGetInt32(out var value))
+                {
+                    return value;
+                }
+            }
+            return defaultValue;
+        }
+        
+        private decimal GetDecimalProperty(JsonElement element, string propertyName, decimal defaultValue = 0)
+        {
+            if (element.TryGetProperty(propertyName, out var prop) && prop.ValueKind != JsonValueKind.Null)
+            {
+                if (prop.TryGetDecimal(out var value))
+                {
+                    return value;
+                }
+            }
+            return defaultValue;
+        }
+        
+        private DateTime GetDateTimeProperty(JsonElement element, string propertyName, DateTime? defaultValue = null)
+        {
+            if (element.TryGetProperty(propertyName, out var prop) && prop.ValueKind != JsonValueKind.Null)
+            {
+                if (prop.TryGetDateTime(out var value))
+                {
+                    return value;
+                }
+            }
+            return defaultValue ?? DateTime.Now;
+        }
+        
+        private (string firstName, string lastName) SplitName(string? fullName)
+        {
+            if (string.IsNullOrEmpty(fullName))
+            {
+                return ("Unknown", "");
+            }
+            
+            var parts = fullName.Split(' ', 2);
+            return parts.Length > 1 
+                ? (parts[0], parts[1]) 
+                : (parts[0], "");
         }
     }
 } 
