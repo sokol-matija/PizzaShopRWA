@@ -1,0 +1,254 @@
+@page "{id:int}"
+@model WebApp.Pages.Destinations.DetailsModel
+@{
+    ViewData["Title"] = $"{Model.Destination.Name} - Details";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-page="/Index">Home</a></li>
+                    <li class="breadcrumb-item"><a asp-page="./Index">Destinations</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Destination.Name</li>
+                </ol>
+            </nav>
+
+            <div class="card mb-4">
+                @if (!string.IsNullOrEmpty(Model.Destination.ImageUrl))
+                {
+                    <img src="@Model.Destination.ImageUrl" class="card-img-top" alt="@Model.Destination.Name" style="height: 300px; object-fit: cover;">
+                }
+                else
+                {
+                    <!-- Use a static placeholder image instead of dynamically generating one -->
+                    <div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height: 300px;">
+                        <div class="text-center">
+                            <i class="fas fa-image text-muted" style="font-size: 4rem;"></i>
+                            <p class="text-muted mt-2">No image available for @Model.Destination.Name</p>
+                        </div>
+                    </div>
+                }
+                <div class="card-body">
+                    <h1 class="card-title">@Model.Destination.Name</h1>
+                    <h4 class="card-subtitle mb-3 text-muted">@Model.Destination.Location</h4>
+                    
+                    @if (!string.IsNullOrEmpty(Model.Destination.Description))
+                    {
+                        <div class="card-text mb-4">
+                            <h5>About this destination</h5>
+                            <p>@Model.Destination.Description</p>
+                        </div>
+                    }
+
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-page="./Edit" asp-route-id="@Model.Destination.Id" class="btn btn-primary">
+                                <i class="fas fa-edit me-1"></i> Edit
+                            </a>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="fas fa-trash me-1"></i> Delete
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#updateImageModal">
+                                <i class="fas fa-image me-1"></i> Update Image
+                            </button>
+                        }
+                        <a asp-page="/Trips/Index" asp-route-destinationId="@Model.Destination.Id" class="btn btn-success">
+                            <i class="fas fa-plane-departure me-1"></i> View Trips
+                        </a>
+                        <a asp-page="./Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.TripsCount > 0)
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Trips to @Model.Destination.Name</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>There are @Model.TripsCount trips available to @Model.Destination.Name.</p>
+                        <a asp-page="/Trips/Index" asp-route-destinationId="@Model.Destination.Id" class="btn btn-primary">
+                            <i class="fas fa-plane-departure me-1"></i> View All Trips
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> There are currently no trips available to this destination.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@if (User.IsInRole("Admin"))
+{
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <strong>@Model.Destination.Name</strong>?</p>
+                    <p class="text-danger">This action cannot be undone.</p>
+                    @if (Model.TripsCount > 0)
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i> This destination has @Model.TripsCount associated trips that will also be deleted.
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@Model.Destination.Id">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Image Modal -->
+    <div class="modal fade" id="updateImageModal" tabindex="-1" aria-labelledby="updateImageModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateImageModalLabel">Update Destination Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="image-preview-container mb-3" style="height: 200px; overflow: hidden; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                        <img id="imageModalPreview" src="@(string.IsNullOrEmpty(Model.Destination.ImageUrl) ? "" : Model.Destination.ImageUrl)" 
+                             alt="Destination Image Preview" style="max-width: 100%; max-height: 200px; @(string.IsNullOrEmpty(Model.Destination.ImageUrl) ? "display: none;" : "")">
+                        <div id="noImageModalPlaceholder" style="@(!string.IsNullOrEmpty(Model.Destination.ImageUrl) ? "display: none;" : "")">
+                            <i class="fas fa-image text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mb-0">No image selected</p>
+                        </div>
+                    </div>
+                    <form id="updateImageForm" method="post" asp-page-handler="UpdateImage" asp-route-id="@Model.Destination.Id">
+                        <input type="hidden" id="newImageUrl" name="imageUrl" />
+                        <div class="mb-3">
+                            <div class="d-grid gap-2">
+                                <button type="button" id="loadNewImageBtn" class="btn btn-outline-primary">
+                                    <i class="fas fa-image me-1"></i> Load New Image
+                                </button>
+                                <button type="button" id="refreshNewImageBtn" class="btn btn-outline-secondary" disabled>
+                                    <i class="fas fa-sync-alt me-1"></i> Try Another
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="saveImageBtn" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @if (User.IsInRole("Admin"))
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Image preview elements
+                const loadNewImageBtn = document.getElementById('loadNewImageBtn');
+                const refreshNewImageBtn = document.getElementById('refreshNewImageBtn');
+                const imageModalPreview = document.getElementById('imageModalPreview');
+                const newImageUrl = document.getElementById('newImageUrl');
+                const noImageModalPlaceholder = document.getElementById('noImageModalPlaceholder');
+                const saveImageBtn = document.getElementById('saveImageBtn');
+                const updateImageForm = document.getElementById('updateImageForm');
+
+                // Function to get image from Unsplash
+                async function getUnsplashImage() {
+                    try {
+                        const btn = this === refreshNewImageBtn ? refreshNewImageBtn : loadNewImageBtn;
+                        const originalText = btn.innerHTML;
+                        
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Loading...';
+                        
+                        // Get query for Unsplash
+                        const destination = '@Model.Destination.Name';
+                        const city = '@Model.Destination.City';
+                        const country = '@Model.Destination.Country';
+                        
+                        const query = `${city} ${country} travel`;
+                        console.log(`Fetching image for query: ${query}`);
+                        
+                        try {
+                            // First try the API endpoint
+                            const response = await fetch(`/api/unsplash/random?query=${encodeURIComponent(query)}&t=${Date.now()}`);
+                            console.log('API Response status:', response.status);
+                            
+                            if (response.ok) {
+                                const data = await response.json();
+                                console.log('API Response data:', data);
+                                
+                                if (data && data.imageUrl) {
+                                    // Success! Display the image
+                                    imageModalPreview.src = data.imageUrl;
+                                    imageModalPreview.style.display = 'block';
+                                    newImageUrl.value = data.imageUrl;
+                                    noImageModalPlaceholder.style.display = 'none';
+                                    refreshNewImageBtn.disabled = false;
+                                    return;
+                                }
+                            } else {
+                                console.error('API error response:', await response.text());
+                            }
+                            
+                            // Fallback to direct URL
+                            console.log('Falling back to direct Unsplash URL');
+                            const timestamp = Date.now();
+                            // Use a static image URL instead of dynamic Unsplash
+                            const fallbackUrl = 'https://images.pexels.com/photos/1058959/pexels-photo-1058959.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940';
+                            
+                            imageModalPreview.src = fallbackUrl;
+                            imageModalPreview.style.display = 'block';
+                            newImageUrl.value = fallbackUrl;
+                            noImageModalPlaceholder.style.display = 'none';
+                            refreshNewImageBtn.disabled = false;
+                        } catch (error) {
+                            console.error('Fetch error:', error);
+                            alert('Failed to load image. Please try again.');
+                        } finally {
+                            btn.disabled = false;
+                            btn.innerHTML = originalText;
+                        }
+                    } catch (error) {
+                        console.error('Error in getUnsplashImage:', error);
+                        alert('Failed to load image. Please try again.');
+                    }
+                }
+
+                // Event listeners
+                loadNewImageBtn.addEventListener('click', getUnsplashImage);
+                refreshNewImageBtn.addEventListener('click', getUnsplashImage);
+                
+                // Save button submits the form
+                saveImageBtn.addEventListener('click', function() {
+                    if (newImageUrl.value) {
+                        updateImageForm.submit();
+                    } else {
+                        alert('Please load an image first.');
+                    }
+                });
+            });
+        </script>
+    }
+} 

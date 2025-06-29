@@ -1,0 +1,131 @@
+@page "{id:int}"
+@model WebApp.Pages.Trips.BookModel
+@{
+    ViewData["Title"] = "Book Trip";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-page="/Index">Home</a></li>
+                    <li class="breadcrumb-item"><a asp-page="./Index">Trips</a></li>
+                    <li class="breadcrumb-item"><a asp-page="./Details" asp-route-id="@Model.Trip.Id">@Model.Trip.Title</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Book</li>
+                </ol>
+            </nav>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="card-title mb-0">@ViewData["Title"]</h2>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @Model.ErrorMessage
+                        </div>
+                    }
+
+                    <div class="mb-4">
+                        <h3>Trip Details</h3>
+                        <div class="row">
+                            <div class="col-md-4">
+                                @if (!string.IsNullOrEmpty(Model.Trip.ImageUrl))
+                                {
+                                    <img src="@Model.Trip.ImageUrl" class="img-fluid rounded" alt="@Model.Trip.Title" style="max-height: 200px; object-fit: cover;">
+                                }
+                                else
+                                {
+                                    <div class="bg-light d-flex justify-content-center align-items-center rounded" style="height: 200px;">
+                                        <i class="fas fa-plane-departure text-muted" style="font-size: 3rem;"></i>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-8">
+                                <h4>@Model.Trip.Title</h4>
+                                <p class="text-muted mb-2">@Model.Trip.DestinationName</p>
+                                <p><i class="fas fa-calendar me-2"></i> @Model.Trip.StartDate.ToString("MMM d, yyyy") - @Model.Trip.EndDate.ToString("MMM d, yyyy")</p>
+                                <p><i class="fas fa-dollar-sign me-2"></i> @Model.Trip.FormattedPrice per person</p>
+                                <p><i class="fas fa-users me-2"></i> @(Model.Trip.Capacity - Model.Trip.CurrentBookings) spots left</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" class="needs-validation" novalidate>
+                        <input type="hidden" asp-for="TripId" />
+                        
+                        <div class="mb-3">
+                            <label asp-for="NumberOfParticipants" class="form-label">Number of Participants</label>
+                            <select asp-for="NumberOfParticipants" class="form-select" required>
+                                @for (int i = 1; i <= Math.Min(10, Model.Trip.Capacity - Model.Trip.CurrentBookings); i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                            <span asp-validation-for="NumberOfParticipants" class="text-danger"></span>
+                            <div class="form-text">Max 10 participants per booking.</div>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="mb-0">Booking Summary</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Price per person:</span>
+                                    <span>@Model.Trip.FormattedPrice</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Number of participants:</span>
+                                    <span id="participantsSummary">1</span>
+                                </div>
+                                <hr />
+                                <div class="d-flex justify-content-between fw-bold">
+                                    <span>Total:</span>
+                                    <span id="totalPrice">@Model.Trip.FormattedPrice</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a asp-page="./Details" asp-route-id="@Model.Trip.Id" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Back to Trip Details
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check me-1"></i> Confirm Booking
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const participantsSelect = document.getElementById('NumberOfParticipants');
+            const participantsSummary = document.getElementById('participantsSummary');
+            const totalPrice = document.getElementById('totalPrice');
+            
+            const pricePerPerson = @Model.Trip.Price;
+            
+            function updateSummary() {
+                const participants = parseInt(participantsSelect.value);
+                const total = participants * pricePerPerson;
+                
+                participantsSummary.textContent = participants;
+                totalPrice.textContent = new Intl.NumberFormat('en-US', { 
+                    style: 'currency', 
+                    currency: 'USD' 
+                }).format(total);
+            }
+            
+            participantsSelect.addEventListener('change', updateSummary);
+        });
+    </script>
+} 

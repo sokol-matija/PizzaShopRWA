@@ -1,0 +1,65 @@
+@page
+@model WebApp.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2 class="glow-text">Welcome Back</h2>
+            <p>Log in to your account to continue your travel journey</p>
+        </div>
+        
+        <div class="auth-body">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
+                <div class="form-floating mb-4">
+                    <input asp-for="LoginInput.Username" class="form-control animated-input" placeholder="Username or Email" />
+                    <label asp-for="LoginInput.Username"></label>
+                    <span asp-validation-for="LoginInput.Username" class="text-danger"></span>
+                </div>
+                
+                <div class="form-floating mb-4">
+                    <input asp-for="LoginInput.Password" class="form-control animated-input" placeholder="Password" />
+                    <label asp-for="LoginInput.Password"></label>
+                    <span asp-validation-for="LoginInput.Password" class="text-danger"></span>
+                </div>
+                
+                <div class="form-check mb-4">
+                    <input asp-for="LoginInput.RememberMe" class="form-check-input" />
+                    <label asp-for="LoginInput.RememberMe" class="form-check-label"></label>
+                </div>
+                
+                <input type="hidden" asp-for="LoginInput.ReturnUrl" />
+                
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg btn-animated">
+                        <i class="fas fa-sign-in-alt me-2"></i> Login
+                    </button>
+                </div>
+            </form>
+            
+            <div class="auth-separator">
+                <span>OR</span>
+            </div>
+            
+            <div class="d-grid">
+                <a href="/Account/Register" class="btn btn-outline-secondary btn-lg btn-animated">
+                    <i class="fas fa-user-plus me-2"></i> Create an Account
+                </a>
+            </div>
+            
+            <div class="mt-3 text-center">
+                <a href="#" class="text-primary forgot-password">Forgot your password?</a>
+            </div>
+        </div>
+        
+        <div class="travel-bg"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} 

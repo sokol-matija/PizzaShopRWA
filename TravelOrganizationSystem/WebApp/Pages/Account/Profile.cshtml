@@ -1,0 +1,129 @@
+@page
+@model WebApp.Pages.Account.ProfileModel
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment WebHostEnvironment
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">@ViewData["Title"]</h1>
+    
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @Model.ErrorMessage
+        </div>
+        
+        @if (!string.IsNullOrEmpty(Model.DetailedError) && WebHostEnvironment.IsDevelopment())
+        {
+            <div class="alert alert-warning" role="alert">
+                <strong>Developer Details:</strong> @Model.DetailedError
+            </div>
+        }
+    }
+    
+    @if (Model.CurrentUser != null)
+    {
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Account Summary</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                                <i class="fas fa-user-circle fa-4x text-primary"></i>
+                            </div>
+                        </div>
+                        <p class="text-muted">@Model.CurrentUser.Username</p>
+                        
+                        @if (Model.CurrentUser.IsAdmin)
+                        {
+                            <span class="badge bg-warning">Administrator</span>
+                        }
+                        
+                        <div class="d-grid gap-2 mt-3">
+                            <a asp-page="/Account/ChangePassword" class="btn btn-outline-primary">
+                                <i class="fas fa-key me-2"></i>Change Password
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Profile Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Username:</div>
+                            <div class="col-md-8">@Model.CurrentUser.Username</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Email:</div>
+                            <div class="col-md-8">@Model.CurrentUser.Email</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Full Name:</div>
+                            <div class="col-md-8">
+                                @if (string.IsNullOrEmpty(Model.CurrentUser.FullName))
+                                {
+                                    <span class="text-muted">Not provided</span>
+                                }
+                                else
+                                {
+                                    @Model.CurrentUser.FullName
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Phone Number:</div>
+                            <div class="col-md-8">
+                                @if (string.IsNullOrEmpty(Model.CurrentUser.PhoneNumber))
+                                {
+                                    <span class="text-muted">Not provided</span>
+                                }
+                                else
+                                {
+                                    @Model.CurrentUser.PhoneNumber
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Address:</div>
+                            <div class="col-md-8">
+                                @if (string.IsNullOrEmpty(Model.CurrentUser.Address))
+                                {
+                                    <span class="text-muted">Not provided</span>
+                                }
+                                else
+                                {
+                                    @Model.CurrentUser.Address
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <a asp-page="/Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else if (string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-warning" role="alert">
+            Unable to load your profile information. <a asp-page="/Index" class="alert-link">Go back to Home</a>.
+        </div>
+    }
+</div> 
