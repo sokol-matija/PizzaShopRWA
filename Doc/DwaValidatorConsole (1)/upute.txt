@@ -1,0 +1,21 @@
+Bliže se rokovi za predaju rješenja projektnog zadatka, a prvi ispitni rok održat će se 26. lipnja.
+U tom smislu, važno je naglasiti da je razvijen alat DwaValidatorConsole koji automatski provjerava ispravnost ZIP arhive Vašeg rješenja. Ispravna je ona arhiva koja slijedi upute u datoteci projektne specifikacije RWA-Projekt-2025-hr.pdf, koja je dostupna na Infoeduki. Alat je moguće instalirati vrlo jednostavno - raspakirajte DwaValidatorConsole.zip negdje na svoje računalo. Izvršna datoteka je DwaValidatorConsole.exe. Kratke ali dovoljne upute za upotrebu nalaze se u DwaValidatorConsole.zip, u readme.txt.
+
+Bitno je naglasiti da provjera ispravnosti ne uključuje provjeru minimalne funkcionalnosti. Provjeru minimalne funkcionalnosti će napraviti profesor ukoliko je arhiva ispravna.
+
+Alat je dostupan na Infoeduki i omogućuje automatsku:
+- validaciju arhive rješenja,
+- raspakiravanje arhive,
+- kreiranje baze podataka,
+- podešavanje connection stringa u appsettings.json datoteci,
+- ispis naredbe za otvaranje rješenja u razvojnoj okolini Visual Studio
+
+Drugim riječima, alat omogućuje instalaciju vašeg rješenja putem arhive na istu ili neku drugu razvojnu okolinu, te omogućuje njegovo trenutno pokretanje, ako je arhiva ispravno pripremljena.
+
+VAŽNO:
+- arhiva mora biti napravljena prema uputama iz projektne specifikacije, to je preduvjet je za izlazak na obranu
+- niti jedna arhiva koja nije napravljena prema navedenim uputama neće biti prihvaćena
+
+Svaki student ima pristup alatu i može provesti provjeru ispravnosti prije slanja arhive. Ako alat ne može validirati ili instalirati arhivu, to je indikacija da treba ispraviti arhivu (ili rješenje). Ispis grešaka u validaciji je tu da pomogne s ispravkom.
+
+Za dodatna pitanja, slobodno se javite.
