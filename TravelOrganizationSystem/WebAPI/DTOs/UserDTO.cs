@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace WebAPI.DTOs
 {
     public class UserDTO
@@ -22,5 +24,26 @@ namespace WebAPI.DTOs
                 return $"{FirstName} {LastName}".Trim(); 
             } 
         }
+    }
+
+    public class UpdateProfileDTO
+    {
+        [Required]
+        [EmailAddress]
+        [StringLength(100)]
+        public string Email { get; set; } = string.Empty;
+
+        [StringLength(100)]
+        public string? FirstName { get; set; }
+
+        [StringLength(100)]
+        public string? LastName { get; set; }
+
+        [StringLength(20)]
+        [Phone]
+        public string? PhoneNumber { get; set; }
+
+        [StringLength(200)]
+        public string? Address { get; set; }
     }
 } 

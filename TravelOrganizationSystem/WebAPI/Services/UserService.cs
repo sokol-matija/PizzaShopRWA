@@ -16,6 +16,7 @@ namespace WebAPI.Services
 		Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword);
 		Task<User> GetByIdAsync(int userId);
 		Task<List<User>> GetAllUsersAsync();
+		Task<User> UpdateProfileAsync(User user);
 	}
 
 	public class UserService : IUserService
@@ -122,6 +123,34 @@ namespace WebAPI.Services
 		public async Task<List<User>> GetAllUsersAsync()
 		{
 			return await _context.Users.ToListAsync();
+		}
+
+		public async Task<User> UpdateProfileAsync(User user)
+		{
+			try
+			{
+				// Check if email is already taken by another user
+				var existingUser = await _context.Users
+					.FirstOrDefaultAsync(u => u.Email == user.Email && u.Id != user.Id);
+				
+				if (existingUser != null)
+				{
+					await _logService.LogWarningAsync($"Profile update failed: email '{user.Email}' already exists for another user");
+					return null;
+				}
+
+				// Update the user in the database
+				_context.Users.Update(user);
+				await _context.SaveChangesAsync();
+
+				await _logService.LogInformationAsync($"Profile successfully updated for user '{user.Username}'");
+				return user;
+			}
+			catch (Exception ex)
+			{
+				await _logService.LogErrorAsync($"Error updating profile for user '{user.Username}': {ex.Message}");
+				return null;
+			}
 		}
 
 		// Private helper methods for password hashing

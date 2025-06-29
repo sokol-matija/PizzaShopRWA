@@ -74,6 +74,38 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// Search trips by name and/or description with pagination
+        /// </summary>
+        /// <param name="name">Optional name to search for</param>
+        /// <param name="description">Optional description to search for</param>
+        /// <param name="page">Page number (default: 1)</param>
+        /// <param name="count">Number of items per page (default: 10)</param>
+        /// <remarks>
+        /// This endpoint is publicly accessible - no authentication required
+        /// Supports searching by trip name and/or description.
+        /// Use pagination parameters to get results in manageable chunks.
+        /// </remarks>
+        /// <returns>Paginated list of trips matching search criteria</returns>
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<TripDTO>>> SearchTrips(
+            [FromQuery] string? name,
+            [FromQuery] string? description,
+            [FromQuery] int page = 1,
+            [FromQuery] int count = 10)
+        {
+            // Validate pagination parameters
+            if (page < 1)
+                return BadRequest("Page number must be 1 or greater");
+            
+            if (count < 1 || count > 100)
+                return BadRequest("Count must be between 1 and 100");
+
+            var trips = await _tripService.SearchTripsAsync(name, description, page, count);
+            var tripDtos = trips.Select(MapTripToDto).ToList();
+            return Ok(tripDtos);
+        }
+
+        /// <summary>
         /// Create a new trip
         /// </summary>
         /// <param name="tripDto">The trip details to create</param>

@@ -46,6 +46,43 @@ namespace WebAPI.Services
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Trip>> SearchTripsAsync(string? name, string? description, int page, int count)
+        {
+            // Log the search request
+            await _logService.LogInformationAsync($"Searching trips with name: '{name}', description: '{description}', page: {page}, count: {count}");
+
+            // Start with base query
+            var query = _context.Trips
+                .Include(t => t.Destination)
+                .Include(t => t.TripGuides)
+                    .ThenInclude(tg => tg.Guide)
+                .Include(t => t.TripRegistrations)
+                .AsQueryable();
+
+            // Apply name filter if provided
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                query = query.Where(t => t.Name.Contains(name));
+            }
+
+            // Apply description filter if provided
+            if (!string.IsNullOrWhiteSpace(description))
+            {
+                query = query.Where(t => t.Description != null && t.Description.Contains(description));
+            }
+
+            // Apply pagination
+            var results = await query
+                .Skip((page - 1) * count)
+                .Take(count)
+                .ToListAsync();
+
+            // Log the results
+            await _logService.LogInformationAsync($"Search returned {results.Count} trips for page {page}");
+
+            return results;
+        }
+
         public async Task<Trip> CreateTripAsync(Trip trip)
         {
             _context.Trips.Add(trip);

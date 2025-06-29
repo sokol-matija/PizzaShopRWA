@@ -13,6 +13,16 @@ namespace WebApp.Services
         Task<List<TripModel>> GetAllTripsAsync();
         
         /// <summary>
+        /// Get trips with pagination support
+        /// </summary>
+        Task<(List<TripModel> trips, int totalCount)> GetTripsAsync(int page = 1, int pageSize = 10, int? destinationId = null);
+        
+        /// <summary>
+        /// Search trips with pagination support
+        /// </summary>
+        Task<(List<TripModel> trips, int totalCount)> SearchTripsAsync(string? name, string? description, int page = 1, int pageSize = 10);
+        
+        /// <summary>
         /// Get a specific trip by ID
         /// </summary>
         Task<TripModel?> GetTripByIdAsync(int id);

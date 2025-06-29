@@ -134,6 +134,101 @@
                 </div>
             }
         </div>
+        
+        <!-- Pagination Controls -->
+        @if (Model.TotalPages > 1)
+        {
+            <div class="d-flex justify-content-center mt-4">
+                <nav aria-label="Trip list pagination">
+                    <ul class="pagination">
+                        <!-- Previous button -->
+                        <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                            @if (Model.HasPreviousPage)
+                            {
+                                <a class="page-link" asp-page="./Index" asp-route-page="@(Model.Page - 1)" asp-route-destinationId="@Model.DestinationId">
+                                    <i class="fas fa-chevron-left me-1"></i> Previous
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="page-link">
+                                    <i class="fas fa-chevron-left me-1"></i> Previous
+                                </span>
+                            }
+                        </li>
+
+                        <!-- Page numbers -->
+                        @{
+                            var startPage = Math.Max(1, Model.Page - 2);
+                            var endPage = Math.Min(Model.TotalPages, Model.Page + 2);
+                        }
+
+                        @if (startPage > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-page="./Index" asp-route-page="1" asp-route-destinationId="@Model.DestinationId">1</a>
+                            </li>
+                            @if (startPage > 2)
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            }
+                        }
+
+                        @for (var i = startPage; i <= endPage; i++)
+                        {
+                            <li class="page-item @(i == Model.Page ? "active" : "")">
+                                @if (i == Model.Page)
+                                {
+                                    <span class="page-link">@i</span>
+                                }
+                                else
+                                {
+                                    <a class="page-link" asp-page="./Index" asp-route-page="@i" asp-route-destinationId="@Model.DestinationId">@i</a>
+                                }
+                            </li>
+                        }
+
+                        @if (endPage < Model.TotalPages)
+                        {
+                            @if (endPage < Model.TotalPages - 1)
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            }
+                            <li class="page-item">
+                                <a class="page-link" asp-page="./Index" asp-route-page="@Model.TotalPages" asp-route-destinationId="@Model.DestinationId">@Model.TotalPages</a>
+                            </li>
+                        }
+
+                        <!-- Next button -->
+                        <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                            @if (Model.HasNextPage)
+                            {
+                                <a class="page-link" asp-page="./Index" asp-route-page="@(Model.Page + 1)" asp-route-destinationId="@Model.DestinationId">
+                                    Next <i class="fas fa-chevron-right ms-1"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="page-link">
+                                    Next <i class="fas fa-chevron-right ms-1"></i>
+                                </span>
+                            }
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            
+            <!-- Pagination Info -->
+            <div class="text-center mt-2">
+                <small class="text-muted">
+                    Showing @(((Model.Page - 1) * Model.PageSize) + 1) to @(Math.Min(Model.Page * Model.PageSize, Model.TotalTrips)) of @Model.TotalTrips trips
+                </small>
+            </div>
+        }
     }
     else
     {

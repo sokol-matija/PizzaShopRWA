@@ -199,35 +199,219 @@ namespace WebApp.Services
                                     trips = JsonSerializer.Deserialize<List<TripModel>>(valuesElement.GetRawText(), jsonOptions) ?? new List<TripModel>();
                                 }
                             }
-                            catch (Exception innerEx)
+                            catch
                             {
-                                _logger.LogError(innerEx, "All parsing methods failed for trips JSON");
-                                return new List<TripModel>();
+                                _logger.LogError("Could not deserialize trips response from API");
+                                throw;
                             }
                         }
                     }
                     
-                    // Enrich trips with destination images if needed
+                    _logger.LogInformation("Successfully fetched {Count} trips from API", trips.Count);
+                    
+                    // Enrich trips with destination images
                     await EnrichTripsWithDestinationImagesAsync(trips);
                     
                     return trips;
                 }
                 else
                 {
-                    // Log the error
-                    _logger.LogWarning("API Error: {StatusCode} - {ErrorContent}", 
+                    _logger.LogError("Failed to fetch trips from API. Status: {StatusCode}, Content: {Content}", 
                         response.StatusCode, await response.Content.ReadAsStringAsync());
+                    throw new HttpRequestException($"API request failed with status {response.StatusCode}");
                 }
-                
-                // Handle errors
-                return new List<TripModel>();
+            }
+            catch (HttpRequestException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
-                // Log exception
-                _logger.LogError(ex, "Exception in GetAllTripsAsync");
-                return new List<TripModel>();
+                _logger.LogError(ex, "Error occurred while fetching trips from API");
+                throw;
             }
+        }
+
+        /// <summary>
+        /// Get trips with pagination support
+        /// </summary>
+        public async Task<(List<TripModel> trips, int totalCount)> GetTripsAsync(int page = 1, int pageSize = 10, int? destinationId = null)
+        {
+            try
+            {
+                _logger.LogInformation("Fetching trips with pagination - Page: {Page}, PageSize: {PageSize}, DestinationId: {DestinationId}", 
+                    page, pageSize, destinationId);
+
+                // For now, we'll get all trips and do pagination on the WebApp side
+                // This can be optimized later to use API-side pagination
+                List<TripModel> allTrips;
+                
+                if (destinationId.HasValue)
+                {
+                    allTrips = await GetTripsByDestinationAsync(destinationId.Value);
+                }
+                else
+                {
+                    allTrips = await GetAllTripsAsync();
+                }
+
+                // Apply pagination
+                var totalCount = allTrips.Count;
+                var paginatedTrips = allTrips
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                _logger.LogInformation("Returning {Count} trips out of {Total} for page {Page}", 
+                    paginatedTrips.Count, totalCount, page);
+
+                return (paginatedTrips, totalCount);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching paginated trips");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Search trips with pagination support
+        /// </summary>
+        public async Task<(List<TripModel> trips, int totalCount)> SearchTripsAsync(string? name, string? description, int page = 1, int pageSize = 10)
+        {
+            try
+            {
+                _logger.LogInformation("Searching trips - Name: '{Name}', Description: '{Description}', Page: {Page}, PageSize: {PageSize}", 
+                    name, description, page, pageSize);
+
+                // Use the new search API endpoint
+                var queryParams = new List<string>();
+                
+                if (!string.IsNullOrWhiteSpace(name))
+                    queryParams.Add($"name={Uri.EscapeDataString(name)}");
+                
+                if (!string.IsNullOrWhiteSpace(description))
+                    queryParams.Add($"description={Uri.EscapeDataString(description)}");
+                
+                queryParams.Add($"page={page}");
+                queryParams.Add($"count={pageSize}");
+
+                var queryString = string.Join("&", queryParams);
+                var response = await _httpClient.GetAsync($"{_apiBaseUrl}Trip/search?{queryString}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    _logger.LogDebug("API Response for search: {Content}", content);
+
+                    var trips = await ParseTripsFromJsonAsync(content);
+                    
+                    // For now, we don't have total count from API, so we'll use the returned count
+                    // This is a limitation that could be improved by modifying the API to return total count
+                    var totalCount = trips.Count; // This is approximate - actual total might be higher
+
+                    _logger.LogInformation("Search returned {Count} trips for page {Page}", trips.Count, page);
+
+                    return (trips, totalCount);
+                }
+                else
+                {
+                    _logger.LogError("Failed to search trips from API. Status: {StatusCode}, Content: {Content}", 
+                        response.StatusCode, await response.Content.ReadAsStringAsync());
+                    throw new HttpRequestException($"API search request failed with status {response.StatusCode}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while searching trips");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Helper method to parse trips from JSON response
+        /// </summary>
+        private async Task<List<TripModel>> ParseTripsFromJsonAsync(string jsonContent)
+        {
+            var trips = new List<TripModel>();
+            
+            try
+            {
+                var jsonDoc = JsonDocument.Parse(jsonContent);
+                
+                // Handle different response formats ($values array or direct array)
+                JsonElement tripsArray;
+                if (jsonDoc.RootElement.TryGetProperty("$values", out var valuesElement))
+                {
+                    tripsArray = valuesElement;
+                }
+                else if (jsonDoc.RootElement.ValueKind == JsonValueKind.Array)
+                {
+                    tripsArray = jsonDoc.RootElement;
+                }
+                else
+                {
+                    _logger.LogWarning("Unexpected JSON structure in ParseTripsFromJsonAsync");
+                    return trips;
+                }
+                
+                // Process each trip in the array
+                foreach (var tripElement in tripsArray.EnumerateArray())
+                {
+                    var trip = new TripModel
+                    {
+                        Id = GetIntProperty(tripElement, "id"),
+                        Title = GetStringProperty(tripElement, "name") ?? string.Empty,
+                        Description = GetStringProperty(tripElement, "description") ?? string.Empty,
+                        StartDate = GetDateTimeProperty(tripElement, "startDate"),
+                        EndDate = GetDateTimeProperty(tripElement, "endDate"),
+                        Price = GetDecimalProperty(tripElement, "price"),
+                        ImageUrl = GetStringProperty(tripElement, "imageUrl"),
+                        DestinationId = GetIntProperty(tripElement, "destinationId"),
+                        DestinationName = GetStringProperty(tripElement, "destinationName"),
+                        // Map capacity and bookings from API
+                        Capacity = GetIntProperty(tripElement, "maxParticipants"),
+                        CurrentBookings = GetIntProperty(tripElement, "maxParticipants") - GetIntProperty(tripElement, "availableSpots")
+                    };
+                    
+                    // Process guides if present
+                    if (tripElement.TryGetProperty("guides", out var guidesElement) && 
+                        guidesElement.TryGetProperty("$values", out var guidesValues))
+                    {
+                        trip.Guides = new List<GuideModel>();
+                        
+                        foreach (var guideElement in guidesValues.EnumerateArray())
+                        {
+                            var guide = new GuideModel
+                            {
+                                Id = GetIntProperty(guideElement, "id"),
+                                // Split name into first and last name
+                                FirstName = SplitName(GetStringProperty(guideElement, "name")).firstName,
+                                LastName = SplitName(GetStringProperty(guideElement, "name")).lastName,
+                                Bio = GetStringProperty(guideElement, "bio"),
+                                Email = GetStringProperty(guideElement, "email"),
+                                PhoneNumber = GetStringProperty(guideElement, "phone"),
+                                PhotoUrl = GetStringProperty(guideElement, "imageUrl"),
+                                YearsExperience = GetIntProperty(guideElement, "yearsOfExperience")
+                            };
+                            
+                            trip.Guides.Add(guide);
+                        }
+                    }
+                    
+                    trips.Add(trip);
+                }
+
+                // Enrich trips with destination images
+                await EnrichTripsWithDestinationImagesAsync(trips);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error parsing trips from JSON");
+                throw;
+            }
+
+            return trips;
         }
 
         /// <summary>
