@@ -436,36 +436,149 @@ function showNoTripsMessage() {
     container.appendChild(messageDiv);
 }
 
-// Show success/error messages
+// Show message with timeout
 function showMessage(message, type) {
-    // Create or get message container
-    let messageContainer = document.getElementById('ajaxMessageContainer');
-    if (!messageContainer) {
-        messageContainer = document.createElement('div');
-        messageContainer.id = 'ajaxMessageContainer';
-        messageContainer.className = 'position-fixed top-0 end-0 p-3';
-        messageContainer.style.zIndex = '1055';
-        document.body.appendChild(messageContainer);
+    // Remove any existing messages
+    const existingAlert = document.querySelector('.custom-alert');
+    if (existingAlert) {
+        existingAlert.remove();
     }
     
-    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-    const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
-    
+    // Create new alert
     const alertDiv = document.createElement('div');
-    alertDiv.className = `alert ${alertClass} alert-dismissible fade show`;
+    alertDiv.className = `alert alert-${type === 'error' ? 'danger' : 'success'} alert-dismissible fade show custom-alert`;
+    alertDiv.style.position = 'fixed';
+    alertDiv.style.top = '20px';
+    alertDiv.style.right = '20px';
+    alertDiv.style.zIndex = '9999';
+    alertDiv.style.minWidth = '300px';
+    
+    const icon = type === 'error' ? 'fas fa-exclamation-triangle' : 'fas fa-check-circle';
+    
     alertDiv.innerHTML = `
-        <i class="fas ${iconClass} me-2"></i>
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <i class="${icon} me-2"></i>${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
     
-    messageContainer.appendChild(alertDiv);
+    document.body.appendChild(alertDiv);
     
-    // Auto-hide after 3 seconds
+    // Auto-remove after 5 seconds
     setTimeout(() => {
-        if (alertDiv.parentNode) {
-            alertDiv.classList.remove('show');
-            setTimeout(() => alertDiv.remove(), 150);
+        if (alertDiv && alertDiv.parentNode) {
+            alertDiv.remove();
         }
-    }, 3000);
+    }, 5000);
+}
+
+// Admin function to populate trip images
+async function populateTripImages() {
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    try {
+        // Show loading state
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Populating Images...';
+        
+        showMessage('Starting image population process...', 'info');
+        
+        const response = await fetch('/api/unsplash/populate-trip-images', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        
+        // Show detailed results
+        const successCount = result.results ? result.results.filter(r => r.status && r.status.includes('SUCCESS')).length : 0;
+        const errorCount = result.results ? result.results.filter(r => r.status && (r.status.includes('ERROR') || r.status.includes('EXCEPTION'))).length : 0;
+        const alreadyHasCount = result.results ? result.results.filter(r => r.status && r.status.includes('ALREADY_HAS_IMAGE')).length : 0;
+        
+        let message = `Image population completed! `;
+        message += `✅ ${successCount} images added, `;
+        message += `⏭️ ${alreadyHasCount} already had images, `;
+        message += `❌ ${errorCount} failed`;
+        
+        showMessage(message, successCount > 0 ? 'success' : 'info');
+        
+        // Reload the page to show new images
+        if (successCount > 0) {
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        }
+        
+    } catch (error) {
+        console.error('Error populating images:', error);
+        showMessage(`Error populating images: ${error.message}`, 'error');
+    } finally {
+        // Restore button state
+        button.disabled = false;
+        button.innerHTML = originalText;
+    }
+}
+
+// Admin function to refresh all trip images
+async function refreshAllImages() {
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    // Confirm action
+    if (!confirm('This will refresh images for ALL trips. Are you sure?')) {
+        return;
+    }
+    
+    try {
+        // Show loading state
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Refreshing All Images...';
+        
+        showMessage('Starting image refresh for all trips...', 'info');
+        
+        const response = await fetch('/api/unsplash/force-refresh-images', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        
+        // Show results
+        const successCount = result.results ? result.results.filter(r => r.status && r.status.includes('SUCCESS')).length : 0;
+        const errorCount = result.results ? result.results.filter(r => r.status && (r.status.includes('ERROR') || r.status.includes('EXCEPTION'))).length : 0;
+        
+        let message = `Image refresh completed! `;
+        message += `✅ ${successCount} images refreshed, `;
+        message += `❌ ${errorCount} failed`;
+        
+        showMessage(message, successCount > 0 ? 'success' : 'info');
+        
+        // Reload the page to show new images
+        if (successCount > 0) {
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        }
+        
+    } catch (error) {
+        console.error('Error refreshing images:', error);
+        showMessage(`Error refreshing images: ${error.message}`, 'error');
+    } finally {
+        // Restore button state
+        button.disabled = false;
+        button.innerHTML = originalText;
+    }
 } 

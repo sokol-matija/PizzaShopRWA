@@ -27,6 +27,34 @@
         </div>
     }
 
+    <!-- Admin Controls Section -->
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="dark-theme-card mb-4">
+            <div class="card-header border-0 pb-0" style="background: rgba(231, 76, 60, 0.1);">
+                <h5 class="mb-0 fw-bold" style="color: #e74c3c;">
+                    <i class="fas fa-tools me-2"></i>Admin Controls
+                </h5>
+            </div>
+            <div class="card-body pt-3">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-warning btn-animated w-100" onclick="populateTripImages()">
+                            <i class="fas fa-images me-2"></i>Populate Trip Images
+                        </button>
+                        <small class="text-muted d-block mt-1">Automatically fetch images from Unsplash for trips without images</small>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-info btn-animated w-100" onclick="refreshAllImages()">
+                            <i class="fas fa-sync-alt me-2"></i>Refresh All Images
+                        </button>
+                        <small class="text-muted d-block mt-1">Force refresh images for all trips</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <!-- Filter Section -->
     <div class="dark-theme-card mb-4">
         <div class="card-header border-0 pb-0" style="background: rgba(52, 152, 219, 0.1);">
@@ -65,18 +93,17 @@
             @if (User.IsInRole("Admin"))
             {
                 <div class="col">
-                    <div class="dark-theme-card h-100" style="border: 2px dashed rgba(52, 152, 219, 0.5);">
-                        <div class="card-body text-center d-flex flex-column justify-content-center p-4">
-                            <div class="mb-3">
-                                <i class="fas fa-plus-circle fa-3x" style="color: #3498db; opacity: 0.7;"></i>
+                    <a asp-page="./Create" class="admin-card-link">
+                        <div class="admin-card h-100">
+                            <div class="card-body">
+                                <button type="button" class="admin-plus-circle">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <h5 class="card-title">Add New Trip</h5>
+                                <p class="card-text">Create a new trip for travelers to explore amazing destinations</p>
                             </div>
-                            <h5 class="card-title mb-3" style="color: #3498db;">Add New Trip</h5>
-                            <p class="card-text mb-4" style="color: #bdc3c7;">Create a new trip for travelers</p>
-                            <a asp-page="./Create" class="btn btn-primary btn-animated mt-auto">
-                                <i class="fas fa-plus me-2"></i>Add Trip
-                            </a>
                         </div>
-                    </div>
+                    </a>
                 </div>
             }
             
@@ -307,34 +334,34 @@
 {
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content dark-theme-card" style="border: 1px solid rgba(231, 76, 60, 0.3);">
-                <div class="modal-header border-0" style="background: rgba(231, 76, 60, 0.1);">
+            <div class="modal-content dark-theme-card">
+                <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="deleteModalLabel">
-                        <i class="fas fa-exclamation-triangle me-2" style="color: #e74c3c;"></i>
+                        <i class="fas fa-exclamation-triangle me-2"></i>
                         Confirm Delete
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body">
                     <div class="text-center mb-4">
-                        <i class="fas fa-trash-alt fa-3x mb-3" style="color: #e74c3c; opacity: 0.8;"></i>
-                        <p class="mb-3" style="color: #ecf0f1; font-size: 1.1rem;">
+                        <i class="fas fa-trash-alt fa-3x mb-3"></i>
+                        <p class="mb-3">
                             Are you sure you want to delete 
-                            <strong id="deleteTripName" style="color: #3498db;"></strong>?
+                            <strong id="deleteTripName"></strong>?
                         </p>
-                        <div class="alert dark-theme-alert alert-danger">
+                        <div class="alert alert-danger">
                             <i class="fas fa-exclamation-circle me-2"></i>
                             This action cannot be undone and will affect all bookings for this trip.
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 d-flex gap-2">
-                    <button type="button" class="btn btn-secondary btn-animated flex-fill" data-bs-dismiss="modal">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary flex-fill" data-bs-dismiss="modal">
                         <i class="fas fa-times me-2"></i>Cancel
                     </button>
                     <form id="deleteForm" method="post" asp-page-handler="Delete" class="flex-fill">
                         <input type="hidden" id="deleteTripId" name="id" />
-                        <button type="submit" class="btn btn-danger btn-animated w-100">
+                        <button type="submit" class="btn btn-danger w-100">
                             <i class="fas fa-trash me-2"></i>Delete
                         </button>
                     </form>
@@ -359,8 +386,7 @@
                 document.getElementById('deleteTripId').value = id;
                 document.getElementById('deleteTripName').textContent = name;
                 
-                // Show the modal
-                var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'), { backdrop: false });
                 deleteModal.show();
             }
             </text>

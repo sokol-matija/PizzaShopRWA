@@ -53,7 +53,7 @@ namespace WebApp.Pages.Trips
         /// <summary>
         /// Number of items per page
         /// </summary>
-        public int PageSize { get; set; } = 10;
+        public int PageSize { get; set; } = 20;
         
         /// <summary>
         /// Total number of trips
