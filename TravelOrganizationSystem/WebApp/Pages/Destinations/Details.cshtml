@@ -220,7 +220,7 @@
 @if (User.IsInRole("Admin"))
 {
     <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content dark-theme-card" style="border: 1px solid rgba(231, 76, 60, 0.3);">
                 <div class="modal-header border-0" style="background: rgba(231, 76, 60, 0.1);">
@@ -262,7 +262,7 @@
     </div>
 
     <!-- Update Image Modal -->
-    <div class="modal fade" id="updateImageModal" tabindex="-1" aria-labelledby="updateImageModalLabel" aria-hidden="true">
+    <div class="modal fade" id="updateImageModal" tabindex="-1" aria-labelledby="updateImageModalLabel" aria-hidden="true" data-bs-backdrop="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content dark-theme-card">
                 <div class="modal-header border-0" style="background: rgba(241, 196, 15, 0.1);">
@@ -313,6 +313,25 @@
     {
         <script>
             document.addEventListener('DOMContentLoaded', function () {
+                // Configure modals to prevent backdrop issues
+                const deleteModal = document.getElementById('deleteModal');
+                const updateImageModal = document.getElementById('updateImageModal');
+                
+                if (deleteModal) {
+                    new bootstrap.Modal(deleteModal, {
+                        backdrop: false,
+                        keyboard: true,
+                        focus: true
+                    });
+                }
+                
+                if (updateImageModal) {
+                    new bootstrap.Modal(updateImageModal, {
+                        backdrop: false,
+                        keyboard: true,
+                        focus: true
+                    });
+                }
                 // Image preview elements
                 const loadNewImageBtn = document.getElementById('loadNewImageBtn');
                 const refreshNewImageBtn = document.getElementById('refreshNewImageBtn');
