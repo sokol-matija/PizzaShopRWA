@@ -40,6 +40,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITripService, TripService>();
 builder.Services.AddScoped<IDestinationService, DestinationService>();
 builder.Services.AddScoped<ITripRegistrationService, TripRegistrationService>();
+builder.Services.AddScoped<IGuideService, GuideService>();
 builder.Services.AddScoped<IUnsplashService, UnsplashService>();
 
 // Add session support

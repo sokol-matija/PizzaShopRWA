@@ -1,0 +1,461 @@
+@page
+@model WebApp.Pages.Admin.Guides.IndexModel
+@{
+    ViewData["Title"] = "Manage Guides";
+}
+
+<div class="container mt-4">
+    <div class="text-center mb-5">
+        <h1 class="dark-theme-section-title">
+            <i class="fas fa-user-tie me-3"></i>@ViewData["Title"]
+        </h1>
+        <p class="dark-theme-section-subtitle">Manage travel guides and their assignments</p>
+    </div>
+    
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"]?.ToString()))
+    {
+        <div class="alert alert-success alert-dismissible fade show dark-theme-alert" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger dark-theme-alert" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
+        </div>
+    }
+
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-lg-8 col-md-6">
+            <div class="dark-theme-card p-3">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-8">
+                        <div class="position-relative">
+                            <input type="text" id="searchInput" class="form-control" 
+                                   placeholder="Search guides by name, email..." 
+                                   value="@Model.SearchFilter">
+                            <i class="fas fa-search position-absolute top-50 end-0 translate-middle-y me-3" 
+                               style="color: #6c757d;"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" id="clearSearch" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-times me-2"></i>Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="text-md-end">
+                <span class="badge bg-primary fs-6 me-2">
+                    <i class="fas fa-users me-1"></i>
+                    <span id="guideCount">@Model.Guides.Count()</span> guides
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="text-center py-4 d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-muted">Loading guides...</p>
+    </div>
+    
+    <!-- Guides Grid -->
+    <div id="guidesContainer" class="row row-cols-1 row-cols-md-3 g-4">
+        <!-- Add New Guide Card -->
+        <div class="col">
+            <a asp-page="./Create" class="admin-card-link">
+                <div class="admin-card h-100">
+                    <div class="card-body">
+                        <button type="button" class="admin-plus-circle">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <h5 class="card-title">Add New Guide</h5>
+                        <p class="card-text">Create a new travel guide profile to expand your team</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        @foreach (var guide in Model.Guides)
+        {
+            <div class="col guide-card" data-guide-id="@guide.Id">
+                <div class="dark-theme-card h-100">
+                    <div class="position-relative">
+                        @if (!string.IsNullOrEmpty(guide.PhotoUrl))
+                        {
+                            <img src="@guide.PhotoUrl" class="card-img-top" alt="@guide.FullName" 
+                                 style="height: 200px; object-fit: cover; border-radius: 20px 20px 0 0;">
+                        }
+                        else
+                        {
+                            <div class="card-img-top d-flex justify-content-center align-items-center" 
+                                 style="height: 200px; background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(46, 204, 113, 0.2)); border-radius: 20px 20px 0 0;">
+                                <i class="fas fa-user-tie fa-4x" style="color: #3498db; opacity: 0.7;"></i>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #3498db;">
+                            @guide.FullName
+                        </h5>
+                        
+                        <div class="mb-3">
+                            @if (!string.IsNullOrEmpty(guide.Email))
+                            {
+                                <p class="text-muted mb-1">
+                                    <i class="fas fa-envelope me-2"></i>@guide.Email
+                                </p>
+                            }
+                            @if (!string.IsNullOrEmpty(guide.PhoneNumber))
+                            {
+                                <p class="text-muted mb-1">
+                                    <i class="fas fa-phone me-2"></i>@guide.PhoneNumber
+                                </p>
+                            }
+                            @if (guide.YearsExperience.HasValue)
+                            {
+                                <p class="text-muted mb-1">
+                                    <i class="fas fa-star me-2"></i>@guide.YearsExperience years experience
+                                </p>
+                            }
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(guide.Bio))
+                        {
+                            <p class="card-text" style="color: #bdc3c7; line-height: 1.5;">
+                                @(guide.Bio.Length > 100 ? guide.Bio.Substring(0, 100) + "..." : guide.Bio)
+                            </p>
+                        }
+                    </div>
+                    
+                    <div class="card-footer" style="background: rgba(255, 255, 255, 0.02); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a asp-page="./Details" asp-route-id="@guide.Id" class="btn btn-sm btn-primary btn-animated">
+                                <i class="fas fa-info-circle me-1"></i> Details
+                            </a>
+                            <a asp-page="./Edit" asp-route-id="@guide.Id" class="btn btn-sm btn-outline-primary btn-animated">
+                                <i class="fas fa-edit me-1"></i> Edit
+                            </a>
+                            <div class="ms-auto">
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-animated" 
+                                        onclick="confirmDelete(@guide.Id, '@guide.FullName');">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="text-center py-5 @(Model.Guides.Any() ? "d-none" : "")">
+        <div class="dark-theme-card p-5">
+            <div class="empty-state">
+                <i class="fas fa-user-tie fa-4x mb-4" style="color: #3498db; opacity: 0.7;"></i>
+                <h3 class="mb-3" style="color: #ecf0f1;">No Guides Found</h3>
+                <p class="mb-4" style="color: #bdc3c7; font-size: 1.1rem;">
+                    <span id="emptyStateMessage">Start building your guide team by adding the first guide to your system.</span>
+                </p>
+                <a asp-page="./Create" class="btn btn-primary btn-lg btn-animated">
+                    <i class="fas fa-plus me-2"></i>Add First Guide
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content dark-theme-card">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-user-times fa-3x mb-3" style="color: #e74c3c;"></i>
+                    <p class="mb-3">
+                        Are you sure you want to delete 
+                        <strong id="deleteGuideName"></strong>?
+                    </p>
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        This action cannot be undone. The guide will be removed from all trip assignments.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary flex-fill" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" id="confirmDeleteBtn" class="btn btn-danger flex-fill">
+                    <i class="fas fa-trash me-2"></i>Delete Guide
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Guide management AJAX functionality
+        let currentSearchTerm = '@Model.SearchFilter';
+        let isLoading = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeGuideManagement();
+        });
+
+        function initializeGuideManagement() {
+            console.log('Initializing guide management AJAX functionality');
+            initializeSearch();
+            initializeDeleteHandlers();
+        }
+
+        function initializeSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const clearButton = document.getElementById('clearSearch');
+            let searchTimeout;
+
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    performSearch(this.value);
+                }, 300);
+            });
+
+            clearButton.addEventListener('click', function() {
+                searchInput.value = '';
+                performSearch('');
+            });
+
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(searchTimeout);
+                    performSearch(this.value);
+                }
+            });
+        }
+
+        async function performSearch(searchTerm) {
+            if (isLoading) return;
+
+            try {
+                isLoading = true;
+                showLoadingIndicator();
+
+                const response = await fetch(`?handler=Search&searchTerm=${encodeURIComponent(searchTerm)}`, {
+                    method: 'GET'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    updateGuidesDisplay(data.guides, searchTerm);
+                } else {
+                    showMessage(data.message || 'Search failed', 'error');
+                }
+
+            } catch (error) {
+                console.error('Search error:', error);
+                showMessage('Search failed. Please try again.', 'error');
+            } finally {
+                isLoading = false;
+                hideLoadingIndicator();
+            }
+        }
+
+        function updateGuidesDisplay(guides, searchTerm) {
+            const container = document.getElementById('guidesContainer');
+            const guideCount = document.getElementById('guideCount');
+            const emptyState = document.getElementById('emptyState');
+            const emptyMessage = document.getElementById('emptyStateMessage');
+
+            const addCard = container.querySelector('.admin-card-link').parentElement;
+            const guideCards = container.querySelectorAll('.guide-card');
+            guideCards.forEach(card => card.remove());
+
+            guideCount.textContent = guides.length;
+
+            if (guides.length > 0) {
+                guides.forEach(guide => {
+                    const guideCard = createGuideCard(guide);
+                    container.appendChild(guideCard);
+                });
+                emptyState.classList.add('d-none');
+            } else {
+                if (searchTerm) {
+                    emptyMessage.textContent = `No guides found matching "${searchTerm}". Try a different search term.`;
+                } else {
+                    emptyMessage.textContent = 'Start building your guide team by adding the first guide to your system.';
+                }
+                emptyState.classList.remove('d-none');
+            }
+
+            currentSearchTerm = searchTerm;
+        }
+
+        function createGuideCard(guide) {
+            const col = document.createElement('div');
+            col.className = 'col guide-card';
+            col.setAttribute('data-guide-id', guide.id);
+
+            const imageHtml = guide.hasPhoto ? 
+                `<img src="${guide.photoUrl}" class="card-img-top" alt="${guide.fullName}" 
+                     style="height: 200px; object-fit: cover; border-radius: 20px 20px 0 0;">` :
+                `<div class="card-img-top d-flex justify-content-center align-items-center" 
+                     style="height: 200px; background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(46, 204, 113, 0.2)); border-radius: 20px 20px 0 0;">
+                    <i class="fas fa-user-tie fa-4x" style="color: #3498db; opacity: 0.7;"></i>
+                 </div>`;
+
+            const contactInfo = `
+                ${guide.email ? `<p class="text-muted mb-1"><i class="fas fa-envelope me-2"></i>${guide.email}</p>` : ''}
+                ${guide.phoneNumber ? `<p class="text-muted mb-1"><i class="fas fa-phone me-2"></i>${guide.phoneNumber}</p>` : ''}
+                ${guide.yearsExperience ? `<p class="text-muted mb-1"><i class="fas fa-star me-2"></i>${guide.yearsExperience} years experience</p>` : ''}
+            `;
+
+            const bio = guide.bio ? 
+                `<p class="card-text" style="color: #bdc3c7; line-height: 1.5;">
+                    ${guide.bio.length > 100 ? guide.bio.substring(0, 100) + '...' : guide.bio}
+                 </p>` : '';
+
+            col.innerHTML = `
+                <div class="dark-theme-card h-100">
+                    <div class="position-relative">${imageHtml}</div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #3498db;">${guide.fullName}</h5>
+                        <div class="mb-3">${contactInfo}</div>
+                        ${bio}
+                    </div>
+                    <div class="card-footer" style="background: rgba(255, 255, 255, 0.02); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="/Admin/Guides/Details/${guide.id}" class="btn btn-sm btn-primary btn-animated">
+                                <i class="fas fa-info-circle me-1"></i> Details
+                            </a>
+                            <a href="/Admin/Guides/Edit/${guide.id}" class="btn btn-sm btn-outline-primary btn-animated">
+                                <i class="fas fa-edit me-1"></i> Edit
+                            </a>
+                            <div class="ms-auto">
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-animated" 
+                                        onclick="confirmDelete(${guide.id}, '${guide.fullName}');">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return col;
+        }
+
+        function initializeDeleteHandlers() {
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            confirmBtn.addEventListener('click', async function() {
+                if (window.guideToDelete) {
+                    await deleteGuide(window.guideToDelete.id, window.guideToDelete.name);
+                }
+            });
+        }
+
+        function confirmDelete(guideId, guideName) {
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            const guideNameElement = document.getElementById('deleteGuideName');
+
+            guideNameElement.textContent = guideName;
+            window.guideToDelete = { id: guideId, name: guideName };
+            modal.show();
+        }
+
+        async function deleteGuide(guideId, guideName) {
+            try {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+                modal.hide();
+                showLoadingIndicator();
+
+                const response = await fetch('?handler=Delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `id=${guideId}`
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    const guideCard = document.querySelector(`[data-guide-id="${guideId}"]`);
+                    if (guideCard) {
+                        guideCard.remove();
+                    }
+                    
+                    const guideCount = document.getElementById('guideCount');
+                    const currentCount = parseInt(guideCount.textContent);
+                    guideCount.textContent = currentCount - 1;
+                    
+                    const remainingCards = document.querySelectorAll('.guide-card');
+                    if (remainingCards.length === 0) {
+                        document.getElementById('emptyState').classList.remove('d-none');
+                    }
+                } else {
+                    showMessage(data.message, 'error');
+                }
+
+            } catch (error) {
+                console.error('Delete error:', error);
+                showMessage('Failed to delete guide. Please try again.', 'error');
+            } finally {
+                hideLoadingIndicator();
+            }
+        }
+
+        function showLoadingIndicator() {
+            document.getElementById('loadingIndicator').classList.remove('d-none');
+        }
+
+        function hideLoadingIndicator() {
+            document.getElementById('loadingIndicator').classList.add('d-none');
+        }
+
+        function showMessage(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'error' ? 'danger' : 'success'} alert-dismissible fade show position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+    </script>
+} 
