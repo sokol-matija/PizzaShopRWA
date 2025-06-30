@@ -124,6 +124,13 @@ namespace WebApp.Pages.Admin.Guides
         {
             try
             {
+                // Debug: Check authentication status
+                var isAuth = User.Identity?.IsAuthenticated ?? false;
+                var isAdmin = User.IsInRole("Admin");
+                var userName = User.Identity?.Name ?? "Unknown";
+                _logger.LogInformation("Create Guide Debug - User: {User}, Authenticated: {Auth}, IsAdmin: {Admin}", 
+                    userName, isAuth, isAdmin);
+                
                 // Validate the model
                 ModelState.Clear();
                 TryValidateModel(guide);

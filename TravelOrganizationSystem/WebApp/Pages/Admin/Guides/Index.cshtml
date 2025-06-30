@@ -5,6 +5,8 @@
 }
 
 <div class="container mt-4">
+    @Html.AntiForgeryToken()
+    
     <div class="text-center mb-5">
         <h1 class="dark-theme-section-title">
             <i class="fas fa-user-tie me-3"></i>@ViewData["Title"]
@@ -387,12 +389,16 @@
                 modal.hide();
                 showLoadingIndicator();
 
+                // Get anti-forgery token
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
                 const response = await fetch('?handler=Delete', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': token
                     },
-                    body: `id=${guideId}`
+                    body: `id=${guideId}&__RequestVerificationToken=${encodeURIComponent(token)}`
                 });
 
                 const data = await response.json();

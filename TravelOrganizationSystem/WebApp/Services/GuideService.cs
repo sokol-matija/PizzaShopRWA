@@ -46,7 +46,8 @@ namespace WebApp.Services
             var sessionToken = httpContext.Session.GetString("Token");
             if (!string.IsNullOrEmpty(sessionToken))
             {
-                _logger.LogInformation("Using token from session for Guide API request");
+                _logger.LogInformation("Using token from session for Guide API request - Token: {TokenPreview}...", 
+                    sessionToken.Substring(0, Math.Min(20, sessionToken.Length)));
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessionToken);
                 return;
             }
@@ -180,8 +181,9 @@ namespace WebApp.Services
                 else
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    _logger.LogWarning("Failed to create guide: {StatusCode} - {Error}", 
-                        response.StatusCode, errorContent);
+                    _logger.LogWarning("Failed to create guide: {StatusCode} - {Error}. Auth header: {AuthHeader}", 
+                        response.StatusCode, errorContent, 
+                        _httpClient.DefaultRequestHeaders.Authorization?.ToString() ?? "None");
                 }
                 
                 return null;
