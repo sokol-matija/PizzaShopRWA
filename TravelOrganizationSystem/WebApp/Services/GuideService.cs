@@ -39,10 +39,10 @@ namespace WebApp.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStringAsync();
-                    var apiGuides = JsonSerializer.Deserialize<IEnumerable<ApiGuideModel>>(jsonContent, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+                    _logger.LogInformation("API Response: {JsonContent}", jsonContent.Substring(0, Math.Min(200, jsonContent.Length)));
+                    
+                    // Handle the $values wrapper from .NET serialization
+                    var apiGuides = DeserializeApiResponse<IEnumerable<ApiGuideModel>>(jsonContent);
 
                     var guides = apiGuides?.Select(MapFromApiModel) ?? Enumerable.Empty<GuideModel>();
                     
@@ -77,10 +77,7 @@ namespace WebApp.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStringAsync();
-                    var apiGuide = JsonSerializer.Deserialize<ApiGuideModel>(jsonContent, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+                    var apiGuide = DeserializeApiResponse<ApiGuideModel>(jsonContent);
 
                     if (apiGuide != null)
                     {
@@ -126,10 +123,7 @@ namespace WebApp.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    var createdApiGuide = JsonSerializer.Deserialize<ApiGuideModel>(responseContent, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+                    var createdApiGuide = DeserializeApiResponse<ApiGuideModel>(responseContent);
 
                     if (createdApiGuide != null)
                     {
@@ -174,10 +168,7 @@ namespace WebApp.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    var updatedApiGuide = JsonSerializer.Deserialize<ApiGuideModel>(responseContent, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+                    var updatedApiGuide = DeserializeApiResponse<ApiGuideModel>(responseContent);
 
                     if (updatedApiGuide != null)
                     {
@@ -247,10 +238,7 @@ namespace WebApp.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStringAsync();
-                    var apiGuides = JsonSerializer.Deserialize<IEnumerable<ApiGuideModel>>(jsonContent, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+                    var apiGuides = DeserializeApiResponse<IEnumerable<ApiGuideModel>>(jsonContent);
 
                     var guides = apiGuides?.Select(MapFromApiModel) ?? Enumerable.Empty<GuideModel>();
                     
@@ -325,6 +313,44 @@ namespace WebApp.Services
                 1 => (parts[0], ""),
                 _ => (parts[0], string.Join(" ", parts.Skip(1)))
             };
+        }
+
+        /// <summary>
+        /// Deserialize API response handling $values wrapper
+        /// </summary>
+        private static T? DeserializeApiResponse<T>(string jsonContent)
+        {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            try
+            {
+                // First try direct deserialization
+                return JsonSerializer.Deserialize<T>(jsonContent, options);
+            }
+            catch
+            {
+                try
+                {
+                    // If that fails, try parsing as wrapped response with $values
+                    using var document = JsonDocument.Parse(jsonContent);
+                    var root = document.RootElement;
+                    
+                    if (root.TryGetProperty("$values", out var valuesProperty))
+                    {
+                        var valuesJson = valuesProperty.GetRawText();
+                        return JsonSerializer.Deserialize<T>(valuesJson, options);
+                    }
+                    
+                    return default(T);
+                }
+                catch
+                {
+                    return default(T);
+                }
+            }
         }
 
         /// <summary>
