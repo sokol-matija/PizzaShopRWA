@@ -140,6 +140,7 @@
         color: #f1f3f4;
         position: relative;
         overflow: hidden;
+        cursor: pointer;
         box-shadow: 
             0 10px 40px rgba(0, 0, 0, 0.4),
             inset 0 1px 0 rgba(255, 255, 255, 0.2),
@@ -159,13 +160,18 @@
     }
     
     .destination-card:hover {
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
-        border-color: rgba(52, 152, 219, 0.3);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.06));
+        border-color: rgba(52, 152, 219, 0.4);
         box-shadow: 
-            0 15px 50px rgba(0, 0, 0, 0.5),
-            0 0 0 1px rgba(52, 152, 219, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.25);
-        transform: translateY(-4px) scale(1.02);
+            0 20px 60px rgba(0, 0, 0, 0.6),
+            0 0 0 2px rgba(52, 152, 219, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        transform: translateY(-8px) scale(1.03);
+    }
+    
+    .destination-card:active {
+        transform: translateY(-4px) scale(1.01);
+        transition: all 0.1s ease;
     }
     
     .destination-card:hover::before {
@@ -185,6 +191,46 @@
         height: 200px;
         object-fit: cover;
         border-radius: 20px 20px 0 0;
+        transition: transform 0.3s ease;
+    }
+    
+    .destination-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+    
+    /* Enhanced button styles for destination cards */
+    .destination-card .btn {
+        border-radius: 8px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .destination-card .btn-primary {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+    
+    .destination-card .btn-primary:hover {
+        background: linear-gradient(135deg, #2980b9, #1a5490);
+        box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .destination-card .btn-outline-primary {
+        background: rgba(52, 152, 219, 0.1);
+        border: 2px solid rgba(52, 152, 219, 0.3);
+        color: #3498db;
+        backdrop-filter: blur(10px);
+    }
+    
+    .destination-card .btn-outline-primary:hover {
+        background: rgba(52, 152, 219, 0.2);
+        border-color: rgba(52, 152, 219, 0.5);
+        color: #2980b9;
+        transform: translateY(-2px);
     }
     
     .feature-card {
@@ -294,33 +340,69 @@
     </div>
 </div>
 
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-warning mt-4" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
+    </div>
+}
+
 <div class="destinations-grid mt-4">
-    <div class="card destination-card">
-        <img src="https://images.unsplash.com/photo-1499678329028-101435549a4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" class="card-img-top" alt="Paris">
-        <div class="card-body">
-            <h5 class="card-title">Paris, France</h5>
-            <p class="card-text">Experience the charm of the City of Light with its iconic landmarks and exquisite cuisine.</p>
-            <a href="#" class="btn btn-sm btn-primary btn-animated">View Details</a>
+    @if (Model.FeaturedDestinations.Any())
+    {
+        @foreach (var destination in Model.FeaturedDestinations)
+        {
+            <div class="card destination-card" onclick="viewTripsForDestination(@destination.Id)" style="cursor: pointer;">
+                @if (!string.IsNullOrEmpty(destination.ImageUrl))
+                {
+                    <img src="@destination.ImageUrl" class="card-img-top" alt="@destination.Name" 
+                         onerror="this.src='https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80';">
+                }
+                else
+                {
+                    <!-- Default travel image if no destination image is available -->
+                    <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80" 
+                         class="card-img-top" alt="@destination.Name">
+                }
+                <div class="card-body">
+                    <h5 class="card-title">@destination.Location</h5>
+                    <p class="card-text">
+                        @if (!string.IsNullOrEmpty(destination.Description))
+                        {
+                            @destination.Description
+                        }
+                        else
+                        {
+                            <text>Discover the beauty and culture of @destination.Name. Book your adventure today!</text>
+                        }
+                    </p>
+                    <div class="d-flex gap-2">
+                        <a asp-page="/Trips/Index" asp-route-DestinationId="@destination.Id" 
+                           class="btn btn-sm btn-primary btn-animated flex-grow-1" 
+                           onclick="event.stopPropagation();">
+                            <i class="fas fa-plane me-1"></i>View Trips
+                        </a>
+                        <a asp-page="/Destinations/Details" asp-route-id="@destination.Id" 
+                           class="btn btn-sm btn-outline-primary btn-animated" 
+                           onclick="event.stopPropagation();">
+                            <i class="fas fa-info-circle me-1"></i>Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <!-- Fallback if no destinations are loaded -->
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                No featured destinations available at the moment. 
+                <a asp-page="/Destinations/Index" class="alert-link">Browse all destinations</a>.
+            </div>
         </div>
-    </div>
-    
-    <div class="card destination-card">
-        <img src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" class="card-img-top" alt="Bali">
-        <div class="card-body">
-            <h5 class="card-title">Bali, Indonesia</h5>
-            <p class="card-text">Discover tropical paradise with beautiful beaches, lush rice terraces, and vibrant culture.</p>
-            <a href="#" class="btn btn-sm btn-primary btn-animated">View Details</a>
-        </div>
-    </div>
-    
-    <div class="card destination-card">
-        <img src="https://images.unsplash.com/photo-1543158266-0066955047b1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" class="card-img-top" alt="New York">
-        <div class="card-body">
-            <h5 class="card-title">New York City, USA</h5>
-            <p class="card-text">Explore the Big Apple with its iconic skyline, Broadway shows, and diverse neighborhoods.</p>
-            <a href="#" class="btn btn-sm btn-primary btn-animated">View Details</a>
-        </div>
-    </div>
+    }
 </div>
 
 <div class="row mt-5">
@@ -360,3 +442,34 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Function to navigate to trips filtered by destination
+        function viewTripsForDestination(destinationId) {
+            window.location.href = '/Trips?DestinationId=' + destinationId;
+        }
+
+        // Add smooth hover effects to destination cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.destination-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.03)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(-4px) scale(1.02)';
+                });
+            });
+        });
+
+        // Handle image loading errors gracefully
+        function handleImageError(img) {
+            img.onerror = null; // Prevent infinite loop
+            img.src = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80';
+            img.alt = 'Travel destination';
+        }
+    </script>
+}
