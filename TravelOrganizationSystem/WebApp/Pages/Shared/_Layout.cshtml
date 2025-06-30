@@ -16,7 +16,7 @@
     <!-- Our custom theme -->
     <link rel="stylesheet" href="~/css/travel-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/TravelOrganizationWebApp.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/WebApp.styles.css" asp-append-version="true" />
     <link rel="icon" type="image/png" href="~/favicon.png" />
     <script src="https://cdn.jsdelivr.net/npm/unsplash-js@7.0.18/dist/unsplash-js.min.js"></script>
     <script src="~/js/unsplashService.js" asp-append-version="true"></script>
@@ -85,6 +85,12 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @* Hot reload browser refresh script for development *@
+    @if (Environment.GetEnvironmentVariable("__ASPNETCORE_BROWSER_TOOLS") is not null)
+    {
+        <script src="/_framework/aspnetcore-browser-refresh.js"></script>
+    }
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
