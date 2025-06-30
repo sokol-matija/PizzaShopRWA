@@ -4,6 +4,48 @@
     ViewData["Title"] = "Available Trips";
 }
 
+<style>
+    /* Dark theme dropdown styling */
+    .form-select {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #ecf0f1 !important;
+    }
+    
+    .form-select:focus {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        border-color: #3498db !important;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25) !important;
+        color: #ecf0f1 !important;
+    }
+    
+    /* Dropdown options styling */
+    .form-select option {
+        background-color: #2c3e50 !important;
+        color: #ecf0f1 !important;
+        padding: 8px 12px !important;
+    }
+    
+    .form-select option:hover,
+    .form-select option:focus,
+    .form-select option:checked {
+        background-color: #3498db !important;
+        color: #ffffff !important;
+    }
+    
+    /* Additional browser compatibility */
+    select.form-select {
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ecf0f1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+        background-position: right 0.75rem center !important;
+        background-repeat: no-repeat !important;
+        background-size: 16px 12px !important;
+        padding-right: 2.5rem !important;
+    }
+</style>
+
 <div class="container mt-4">
     <div class="text-center mb-5">
         <h1 class="dark-theme-section-title">
