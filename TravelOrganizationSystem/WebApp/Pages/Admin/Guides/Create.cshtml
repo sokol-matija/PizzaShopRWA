@@ -270,6 +270,7 @@
                 hideMessages();
 
                 const formData = collectFormData();
+                console.log('Sending form data:', formData);
                 
                 const response = await fetch('?handler=Create', {
                     method: 'POST',
@@ -297,7 +298,14 @@
                         }
                     }
                 } else {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    // Get detailed error information
+                    const errorText = await response.text();
+                    console.error('API Error Response:', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        body: errorText
+                    });
+                    throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
                 }
                 
             } catch (error) {
@@ -384,7 +392,9 @@
         }
 
         function getAntiForgeryToken() {
-            return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            console.log('Anti-forgery token:', token ? 'Found' : 'Missing');
+            return token;
         }
     </script>
 }

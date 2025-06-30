@@ -1,5 +1,8 @@
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using WebApp.Models;
 
 namespace WebApp.Services
@@ -11,18 +14,57 @@ namespace WebApp.Services
     public class GuideService : IGuideService
     {
         private readonly HttpClient _httpClient;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<GuideService> _logger;
         private readonly string _apiBaseUrl;
 
-        public GuideService(HttpClient httpClient, IConfiguration configuration, ILogger<GuideService> logger)
+        public GuideService(HttpClient httpClient, IHttpContextAccessor httpContextAccessor, IConfiguration configuration, ILogger<GuideService> logger)
         {
             _httpClient = httpClient;
+            _httpContextAccessor = httpContextAccessor;
             _logger = logger;
             _apiBaseUrl = configuration["ApiSettings:BaseUrl"] ?? "http://localhost:16000/api/";
             
             // Ensure base URL ends with slash
             if (!_apiBaseUrl.EndsWith("/"))
                 _apiBaseUrl += "/";
+        }
+
+        /// <summary>
+        /// Set authentication token for API requests if user is logged in
+        /// </summary>
+        private async Task SetAuthHeaderAsync()
+        {
+            // Clear any existing Authorization headers
+            _httpClient.DefaultRequestHeaders.Authorization = null;
+            
+            // Get the current HTTP context
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext == null) return;
+            
+            // First try to get token from session (like AuthService does)
+            var sessionToken = httpContext.Session.GetString("Token");
+            if (!string.IsNullOrEmpty(sessionToken))
+            {
+                _logger.LogInformation("Using token from session for Guide API request");
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessionToken);
+                return;
+            }
+            
+            // If no session token, try from authentication cookie
+            if (httpContext.User.Identity?.IsAuthenticated == true)
+            {
+                // Get the token from the authentication cookie
+                var cookieToken = await httpContext.GetTokenAsync(CookieAuthenticationDefaults.AuthenticationScheme, "access_token");
+                if (!string.IsNullOrEmpty(cookieToken))
+                {
+                    _logger.LogInformation("Using token from authentication cookie for Guide API request");
+                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", cookieToken);
+                    return;
+                }
+            }
+            
+            _logger.LogWarning("No authentication token found in session or cookie for Guide API request");
         }
 
         /// <summary>
@@ -114,6 +156,9 @@ namespace WebApp.Services
             {
                 _logger.LogInformation("Creating new guide: {GuideName}", guide.FullName);
                 
+                // Set authentication token for Admin-required operation
+                await SetAuthHeaderAsync();
+                
                 var apiGuide = MapToApiModel(guide);
                 var jsonContent = JsonSerializer.Serialize(apiGuide);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
@@ -156,6 +201,9 @@ namespace WebApp.Services
             try
             {
                 _logger.LogInformation("Updating guide with ID: {GuideId}", id);
+                
+                // Set authentication token for Admin-required operation
+                await SetAuthHeaderAsync();
                 
                 var apiGuide = MapToApiModel(guide);
                 apiGuide.Id = id; // Ensure ID is set correctly
@@ -201,6 +249,9 @@ namespace WebApp.Services
             try
             {
                 _logger.LogInformation("Deleting guide with ID: {GuideId}", id);
+                
+                // Set authentication token for Admin-required operation
+                await SetAuthHeaderAsync();
                 
                 var response = await _httpClient.DeleteAsync($"{_apiBaseUrl}Guide/{id}");
                 
