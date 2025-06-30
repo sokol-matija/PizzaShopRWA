@@ -6,20 +6,25 @@
 }
 
 <div class="container mt-4">
-    <h1 class="mb-4">@ViewData["Title"]</h1>
+    <div class="text-center mb-5">
+        <h1 class="dark-theme-section-title">
+            <i class="fas fa-globe-americas me-3"></i>@ViewData["Title"]
+        </h1>
+        <p class="dark-theme-section-subtitle">Explore amazing places around the world</p>
+    </div>
     
     @if (!string.IsNullOrEmpty(TempData["SuccessMessage"]?.ToString()))
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="alert alert-success alert-dismissible fade show dark-theme-alert" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
     
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
-        <div class="alert alert-danger" role="alert">
-            @Model.ErrorMessage
+        <div class="alert alert-danger dark-theme-alert" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
         </div>
     }
     
@@ -30,11 +35,16 @@
             @if (User.IsInRole("Admin"))
             {
                 <div class="col">
-                    <div class="card h-100 border-primary">
-                        <div class="card-body text-center d-flex flex-column justify-content-center">
-                            <h5 class="card-title">Add New Destination</h5>
-                            <p class="card-text">Create a new destination to offer to travelers</p>
-                            <a asp-page="./Create" class="btn btn-primary mt-auto">Add Destination</a>
+                    <div class="dark-theme-card h-100" style="border: 2px dashed rgba(52, 152, 219, 0.5);">
+                        <div class="card-body text-center d-flex flex-column justify-content-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-plus-circle fa-3x" style="color: #3498db; opacity: 0.7;"></i>
+                            </div>
+                            <h5 class="card-title mb-3" style="color: #3498db;">Add New Destination</h5>
+                            <p class="card-text mb-4" style="color: #bdc3c7;">Create a new destination to offer to travelers</p>
+                            <a asp-page="./Create" class="btn btn-primary btn-animated mt-auto">
+                                <i class="fas fa-plus me-2"></i>Add Destination
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -42,21 +52,37 @@
 
             <!-- Delete Confirmation Modal -->
             <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content dark-theme-card" style="border: 1px solid rgba(231, 76, 60, 0.3);">
+                        <div class="modal-header border-0" style="background: rgba(231, 76, 60, 0.1);">
+                            <h5 class="modal-title fw-bold" id="deleteModalLabel">
+                                <i class="fas fa-exclamation-triangle me-2" style="color: #e74c3c;"></i>
+                                Confirm Delete
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
-                            <p>Are you sure you want to delete <strong id="deleteDestinationName"></strong>?</p>
-                            <p class="text-danger">This action cannot be undone.</p>
+                        <div class="modal-body p-4">
+                            <div class="text-center mb-4">
+                                <i class="fas fa-trash-alt fa-3x mb-3" style="color: #e74c3c; opacity: 0.8;"></i>
+                                <p class="mb-3" style="color: #ecf0f1; font-size: 1.1rem;">
+                                    Are you sure you want to delete 
+                                    <strong id="deleteDestinationName" style="color: #3498db;"></strong>?
+                                </p>
+                                <div class="alert dark-theme-alert alert-danger">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    This action cannot be undone and will affect all related trips.
+                                </div>
+                            </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <form id="deleteForm" method="post" asp-page-handler="Delete">
+                        <div class="modal-footer border-0 d-flex gap-2">
+                            <button type="button" class="btn btn-secondary btn-animated flex-fill" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </button>
+                            <form id="deleteForm" method="post" asp-page-handler="Delete" class="flex-fill">
                                 <input type="hidden" id="deleteDestinationId" name="id" />
-                                <button type="submit" class="btn btn-danger">Delete</button>
+                                <button type="submit" class="btn btn-danger btn-animated w-100">
+                                    <i class="fas fa-trash me-2"></i>Delete
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -66,50 +92,65 @@
             @foreach (var destination in Model.Destinations)
             {
                 <div class="col">
-                    <div class="card h-100">
-                        @if (!string.IsNullOrEmpty(destination.ImageUrl))
-                        {
-                            <img src="@destination.ImageUrl" class="card-img-top" alt="@destination.Name" style="height: 200px; object-fit: cover;">
-                        }
-                        else
-                        {
-                            <div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height: 200px;">
-                                <i class="fas fa-image text-muted" style="font-size: 3rem;"></i>
-                            </div>
-                        }
-                        <div class="card-body">
-                            <h5 class="card-title">@destination.Name</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">@destination.Location</h6>
-                            @if (!string.IsNullOrEmpty(destination.Description))
+                    <div class="dark-theme-card h-100">
+                        <div class="position-relative">
+                            @if (!string.IsNullOrEmpty(destination.ImageUrl))
                             {
-                                <p class="card-text">
-                                    @(destination.Description.Length > 150 ? destination.Description.Substring(0, 150) + "..." : destination.Description)
-                                </p>
+                                <img src="@destination.ImageUrl" class="card-img-top" alt="@destination.Name" style="height: 250px; object-fit: cover; border-radius: 20px 20px 0 0;">
                             }
-                            @if (!string.IsNullOrEmpty(destination.Climate))
+                            else
                             {
-                                <p class="card-text"><small class="text-muted"><i class="fas fa-sun"></i> @destination.Climate</small></p>
-                            }
-                            @if (!string.IsNullOrEmpty(destination.BestTimeToVisit))
-                            {
-                                <p class="card-text"><small class="text-muted"><i class="fas fa-calendar-alt"></i> @destination.BestTimeToVisit</small></p>
+                                <div class="card-img-top d-flex justify-content-center align-items-center" style="height: 250px; background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(46, 204, 113, 0.2)); border-radius: 20px 20px 0 0;">
+                                    <i class="fas fa-mountain fa-4x" style="color: #3498db; opacity: 0.7;"></i>
+                                </div>
                             }
                         </div>
-                        <div class="card-footer bg-transparent">
-                            <div class="d-flex gap-2">
-                                <a asp-page="./Details" asp-route-id="@destination.Id" class="btn btn-sm btn-primary">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold" style="color: #3498db;">@destination.Name</h5>
+                            <h6 class="card-subtitle mb-3" style="color: #2ecc71;">
+                                <i class="fas fa-map-marker-alt me-1"></i>@destination.Location
+                            </h6>
+                            @if (!string.IsNullOrEmpty(destination.Description))
+                            {
+                                <p class="card-text mb-3" style="color: #bdc3c7; line-height: 1.5;">
+                                    @(destination.Description.Length > 120 ? destination.Description.Substring(0, 120) + "..." : destination.Description)
+                                </p>
+                            }
+                            
+                            <div class="row g-2 mb-3">
+                                @if (!string.IsNullOrEmpty(destination.Climate))
+                                {
+                                    <div class="col-6">
+                                        <small class="badge dark-theme-badge badge-warning">
+                                            <i class="fas fa-sun me-1"></i>@destination.Climate
+                                        </small>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(destination.BestTimeToVisit))
+                                {
+                                    <div class="col-6">
+                                        <small class="badge dark-theme-badge badge-info">
+                                            <i class="fas fa-calendar-alt me-1"></i>@destination.BestTimeToVisit
+                                        </small>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="card-footer" style="background: rgba(255, 255, 255, 0.02); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a asp-page="./Details" asp-route-id="@destination.Id" class="btn btn-sm btn-primary btn-animated">
                                     <i class="fas fa-info-circle me-1"></i> Details
                                 </a>
-                                <a asp-page="/Trips/Index" asp-route-destinationId="@destination.Id" class="btn btn-sm btn-outline-secondary">
+                                <a asp-page="/Trips/Index" asp-route-destinationId="@destination.Id" class="btn btn-sm btn-outline-secondary btn-animated">
                                     <i class="fas fa-plane-departure me-1"></i> Trips
                                 </a>
                                 @if (User.IsInRole("Admin"))
                                 {
-                                    <div class="ms-auto">
-                                        <a asp-page="./Edit" asp-route-id="@destination.Id" class="btn btn-sm btn-outline-primary">
+                                    <div class="ms-auto d-flex gap-1">
+                                        <a asp-page="./Edit" asp-route-id="@destination.Id" class="btn btn-sm btn-outline-primary btn-animated">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        <button type="button" class="btn btn-sm btn-outline-danger btn-animated" 
                                                 onclick="confirmDelete(@destination.Id, '@destination.Name')">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -124,8 +165,22 @@
     }
     else
     {
-        <div class="alert alert-info" role="alert">
-            No destinations found. Please check back later.
+        <div class="text-center py-5">
+            <div class="dark-theme-card p-5">
+                <div class="empty-state">
+                    <i class="fas fa-globe fa-4x mb-4" style="color: #3498db; opacity: 0.7;"></i>
+                    <h3 class="mb-3" style="color: #ecf0f1;">No Destinations Available</h3>
+                    <p class="mb-4" style="color: #bdc3c7; font-size: 1.1rem;">
+                        We're working on adding amazing destinations for you to explore. Check back soon!
+                    </p>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-page="./Create" class="btn btn-primary btn-lg btn-animated">
+                            <i class="fas fa-plus me-2"></i>Add First Destination
+                        </a>
+                    }
+                </div>
+            </div>
         </div>
     }
 </div>

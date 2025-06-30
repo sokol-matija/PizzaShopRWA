@@ -6,59 +6,74 @@
 }
 
 <div class="container mt-4">
-    <h1 class="mb-4">@ViewData["Title"]</h1>
+    <div class="text-center mb-5">
+        <h1 class="dark-theme-section-title">
+            <i class="fas fa-user-circle me-3"></i>@ViewData["Title"]
+        </h1>
+        <p class="dark-theme-section-subtitle">Manage your account information and settings</p>
+    </div>
     
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
-        <div class="alert alert-danger" role="alert">
-            @Model.ErrorMessage
+        <div class="alert alert-danger dark-theme-alert" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
         </div>
         
         @if (!string.IsNullOrEmpty(Model.DetailedError) && WebHostEnvironment.IsDevelopment())
         {
-            <div class="alert alert-warning" role="alert">
-                <strong>Developer Details:</strong> @Model.DetailedError
+            <div class="alert alert-warning dark-theme-alert" role="alert">
+                <i class="fas fa-info-circle me-2"></i><strong>Developer Details:</strong> @Model.DetailedError
             </div>
         }
     }
     
     <!-- Success/Error messages for AJAX updates -->
     <div id="updateResult" class="d-none">
-        <div id="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+        <div id="successAlert" class="alert alert-success alert-dismissible fade show dark-theme-alert" role="alert">
             <i class="fas fa-check-circle me-2"></i>
             <span id="successMessage"></span>
-            <button type="button" class="btn-close" onclick="hideAlert('updateResult')"></button>
+            <button type="button" class="btn-close btn-close-white" onclick="hideAlert('updateResult')"></button>
         </div>
-        <div id="errorAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div id="errorAlert" class="alert alert-danger alert-dismissible fade show dark-theme-alert" role="alert">
             <i class="fas fa-exclamation-triangle me-2"></i>
             <span id="errorMessage"></span>
-            <button type="button" class="btn-close" onclick="hideAlert('updateResult')"></button>
+            <button type="button" class="btn-close btn-close-white" onclick="hideAlert('updateResult')"></button>
         </div>
     </div>
     
     @if (Model.CurrentUser != null)
     {
-        <div class="row">
+        <div class="row g-4">
             <div class="col-md-4">
-                <div class="card shadow mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Account Summary</h5>
+                <div class="dark-theme-card mb-4">
+                    <div class="card-header border-0 pb-0" style="background: rgba(52, 152, 219, 0.1);">
+                        <h5 class="mb-0 fw-bold" style="color: #3498db;">
+                            <i class="fas fa-id-card me-2"></i>Account Summary
+                        </h5>
                     </div>
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
-                                <i class="fas fa-user-circle fa-4x text-primary"></i>
+                    <div class="card-body text-center pt-3">
+                        <div class="mb-4">
+                            <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px; background: linear-gradient(135deg, #3498db, #2ecc71); border: 3px solid rgba(52, 152, 219, 0.3);">
+                                <i class="fas fa-user fa-4x" style="color: white;"></i>
                             </div>
                         </div>
-                        <p class="text-muted">@Model.CurrentUser.Username</p>
+                        <h6 class="mb-2 fw-bold" style="color: #ecf0f1;">@Model.CurrentUser.Username</h6>
                         
                         @if (Model.CurrentUser.IsAdmin)
                         {
-                            <span class="badge bg-warning">Administrator</span>
+                            <span class="badge dark-theme-badge badge-warning fs-6 px-3 py-2 mb-3">
+                                <i class="fas fa-crown me-1"></i>Administrator
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge dark-theme-badge badge-success fs-6 px-3 py-2 mb-3">
+                                <i class="fas fa-user me-1"></i>Member
+                            </span>
                         }
                         
                         <div class="d-grid gap-2 mt-3">
-                            <a asp-page="/Account/ChangePassword" class="btn btn-outline-primary">
+                            <a asp-page="/Account/ChangePassword" class="btn btn-primary btn-animated">
                                 <i class="fas fa-key me-2"></i>Change Password
                             </a>
                         </div>
@@ -67,32 +82,36 @@
             </div>
             
             <div class="col-md-8">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Profile Information</h5>
-                        <div>
-                            <button id="editBtn" type="button" class="btn btn-light btn-sm" onclick="toggleEditMode()">
-                                <i class="fas fa-edit me-1"></i> Edit
-                            </button>
-                            <button id="cancelBtn" type="button" class="btn btn-secondary btn-sm d-none" onclick="cancelEdit()">
-                                <i class="fas fa-times me-1"></i> Cancel
-                            </button>
-                            <button id="saveBtn" type="button" class="btn btn-success btn-sm d-none" onclick="saveProfile()">
-                                <i class="fas fa-save me-1"></i> Save
-                            </button>
+                <div class="dark-theme-card">
+                    <div class="card-header border-0 pb-0" style="background: rgba(46, 204, 113, 0.1);">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-bold" style="color: #2ecc71;">
+                                <i class="fas fa-user-edit me-2"></i>Profile Information
+                            </h5>
+                            <div class="d-flex gap-2">
+                                <button id="editBtn" type="button" class="btn btn-primary btn-sm btn-animated" onclick="toggleEditMode()">
+                                    <i class="fas fa-edit me-1"></i> Edit
+                                </button>
+                                <button id="cancelBtn" type="button" class="btn btn-secondary btn-sm btn-animated d-none" onclick="cancelEdit()">
+                                    <i class="fas fa-times me-1"></i> Cancel
+                                </button>
+                                <button id="saveBtn" type="button" class="btn btn-success btn-sm btn-animated d-none" onclick="saveProfile()">
+                                    <i class="fas fa-save me-1"></i> Save
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body pt-3">
                         <!-- Loading spinner -->
                         <div id="loadingSpinner" class="text-center d-none">
-                            <div class="spinner-border text-primary" role="status">
+                            <div class="spinner-border" style="color: #3498db;" role="status">
                                 <span class="visually-hidden">Saving...</span>
                             </div>
-                            <p class="mt-2">Updating profile...</p>
+                            <p class="mt-2" style="color: #ecf0f1;">Updating profile...</p>
                         </div>
 
                         <!-- Profile form -->
-                        <form id="profileForm">
+                        <form id="profileForm" class="dark-theme-form">
                                                     <div class="row mb-3">
                         <div class="col-md-4 fw-bold" style="color: white;">Username:</div>
                             <div class="col-md-8">
@@ -190,8 +209,8 @@
                     </div>
                 </div>
                 
-                <div class="mt-4">
-                    <a asp-page="/Index" class="btn btn-outline-secondary">
+                <div class="mt-4 text-center">
+                    <a asp-page="/Index" class="btn btn-outline-secondary btn-lg btn-animated">
                         <i class="fas fa-arrow-left me-2"></i>Back to Home
                     </a>
                 </div>

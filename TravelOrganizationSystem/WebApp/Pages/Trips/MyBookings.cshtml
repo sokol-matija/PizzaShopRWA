@@ -5,28 +5,33 @@
 }
 
 <div class="container mt-4">
-    <h1 class="mb-4">@ViewData["Title"]</h1>
+    <div class="text-center mb-5">
+        <h1 class="dark-theme-section-title">
+            <i class="fas fa-suitcase-rolling me-3"></i>@ViewData["Title"]
+        </h1>
+        <p class="dark-theme-section-subtitle">Manage and track your travel reservations</p>
+    </div>
     
     @if (!string.IsNullOrEmpty(TempData["SuccessMessage"]?.ToString()))
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="alert alert-success alert-dismissible fade show dark-theme-alert" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
     
     @if (!string.IsNullOrEmpty(TempData["ErrorMessage"]?.ToString()))
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="alert alert-danger alert-dismissible fade show dark-theme-alert" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
     
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
-        <div class="alert alert-danger" role="alert">
-            @Model.ErrorMessage
+        <div class="alert alert-danger dark-theme-alert" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
         </div>
     }
 
@@ -36,66 +41,99 @@
             @foreach (var booking in Model.Bookings)
             {
                 <div class="col">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">
-                                Booking #@booking.Id
-                                <span class="badge @booking.StatusBadgeClass ms-2">@booking.Status</span>
-                            </h5>
-                            <span class="text-muted">Booked on @booking.RegistrationDate.ToString("MMM d, yyyy")</span>
+                    <div class="card dark-theme-card h-100">
+                        <div class="card-header border-0 pb-0" style="background: rgba(52, 152, 219, 0.1); backdrop-filter: blur(10px);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold">
+                                    <i class="fas fa-ticket-alt me-2" style="color: #3498db;"></i>
+                                    Booking #@booking.Id
+                                    <span class="badge dark-theme-badge @booking.StatusBadgeClass ms-2">@booking.Status</span>
+                                </h5>
+                                <span class="badge dark-theme-badge badge-secondary">
+                                    <i class="far fa-calendar me-1"></i>
+                                    @booking.RegistrationDate.ToString("MMM d, yyyy")
+                                </span>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-4">
+                        <div class="card-body pt-3">
+                            <div class="row g-3">
+                                <div class="col-md-5">
                                     @if (booking.Trip != null)
                                     {
-                                        <h5 class="card-title">@booking.Trip.Title</h5>
-                                        <p class="text-muted mb-1">@booking.Trip.DestinationName</p>
-                                        <p class="mb-1">
-                                            <i class="fas fa-calendar me-2"></i>
-                                            @booking.Trip.StartDate.ToString("MMM d, yyyy") - @booking.Trip.EndDate.ToString("MMM d, yyyy")
-                                        </p>
-                                        <p class="mb-0">
-                                            <i class="fas fa-users me-2"></i>
-                                            @booking.NumberOfParticipants participant(s)
-                                        </p>
+                                        <div class="trip-info">
+                                            <h5 class="card-title mb-3 fw-bold" style="color: #3498db;">
+                                                <i class="fas fa-map-marked-alt me-2"></i>
+                                                @booking.Trip.Title
+                                            </h5>
+                                            <div class="info-item mb-2">
+                                                <i class="fas fa-location-dot me-2" style="color: #2ecc71;"></i>
+                                                <span class="fw-medium">@booking.Trip.DestinationName</span>
+                                            </div>
+                                            <div class="info-item mb-2">
+                                                <i class="fas fa-calendar-check me-2" style="color: #f39c12;"></i>
+                                                <span>@booking.Trip.StartDate.ToString("MMM d, yyyy") - @booking.Trip.EndDate.ToString("MMM d, yyyy")</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <i class="fas fa-users me-2" style="color: #9b59b6;"></i>
+                                                <span class="fw-medium">@booking.NumberOfParticipants participant(s)</span>
+                                            </div>
+                                        </div>
                                     }
                                     else
                                     {
-                                        <h5 class="card-title">@(string.IsNullOrEmpty(booking.TripName) ? "Trip" : booking.TripName)</h5>
-                                        @if (!string.IsNullOrEmpty(booking.DestinationName))
-                                        {
-                                            <p class="text-muted mb-1">@booking.DestinationName</p>
-                                        }
-                                        @if (booking.StartDate != default && booking.EndDate != default)
-                                        {
-                                            <p class="mb-1">
-                                                <i class="fas fa-calendar me-2"></i>
-                                                @booking.StartDate.ToString("MMM d, yyyy") - @booking.EndDate.ToString("MMM d, yyyy")
-                                            </p>
-                                        }
-                                        <p class="mb-0">
-                                            <i class="fas fa-users me-2"></i>
-                                            @booking.NumberOfParticipants participant(s)
-                                        </p>
+                                        <div class="trip-info">
+                                            <h5 class="card-title mb-3 fw-bold" style="color: #3498db;">
+                                                <i class="fas fa-map-marked-alt me-2"></i>
+                                                @(string.IsNullOrEmpty(booking.TripName) ? "Trip" : booking.TripName)
+                                            </h5>
+                                            @if (!string.IsNullOrEmpty(booking.DestinationName))
+                                            {
+                                                <div class="info-item mb-2">
+                                                    <i class="fas fa-location-dot me-2" style="color: #2ecc71;"></i>
+                                                    <span class="fw-medium">@booking.DestinationName</span>
+                                                </div>
+                                            }
+                                            @if (booking.StartDate != default && booking.EndDate != default)
+                                            {
+                                                <div class="info-item mb-2">
+                                                    <i class="fas fa-calendar-check me-2" style="color: #f39c12;"></i>
+                                                    <span>@booking.StartDate.ToString("MMM d, yyyy") - @booking.EndDate.ToString("MMM d, yyyy")</span>
+                                                </div>
+                                            }
+                                            <div class="info-item">
+                                                <i class="fas fa-users me-2" style="color: #9b59b6;"></i>
+                                                <span class="fw-medium">@booking.NumberOfParticipants participant(s)</span>
+                                            </div>
+                                        </div>
                                     }
                                 </div>
-                                <div class="col-md-4">
-                                    <h6 class="mb-2">Payment Details</h6>
-                                    <p class="mb-1">Total Amount: <strong>@booking.TotalPrice.ToString("C")</strong></p>
+                                <div class="col-md-3">
+                                    <div class="payment-section">
+                                        <h6 class="mb-3 fw-bold" style="color: #e74c3c;">
+                                            <i class="fas fa-credit-card me-2"></i>
+                                            Payment Details
+                                        </h6>
+                                        <div class="price-display">
+                                            <div class="total-price">
+                                                <span class="fw-bold fs-5" style="color: #2ecc71;">@booking.TotalPrice.ToString("C")</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <a asp-page="./Details" asp-route-id="@booking.TripId" class="btn btn-primary">
-                                        <i class="fas fa-info-circle me-1"></i> Trip Details
-                                    </a>
-                                    
-                                    @if (booking.IsCancellable)
-                                    {
-                                        <button type="button" class="btn btn-danger" 
-                                                onclick="confirmCancel(@booking.Id, '@(booking.Trip?.Title ?? booking.TripName ?? "this trip")')">
-                                            <i class="fas fa-times-circle me-1"></i> Cancel Booking
-                                        </button>
-                                    }
+                                <div class="col-md-4 d-flex flex-column justify-content-center">
+                                    <div class="action-buttons d-grid gap-2">
+                                        <a asp-page="./Details" asp-route-id="@booking.TripId" class="btn btn-primary btn-animated">
+                                            <i class="fas fa-info-circle me-2"></i> Trip Details
+                                        </a>
+                                        
+                                        @if (booking.IsCancellable)
+                                        {
+                                            <button type="button" class="btn btn-outline-danger btn-animated" 
+                                                    onclick="confirmCancel(@booking.Id, '@(booking.Trip?.Title ?? booking.TripName ?? "this trip")')">
+                                                <i class="fas fa-times-circle me-2"></i> Cancel Booking
+                                            </button>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -106,30 +144,56 @@
     }
     else
     {
-        <div class="alert alert-info" role="alert">
-            <i class="fas fa-info-circle me-2"></i> You don't have any bookings yet. 
-            <a asp-page="./Index" class="alert-link">Browse available trips</a> to book your next adventure.
+        <div class="text-center py-5">
+            <div class="dark-theme-card p-5">
+                <div class="empty-state">
+                    <i class="fas fa-suitcase fa-4x mb-4" style="color: #3498db; opacity: 0.7;"></i>
+                    <h3 class="mb-3" style="color: #ecf0f1;">No Bookings Yet</h3>
+                    <p class="mb-4" style="color: #bdc3c7; font-size: 1.1rem;">
+                        Your travel adventures await! Start exploring our amazing destinations and book your next trip.
+                    </p>
+                    <a asp-page="./Index" class="btn btn-primary btn-lg btn-animated">
+                        <i class="fas fa-search me-2"></i> Browse Available Trips
+                    </a>
+                </div>
+            </div>
         </div>
     }
 </div>
 
 <!-- Cancel Confirmation Modal -->
 <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="cancelModalLabel">Confirm Cancellation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content dark-theme-card" style="border: 1px solid rgba(231, 76, 60, 0.3);">
+            <div class="modal-header border-0" style="background: rgba(231, 76, 60, 0.1);">
+                <h5 class="modal-title fw-bold" id="cancelModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2" style="color: #e74c3c;"></i>
+                    Confirm Cancellation
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <p>Are you sure you want to cancel your booking for <strong id="cancelTripName"></strong>?</p>
-                <p class="text-danger">This action may be subject to cancellation fees depending on the timing.</p>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <i class="fas fa-times-circle fa-3x mb-3" style="color: #e74c3c; opacity: 0.8;"></i>
+                    <p class="mb-3" style="color: #ecf0f1; font-size: 1.1rem;">
+                        Are you sure you want to cancel your booking for 
+                        <strong id="cancelTripName" style="color: #3498db;"></strong>?
+                    </p>
+                    <div class="alert dark-theme-alert alert-warning">
+                        <i class="fas fa-info-circle me-2"></i>
+                        This action may be subject to cancellation fees depending on the timing.
+                    </div>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Booking</button>
-                <form id="cancelForm" method="post" asp-page-handler="Cancel">
+            <div class="modal-footer border-0 d-flex gap-2">
+                <button type="button" class="btn btn-secondary btn-animated flex-fill" data-bs-dismiss="modal">
+                    <i class="fas fa-arrow-left me-2"></i> Keep Booking
+                </button>
+                <form id="cancelForm" method="post" asp-page-handler="Cancel" class="flex-fill">
                     <input type="hidden" id="cancelBookingId" name="id" />
-                    <button type="submit" class="btn btn-danger">Cancel Booking</button>
+                    <button type="submit" class="btn btn-danger btn-animated w-100">
+                        <i class="fas fa-times-circle me-2"></i> Cancel Booking
+                    </button>
                 </form>
             </div>
         </div>
