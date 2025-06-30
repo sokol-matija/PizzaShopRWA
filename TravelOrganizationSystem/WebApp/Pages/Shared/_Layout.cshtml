@@ -142,8 +142,8 @@
                         <div class="newsletter-form">
                             <div class="input-group">
                                 <input type="email" class="form-control newsletter-input" 
-                                       placeholder="Enter your email" aria-label="Email">
-                                <button class="btn btn-newsletter" type="button">
+                                       id="newsletterEmail" placeholder="Enter your email" aria-label="Email">
+                                <button class="btn btn-newsletter" type="button" onclick="subscribeNewsletter()">
                                     <i class="fas fa-paper-plane"></i>
                                 </button>
                             </div>
@@ -177,6 +177,34 @@
             </div>
         </div>
     </footer>
+
+    <!-- Newsletter Thank You Modal -->
+    <div class="modal fade" id="newsletterModal" tabindex="-1" aria-labelledby="newsletterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content newsletter-modal">
+                <div class="modal-header border-0">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <div class="newsletter-success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4 class="newsletter-success-title">Thank You for Your Interest!</h4>
+                    <p class="newsletter-success-message">
+                        We appreciate your subscription to our newsletter. We'll send you the latest travel deals, 
+                        destination updates, and exclusive offers when we publish our first newsletter.
+                    </p>
+                    <p class="newsletter-success-note">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Stay tuned for amazing travel opportunities!
+                    </p>
+                    <button type="button" class="btn btn-primary btn-animated" data-bs-dismiss="modal">
+                        <i class="fas fa-thumbs-up me-2"></i>Got it!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
