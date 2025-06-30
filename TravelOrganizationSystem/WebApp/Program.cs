@@ -6,7 +6,15 @@ using WebApp.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorPages();
+if (builder.Environment.IsDevelopment())
+{
+    // Enable runtime compilation for hot reload in development
+    builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
+}
+else
+{
+    builder.Services.AddRazorPages();
+}
 builder.Services.AddServerSideBlazor();
 builder.Services.AddControllers();
 

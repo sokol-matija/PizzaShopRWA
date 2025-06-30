@@ -4,6 +4,8 @@
     ViewData["Title"] = "Available Trips";
 }
 
+
+
 <div class="container mt-4">
     <h1 class="mb-4">@ViewData["Title"]</h1>
     
@@ -23,19 +25,19 @@
     }
     
     <!-- Destination Filter -->
-    <div class="card mb-4">
+            <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">Filter Trips</h5>
-            <form method="get" class="row g-3 align-items-end">
+            <form method="get" class="row g-3 align-items-end" id="tripFilterForm">
                 <div class="col-md-6">
                     <label asp-for="DestinationId" class="form-label">Destination</label>
-                    <select asp-for="DestinationId" asp-items="Model.Destinations" class="form-select">
+                    <select asp-for="DestinationId" asp-items="Model.Destinations" class="form-select" id="DestinationId">
                         <option value="">-- All Destinations --</option>
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <button type="submit" class="btn btn-primary">Apply Filter</button>
-                    <a asp-page="./Index" class="btn btn-outline-secondary">Clear</a>
+                    <button type="submit" class="btn btn-primary" id="filterSubmitBtn">Apply Filter</button>
+                    <a href="javascript:void(0);" class="btn btn-outline-secondary" onclick="clearFilter()">Clear</a>
                 </div>
             </form>
         </div>
@@ -265,24 +267,33 @@
 }
 
 @section Scripts {
+    <!-- Include AJAX trip list functionality -->
+    <script src="~/js/tripList.js"></script>
+    
     <script>
-        // Auto-submit form when destination changes
-        document.addEventListener('DOMContentLoaded', function () {
-            const destinationSelect = document.getElementById('DestinationId');
-            if (destinationSelect) {
-                destinationSelect.addEventListener('change', function() {
-                    this.form.submit();
-                });
-            }
+        // Set up authentication data for JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.setAttribute('data-user-authenticated', '@(User.Identity?.IsAuthenticated == true ? "true" : "false")');
+            document.body.setAttribute('data-user-admin', '@(User.IsInRole("Admin") ? "true" : "false")');
         });
         
-        // Delete confirmation
+        // Delete confirmation - keep existing functionality
         function confirmDelete(id, name) {
             document.getElementById('deleteTripId').value = id;
             document.getElementById('deleteTripName').textContent = name;
             
             var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
             deleteModal.show();
+        }
+        
+        // Clear filter function for AJAX
+        function clearFilter() {
+            const destinationSelect = document.getElementById('DestinationId');
+            if (destinationSelect) {
+                destinationSelect.value = '';
+                // Trigger change event to load trips via AJAX
+                destinationSelect.dispatchEvent(new Event('change'));
+            }
         }
     </script>
 } 
