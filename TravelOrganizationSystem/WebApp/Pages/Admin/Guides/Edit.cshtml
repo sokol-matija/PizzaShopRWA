@@ -1,0 +1,395 @@
+@page "{id:int}"
+@model WebApp.Pages.Admin.Guides.EditModel
+@{
+    ViewData["Title"] = "Edit Guide";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Breadcrumb Navigation -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a asp-page="/Index" style="color: #3498db; text-decoration: none;">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a asp-page="./Index" style="color: #3498db; text-decoration: none;">
+                            <i class="fas fa-user-tie me-1"></i>Manage Guides
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page" style="color: #ecf0f1;">
+                        Edit @Model.Guide.FullName
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="dark-theme-card">
+                <div class="card-header border-0" style="background: rgba(52, 152, 219, 0.1); border-radius: 20px 20px 0 0;">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" 
+                             style="width: 50px; height: 50px; background: linear-gradient(135deg, #3498db, #2ecc71);">
+                            <i class="fas fa-user-edit" style="color: white; font-size: 1.2rem;"></i>
+                        </div>
+                        <div>
+                            <h2 class="mb-0 fw-bold" style="color: #3498db;">@ViewData["Title"]</h2>
+                            <p class="mb-0" style="color: #bdc3c7;">Update guide information</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <!-- Success/Error Messages -->
+                    <div id="messageContainer" class="d-none mb-4">
+                        <div id="successAlert" class="alert alert-success d-none" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span id="successMessage"></span>
+                        </div>
+                        <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span id="errorMessage"></span>
+                        </div>
+                    </div>
+
+                    <!-- Traditional form for non-JS fallback -->
+                    <form method="post" id="editGuideForm" class="dark-theme-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Guide.Id" />
+                        
+                        <!-- Profile Image Placeholder -->
+                        <div class="text-center mb-4">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto" 
+                                 style="width: 120px; height: 120px; background: linear-gradient(135deg, #3498db, #2ecc71); border: 3px solid #3498db;">
+                                <i class="fas fa-user" style="color: white; font-size: 3rem;"></i>
+                            </div>
+                            <p class="mt-2 mb-0" style="color: #bdc3c7; font-size: 0.9rem;">
+                                <i class="fas fa-info-circle me-1"></i>Profile photos will be available in a future update
+                            </p>
+                        </div>
+
+                        <div class="row g-3">
+                            <!-- First Name -->
+                            <div class="col-md-6">
+                                <label asp-for="Guide.FirstName" class="form-label">
+                                    <i class="fas fa-user me-1"></i>First Name
+                                </label>
+                                <input asp-for="Guide.FirstName" class="form-control guide-input" 
+                                       placeholder="Enter first name..." data-field="FirstName" />
+                                <div class="invalid-feedback" id="FirstName-error"></div>
+                            </div>
+
+                            <!-- Last Name -->
+                            <div class="col-md-6">
+                                <label asp-for="Guide.LastName" class="form-label">
+                                    <i class="fas fa-user me-1"></i>Last Name
+                                </label>
+                                <input asp-for="Guide.LastName" class="form-control guide-input" 
+                                       placeholder="Enter last name..." data-field="LastName" />
+                                <div class="invalid-feedback" id="LastName-error"></div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-md-8">
+                                <label asp-for="Guide.Email" class="form-label">
+                                    <i class="fas fa-envelope me-1"></i>Email Address
+                                </label>
+                                <input asp-for="Guide.Email" type="email" class="form-control guide-input" 
+                                       placeholder="guide@example.com" data-field="Email" />
+                                <div class="invalid-feedback" id="Email-error"></div>
+                                <div class="form-text" style="color: #95a5a6;">
+                                    <i class="fas fa-shield-alt me-1"></i>Used for login and important notifications
+                                </div>
+                            </div>
+
+                            <!-- Years of Experience -->
+                            <div class="col-md-4">
+                                <label asp-for="Guide.YearsExperience" class="form-label">
+                                    <i class="fas fa-medal me-1"></i>Years of Experience
+                                </label>
+                                <input asp-for="Guide.YearsExperience" type="number" min="0" max="50" 
+                                       class="form-control guide-input" placeholder="0" data-field="YearsExperience" />
+                                <div class="invalid-feedback" id="YearsExperience-error"></div>
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div class="col-md-6">
+                                <label asp-for="Guide.PhoneNumber" class="form-label">
+                                    <i class="fas fa-phone me-1"></i>Phone Number
+                                </label>
+                                <input asp-for="Guide.PhoneNumber" type="tel" class="form-control guide-input" 
+                                       placeholder="+1 (555) 123-4567" data-field="PhoneNumber" />
+                                <div class="invalid-feedback" id="PhoneNumber-error"></div>
+                                <div class="form-text" style="color: #95a5a6;">Optional</div>
+                            </div>
+
+                            <!-- Biography -->
+                            <div class="col-md-12">
+                                <label asp-for="Guide.Bio" class="form-label">
+                                    <i class="fas fa-align-left me-1"></i>Biography
+                                </label>
+                                <textarea asp-for="Guide.Bio" class="form-control guide-input" rows="4" 
+                                          placeholder="Tell travelers about this guide's expertise, specialties, and what makes them special..." 
+                                          data-field="Bio"></textarea>
+                                <div class="invalid-feedback" id="Bio-error"></div>
+                                <div class="form-text" style="color: #95a5a6;">
+                                    Optional - Share the guide's background, specialties, and unique qualifications
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between mt-4 pt-3" style="border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                            <a asp-page="./Index" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" id="updateBtn" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i>Update Guide
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Guide editing AJAX functionality
+        let isSubmitting = false;
+        let validationTimeout;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeGuideEditing();
+        });
+
+        function initializeGuideEditing() {
+            console.log('Initializing guide editing with AJAX validation');
+            
+            // Initialize real-time validation
+            initializeValidation();
+            
+            // Initialize form submission
+            initializeFormSubmission();
+        }
+
+        function initializeValidation() {
+            const inputs = document.querySelectorAll('.guide-input');
+            
+            inputs.forEach(input => {
+                // Validate on blur (when user leaves field)
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+
+                // Validate on input with debouncing (as user types)
+                input.addEventListener('input', function() {
+                    clearTimeout(validationTimeout);
+                    const field = this;
+                    validationTimeout = setTimeout(() => {
+                        validateField(field);
+                    }, 500); // 500ms delay for typing
+                });
+            });
+        }
+
+        async function validateField(field) {
+            const fieldName = field.getAttribute('data-field');
+            const value = field.value.trim();
+            
+            // Clear previous validation state
+            field.classList.remove('is-valid', 'is-invalid');
+            const errorDiv = document.getElementById(`${fieldName}-error`);
+            if (errorDiv) {
+                errorDiv.textContent = '';
+            }
+
+            // Skip validation for empty optional fields
+            if (!value && (fieldName === 'Bio' || fieldName === 'PhoneNumber' || fieldName === 'YearsExperience')) {
+                return;
+            }
+
+            // Get current form data for validation
+            const formData = collectFormData();
+            
+            try {
+                const response = await fetch('?handler=Validate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    if (result.isValid) {
+                        field.classList.add('is-valid');
+                    } else {
+                        // Check if this field has errors
+                        const fieldErrors = result.errors[fieldName] || result.errors[`Guide.${fieldName}`];
+                        if (fieldErrors && fieldErrors.length > 0) {
+                            field.classList.add('is-invalid');
+                            if (errorDiv) {
+                                errorDiv.textContent = fieldErrors[0];
+                            }
+                        } else {
+                            field.classList.add('is-valid');
+                        }
+                    }
+                }
+            } catch (error) {
+                console.warn('Validation request failed:', error);
+            }
+        }
+
+        function initializeFormSubmission() {
+            const form = document.getElementById('editGuideForm');
+            const updateBtn = document.getElementById('updateBtn');
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                if (isSubmitting) {
+                    return;
+                }
+
+                await submitForm();
+            });
+        }
+
+        async function submitForm() {
+            const updateBtn = document.getElementById('updateBtn');
+            const originalBtnContent = updateBtn.innerHTML;
+            
+            try {
+                isSubmitting = true;
+                
+                // Update button state
+                updateBtn.disabled = true;
+                updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+                
+                // Hide previous messages
+                hideMessages();
+                
+                // Collect form data
+                const formData = collectFormData();
+                
+                console.log('Submitting form data:', formData);
+                
+                // Submit via AJAX
+                const response = await fetch('?handler=Update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                console.log('Update response:', result);
+
+                if (result.success) {
+                    showSuccessMessage(result.message || 'Guide updated successfully!');
+                    
+                                         // Redirect after short delay
+                     setTimeout(() => {
+                         window.location.href = '../Index';
+                     }, 1500);
+                } else {
+                    if (result.errors) {
+                        displayValidationErrors(result.errors);
+                    } else {
+                        showErrorMessage(result.message || 'Failed to update guide. Please try again.');
+                    }
+                }
+            } catch (error) {
+                console.error('Update error:', error);
+                showErrorMessage('An error occurred while updating the guide. Please try again.');
+            } finally {
+                isSubmitting = false;
+                updateBtn.disabled = false;
+                updateBtn.innerHTML = originalBtnContent;
+            }
+        }
+
+        function collectFormData() {
+            return {
+                Id: parseInt(document.getElementById('Guide_Id').value),
+                FirstName: document.getElementById('Guide_FirstName').value.trim(),
+                LastName: document.getElementById('Guide_LastName').value.trim(),
+                Email: document.getElementById('Guide_Email').value.trim(),
+                PhoneNumber: document.getElementById('Guide_PhoneNumber').value.trim() || null,
+                Bio: document.getElementById('Guide_Bio').value.trim() || null,
+                YearsExperience: document.getElementById('Guide_YearsExperience').value ? 
+                    parseInt(document.getElementById('Guide_YearsExperience').value) : null
+            };
+        }
+
+        function displayValidationErrors(errors) {
+            // Clear previous validation states
+            document.querySelectorAll('.guide-input').forEach(input => {
+                input.classList.remove('is-valid', 'is-invalid');
+            });
+            
+            // Clear previous error messages
+            document.querySelectorAll('.invalid-feedback').forEach(div => {
+                div.textContent = '';
+            });
+
+            // Display errors
+            for (const [fieldName, fieldErrors] of Object.entries(errors)) {
+                const cleanFieldName = fieldName.replace('Guide.', '');
+                const field = document.querySelector(`[data-field="${cleanFieldName}"]`);
+                const errorDiv = document.getElementById(`${cleanFieldName}-error`);
+                
+                if (field && fieldErrors.length > 0) {
+                    field.classList.add('is-invalid');
+                    if (errorDiv) {
+                        errorDiv.textContent = fieldErrors[0];
+                    }
+                }
+            }
+
+            showErrorMessage('Please correct the errors below and try again.');
+        }
+
+        function showSuccessMessage(message) {
+            const container = document.getElementById('messageContainer');
+            const successAlert = document.getElementById('successAlert');
+            const successMessage = document.getElementById('successMessage');
+            
+            successMessage.textContent = message;
+            successAlert.classList.remove('d-none');
+            document.getElementById('errorAlert').classList.add('d-none');
+            container.classList.remove('d-none');
+            
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function showErrorMessage(message) {
+            const container = document.getElementById('messageContainer');
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            errorMessage.textContent = message;
+            errorAlert.classList.remove('d-none');
+            document.getElementById('successAlert').classList.add('d-none');
+            container.classList.remove('d-none');
+            
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function hideMessages() {
+            const container = document.getElementById('messageContainer');
+            container.classList.add('d-none');
+            document.getElementById('successAlert').classList.add('d-none');
+            document.getElementById('errorAlert').classList.add('d-none');
+        }
+    </script>
+} 
