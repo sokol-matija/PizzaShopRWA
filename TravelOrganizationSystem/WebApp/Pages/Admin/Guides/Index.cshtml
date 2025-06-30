@@ -89,18 +89,11 @@
             <div class="col guide-card" data-guide-id="@guide.Id">
                 <div class="dark-theme-card h-100">
                     <div class="position-relative">
-                        @if (!string.IsNullOrEmpty(guide.PhotoUrl))
-                        {
-                            <img src="@guide.PhotoUrl" class="card-img-top" alt="@guide.FullName" 
-                                 style="height: 200px; object-fit: cover; border-radius: 20px 20px 0 0;">
-                        }
-                        else
-                        {
-                            <div class="card-img-top d-flex justify-content-center align-items-center" 
-                                 style="height: 200px; background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(46, 204, 113, 0.2)); border-radius: 20px 20px 0 0;">
-                                <i class="fas fa-user-tie fa-4x" style="color: #3498db; opacity: 0.7;"></i>
-                            </div>
-                        }
+                        @* Always use default placeholder for now (no profile photos) *@
+                        <div class="card-img-top d-flex justify-content-center align-items-center" 
+                             style="height: 200px; background: linear-gradient(135deg, #3498db, #2ecc71); border-radius: 20px 20px 0 0;">
+                            <i class="fas fa-user fs-1" style="color: white;"></i>
+                        </div>
                     </div>
                     
                     <div class="card-body">
@@ -162,7 +155,10 @@
     <div id="emptyState" class="text-center py-5 @(Model.Guides.Any() ? "d-none" : "")">
         <div class="dark-theme-card p-5">
             <div class="empty-state">
-                <i class="fas fa-user-tie fa-4x mb-4" style="color: #3498db; opacity: 0.7;"></i>
+                <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" 
+                     style="width: 120px; height: 120px; background: linear-gradient(135deg, #3498db, #2ecc71); border: 2px solid #3498db;">
+                    <i class="fas fa-user" style="color: white; font-size: 3rem;"></i>
+                </div>
                 <h3 class="mb-3" style="color: #ecf0f1;">No Guides Found</h3>
                 <p class="mb-4" style="color: #bdc3c7; font-size: 1.1rem;">
                     <span id="emptyStateMessage">Start building your guide team by adding the first guide to your system.</span>
@@ -320,12 +316,10 @@
             col.className = 'col guide-card';
             col.setAttribute('data-guide-id', guide.id);
 
-            const imageHtml = guide.hasPhoto ? 
-                `<img src="${guide.photoUrl}" class="card-img-top" alt="${guide.fullName}" 
-                     style="height: 200px; object-fit: cover; border-radius: 20px 20px 0 0;">` :
-                `<div class="card-img-top d-flex justify-content-center align-items-center" 
-                     style="height: 200px; background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(46, 204, 113, 0.2)); border-radius: 20px 20px 0 0;">
-                    <i class="fas fa-user-tie fa-4x" style="color: #3498db; opacity: 0.7;"></i>
+            // Always use default placeholder for now (no profile photos)
+            const imageHtml = `<div class="card-img-top d-flex justify-content-center align-items-center" 
+                     style="height: 200px; background: linear-gradient(135deg, #3498db, #2ecc71); border-radius: 20px 20px 0 0;">
+                    <i class="fas fa-user fs-1" style="color: white;"></i>
                  </div>`;
 
             const contactInfo = `
