@@ -5,114 +5,256 @@
 }
 
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a asp-page="/Index">Home</a></li>
-                    <li class="breadcrumb-item"><a asp-page="./Index">Destinations</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">@Model.Destination.Name</li>
-                </ol>
-            </nav>
-
-            <div class="card mb-4">
-                @if (!string.IsNullOrEmpty(Model.Destination.ImageUrl))
-                {
-                    <img src="@Model.Destination.ImageUrl" class="card-img-top" alt="@Model.Destination.Name" style="height: 300px; object-fit: cover;">
-                }
-                else
-                {
-                    <!-- Use a static placeholder image instead of dynamically generating one -->
-                    <div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height: 300px;">
-                        <div class="text-center">
-                            <i class="fas fa-image text-muted" style="font-size: 4rem;"></i>
-                            <p class="text-muted mt-2">No image available for @Model.Destination.Name</p>
-                        </div>
-                    </div>
-                }
-                <div class="card-body">
-                    <h1 class="card-title">@Model.Destination.Name</h1>
-                    <h4 class="card-subtitle mb-3 text-muted">@Model.Destination.Location</h4>
-                    
-                    @if (!string.IsNullOrEmpty(Model.Destination.Description))
-                    {
-                        <div class="card-text mb-4">
-                            <h5>About this destination</h5>
-                            <p>@Model.Destination.Description</p>
-                        </div>
-                    }
-
-                    <div class="d-flex flex-wrap gap-2 mb-4">
-                        @if (User.IsInRole("Admin"))
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger dark-theme-alert" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
+        </div>
+    }
+    
+    @if (Model.Destination != null)
+    {
+        <div class="row g-4">
+            <!-- Destination Image and Core Info -->
+            <div class="col-md-5">
+                <div class="dark-theme-card p-0 overflow-hidden">
+                    <div class="position-relative">
+                        @if (!string.IsNullOrEmpty(Model.Destination.ImageUrl))
                         {
-                            <a asp-page="./Edit" asp-route-id="@Model.Destination.Id" class="btn btn-primary">
-                                <i class="fas fa-edit me-1"></i> Edit
-                            </a>
-                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                                <i class="fas fa-trash me-1"></i> Delete
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#updateImageModal">
-                                <i class="fas fa-image me-1"></i> Update Image
-                            </button>
+                            <img src="@Model.Destination.ImageUrl" class="img-fluid w-100" alt="@Model.Destination.Name" style="height: 300px; object-fit: cover;">
                         }
-                        <a asp-page="/Trips/Index" asp-route-destinationId="@Model.Destination.Id" class="btn btn-success">
-                            <i class="fas fa-plane-departure me-1"></i> View Trips
-                        </a>
-                        <a asp-page="./Index" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-1"></i> Back to List
-                        </a>
+                        else
+                        {
+                            <div class="img-fluid w-100 d-flex justify-content-center align-items-center" style="height: 300px; background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(46, 204, 113, 0.2));">
+                                <div class="text-center">
+                                    <i class="fas fa-mountain fa-4x mb-2" style="color: #3498db; opacity: 0.7;"></i>
+                                    <p class="mb-0" style="color: #bdc3c7;">@Model.Destination.Name</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <div class="dark-theme-card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4 fw-bold" style="color: #3498db;">
+                            <i class="fas fa-info-circle me-2"></i>Destination Overview
+                        </h5>
+                        <div class="overview-grid">
+                            <div class="overview-item mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-map-marker-alt me-3" style="color: #e74c3c; font-size: 1.2rem;"></i>
+                                    <div>
+                                        <div class="fw-medium" style="color: #ecf0f1;">Location</div>
+                                        <div style="color: #bdc3c7;">@Model.Destination.City, @Model.Destination.Country</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            @if (!string.IsNullOrEmpty(Model.Destination.Climate))
+                            {
+                                <div class="overview-item mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-sun me-3" style="color: #f39c12; font-size: 1.2rem;"></i>
+                                        <div>
+                                            <div class="fw-medium" style="color: #ecf0f1;">Climate</div>
+                                            <div style="color: #bdc3c7;">@Model.Destination.Climate</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            
+                            @if (!string.IsNullOrEmpty(Model.Destination.BestTimeToVisit))
+                            {
+                                <div class="overview-item">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-calendar-check me-3" style="color: #9b59b6; font-size: 1.2rem;"></i>
+                                        <div>
+                                            <div class="fw-medium" style="color: #ecf0f1;">Best Time to Visit</div>
+                                            <div style="color: #bdc3c7;">@Model.Destination.BestTimeToVisit</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
-
-            @if (Model.TripsCount > 0)
-            {
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Trips to @Model.Destination.Name</h5>
+            
+            <!-- Destination Details -->
+            <div class="col-md-7">
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 10px; padding: 0.75rem 1rem;">
+                        <li class="breadcrumb-item">
+                            <a asp-page="/Index" style="color: #3498db; text-decoration: none;">
+                                <i class="fas fa-home me-1"></i>Home
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a asp-page="./Index" style="color: #3498db; text-decoration: none;">
+                                <i class="fas fa-globe me-1"></i>Destinations
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page" style="color: #ecf0f1;">@Model.Destination.Name</li>
+                    </ol>
+                </nav>
+                
+                <div class="text-center mb-4">
+                    <h1 class="display-4 fw-bold mb-3" style="color: #3498db;">@Model.Destination.Name</h1>
+                    <p class="lead" style="color: #bdc3c7;">Discover this amazing destination</p>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(Model.Destination.Tagline))
+                {
+                    <div class="dark-theme-card mb-4">
+                        <div class="card-body">
+                            <div class="text-center p-3 rounded" style="background: rgba(46, 204, 113, 0.1); border-left: 4px solid #2ecc71;">
+                                <em style="color: #2ecc71; font-size: 1.3rem; font-weight: 500;">@Model.Destination.Tagline</em>
+                            </div>
+                        </div>
                     </div>
+                }
+                
+                @if (!string.IsNullOrEmpty(Model.Destination.Description))
+                {
+                    <div class="dark-theme-card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3 fw-bold" style="color: #2ecc71;">
+                                <i class="fas fa-scroll me-2"></i>About This Destination
+                            </h5>
+                            <div class="destination-description" style="color: #ecf0f1; line-height: 1.7;">
+                                @Model.Destination.Description
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+                <!-- Trips Information -->
+                @if (Model.TripsCount > 0)
+                {
+                    <div class="dark-theme-card mb-4">
+                        <div class="card-header border-0 pb-0" style="background: rgba(52, 152, 219, 0.1);">
+                            <h5 class="mb-0 fw-bold" style="color: #3498db;">
+                                <i class="fas fa-suitcase-rolling me-2"></i>Available Trips
+                            </h5>
+                        </div>
+                        <div class="card-body pt-3">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px; background: linear-gradient(135deg, #3498db, #2980b9);">
+                                    <i class="fas fa-plane-departure fa-2x" style="color: white;"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1 fw-bold" style="color: #ecf0f1;">@Model.TripsCount Trip@(Model.TripsCount != 1 ? "s" : "") Available</h6>
+                                    <p class="mb-0" style="color: #bdc3c7;">Discover amazing adventures to @Model.Destination.Name</p>
+                                </div>
+                            </div>
+                            <a asp-page="/Trips/Index" asp-route-destinationId="@Model.Destination.Id" class="btn btn-primary btn-animated">
+                                <i class="fas fa-plane-departure me-2"></i>View All Trips
+                            </a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="dark-theme-card mb-4">
+                        <div class="card-body text-center p-4">
+                            <i class="fas fa-calendar-times fa-3x mb-3" style="color: #f39c12; opacity: 0.7;"></i>
+                            <h6 class="mb-2" style="color: #ecf0f1;">No Trips Available</h6>
+                            <p class="mb-0" style="color: #bdc3c7;">There are currently no trips available to this destination. Check back soon!</p>
+                        </div>
+                    </div>
+                }
+                
+                <!-- Action Buttons -->
+                <div class="dark-theme-card">
                     <div class="card-body">
-                        <p>There are @Model.TripsCount trips available to @Model.Destination.Name.</p>
-                        <a asp-page="/Trips/Index" asp-route-destinationId="@Model.Destination.Id" class="btn btn-primary">
-                            <i class="fas fa-plane-departure me-1"></i> View All Trips
-                        </a>
+                        <div class="d-flex flex-wrap gap-2 justify-content-center">
+                            <a asp-page="./Index" class="btn btn-outline-secondary btn-animated">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Destinations
+                            </a>
+                            
+                            @if (Model.TripsCount > 0)
+                            {
+                                <a asp-page="/Trips/Index" asp-route-destinationId="@Model.Destination.Id" class="btn btn-primary btn-animated">
+                                    <i class="fas fa-suitcase-rolling me-2"></i>Browse Trips
+                                </a>
+                            }
+                            
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-page="./Edit" asp-route-id="@Model.Destination.Id" class="btn btn-success btn-animated">
+                                    <i class="fas fa-edit me-2"></i>Edit
+                                </a>
+                                <button type="button" class="btn btn-warning btn-animated" data-bs-toggle="modal" data-bs-target="#updateImageModal">
+                                    <i class="fas fa-image me-2"></i>Update Image
+                                </button>
+                                <button type="button" class="btn btn-danger btn-animated" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="fas fa-trash me-2"></i>Delete
+                                </button>
+                            }
+                        </div>
                     </div>
                 </div>
-            }
-            else
-            {
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i> There are currently no trips available to this destination.
-                </div>
-            }
+            </div>
         </div>
-    </div>
+    }
+    else if (string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="text-center py-5">
+            <div class="dark-theme-card p-5">
+                <div class="empty-state">
+                    <i class="fas fa-search fa-4x mb-4" style="color: #f39c12; opacity: 0.7;"></i>
+                    <h3 class="mb-3" style="color: #ecf0f1;">Destination Not Found</h3>
+                    <p class="mb-4" style="color: #bdc3c7; font-size: 1.1rem;">
+                        The destination you're looking for doesn't exist or may have been removed.
+                    </p>
+                    <a asp-page="./Index" class="btn btn-primary btn-lg btn-animated">
+                        <i class="fas fa-arrow-left me-2"></i>Return to Destinations
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 @if (User.IsInRole("Admin"))
 {
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content dark-theme-card" style="border: 1px solid rgba(231, 76, 60, 0.3);">
+                <div class="modal-header border-0" style="background: rgba(231, 76, 60, 0.1);">
+                    <h5 class="modal-title fw-bold" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2" style="color: #e74c3c;"></i>
+                        Confirm Delete
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete <strong>@Model.Destination.Name</strong>?</p>
-                    <p class="text-danger">This action cannot be undone.</p>
-                    @if (Model.TripsCount > 0)
-                    {
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle me-2"></i> This destination has @Model.TripsCount associated trips that will also be deleted.
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-trash-alt fa-3x mb-3" style="color: #e74c3c; opacity: 0.8;"></i>
+                        <p class="mb-3" style="color: #ecf0f1; font-size: 1.1rem;">
+                            Are you sure you want to delete 
+                            <strong style="color: #3498db;">@Model.Destination.Name</strong>?
+                        </p>
+                        <div class="alert dark-theme-alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            This action cannot be undone.
+                            @if (Model.TripsCount > 0)
+                            {
+                                <text><br><strong>Warning:</strong> This destination has @Model.TripsCount associated trip@(Model.TripsCount != 1 ? "s" : "") that will also be affected.</text>
+                            }
                         </div>
-                    }
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <form method="post" asp-page-handler="Delete" asp-route-id="@Model.Destination.Id">
-                        <button type="submit" class="btn btn-danger">Delete</button>
+                <div class="modal-footer border-0 d-flex gap-2">
+                    <button type="button" class="btn btn-secondary btn-animated flex-fill" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@Model.Destination.Id" class="flex-fill">
+                        <button type="submit" class="btn btn-danger btn-animated w-100">
+                            <i class="fas fa-trash me-2"></i>Delete
+                        </button>
                     </form>
                 </div>
             </div>
@@ -121,38 +263,45 @@
 
     <!-- Update Image Modal -->
     <div class="modal fade" id="updateImageModal" tabindex="-1" aria-labelledby="updateImageModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateImageModalLabel">Update Destination Image</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content dark-theme-card">
+                <div class="modal-header border-0" style="background: rgba(241, 196, 15, 0.1);">
+                    <h5 class="modal-title fw-bold" id="updateImageModalLabel">
+                        <i class="fas fa-image me-2" style="color: #f1c40f;"></i>
+                        Update Destination Image
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="image-preview-container mb-3" style="height: 200px; overflow: hidden; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                <div class="modal-body p-4">
+                    <div class="image-preview-container mb-3 rounded overflow-hidden" style="height: 200px; background: rgba(255, 255, 255, 0.05); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.1);">
                         <img id="imageModalPreview" src="@(string.IsNullOrEmpty(Model.Destination.ImageUrl) ? "" : Model.Destination.ImageUrl)" 
                              alt="Destination Image Preview" style="max-width: 100%; max-height: 200px; @(string.IsNullOrEmpty(Model.Destination.ImageUrl) ? "display: none;" : "")">
                         <div id="noImageModalPlaceholder" style="@(!string.IsNullOrEmpty(Model.Destination.ImageUrl) ? "display: none;" : "")">
-                            <i class="fas fa-image text-muted" style="font-size: 3rem;"></i>
-                            <p class="text-muted mb-0">No image selected</p>
+                            <i class="fas fa-image fa-3x mb-2" style="color: #bdc3c7;"></i>
+                            <p class="mb-0" style="color: #bdc3c7;">No image selected</p>
                         </div>
                     </div>
                     <form id="updateImageForm" method="post" asp-page-handler="UpdateImage" asp-route-id="@Model.Destination.Id">
                         <input type="hidden" id="newImageUrl" name="imageUrl" />
                         <div class="mb-3">
                             <div class="d-grid gap-2">
-                                <button type="button" id="loadNewImageBtn" class="btn btn-outline-primary">
-                                    <i class="fas fa-image me-1"></i> Load New Image
+                                <button type="button" id="loadNewImageBtn" class="btn btn-primary btn-animated">
+                                    <i class="fas fa-image me-2"></i>Load New Image
                                 </button>
-                                <button type="button" id="refreshNewImageBtn" class="btn btn-outline-secondary" disabled>
-                                    <i class="fas fa-sync-alt me-1"></i> Try Another
+                                <button type="button" id="refreshNewImageBtn" class="btn btn-outline-secondary btn-animated" disabled>
+                                    <i class="fas fa-sync-alt me-2"></i>Try Another
                                 </button>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" id="saveImageBtn" class="btn btn-primary">Save</button>
+                <div class="modal-footer border-0 d-flex gap-2">
+                    <button type="button" class="btn btn-secondary btn-animated flex-fill" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="button" id="saveImageBtn" class="btn btn-success btn-animated flex-fill">
+                        <i class="fas fa-save me-2"></i>Save Image
+                    </button>
                 </div>
             </div>
         </div>

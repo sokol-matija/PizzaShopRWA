@@ -5,6 +5,8 @@
 }
 
 <style>
+
+    
     .hero-section {
         position: relative;
         background: linear-gradient(135deg, rgba(52, 152, 219, 0.8), rgba(46, 204, 113, 0.8)), 
@@ -35,6 +37,84 @@
         margin-bottom: 2rem;
         font-weight: 300;
         text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Modern hero buttons - centered and styled like footer buttons */
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+    
+    .hero-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        border: 2px solid transparent;
+        min-width: 200px;
+        justify-content: center;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+    
+    .hero-btn-primary {
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.9), rgba(41, 128, 185, 0.9));
+        color: white;
+        border-color: rgba(52, 152, 219, 0.3);
+    }
+    
+    .hero-btn-secondary {
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.9), rgba(39, 174, 96, 0.9));
+        color: white;
+        border-color: rgba(46, 204, 113, 0.3);
+    }
+    
+    .hero-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .hero-btn:hover::before {
+        left: 100%;
+    }
+    
+    .hero-btn:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .hero-btn-primary:hover {
+        border-color: rgba(52, 152, 219, 0.6);
+        background: linear-gradient(135deg, rgba(41, 128, 185, 1), rgba(52, 152, 219, 1));
+    }
+    
+    .hero-btn-secondary:hover {
+        border-color: rgba(46, 204, 113, 0.6);
+        background: linear-gradient(135deg, rgba(39, 174, 96, 1), rgba(46, 204, 113, 1));
+    }
+    
+    .hero-btn i {
+        margin-right: 0.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .hero-btn:hover i {
+        transform: scale(1.2);
     }
     
     .section-title {
@@ -101,6 +181,12 @@
         color: #bdc3c7;
     }
     
+    .destination-card .card-img-top {
+        height: 200px;
+        object-fit: cover;
+        border-radius: 20px 20px 0 0;
+    }
+    
     .feature-card {
         text-align: center;
         padding: 2rem;
@@ -138,6 +224,14 @@
         margin-bottom: 0;
     }
     
+    /* Improved responsive behavior for destination cards */
+    .destinations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
     @@media (max-width: 768px) {
         .hero-section {
             padding: 4rem 1rem;
@@ -150,6 +244,31 @@
         .hero-section .lead {
             font-size: 1.2rem;
         }
+        
+        .hero-buttons {
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .hero-btn {
+            min-width: 240px;
+        }
+        
+        .destinations-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+    }
+    
+    @@media (max-width: 576px) {
+        .hero-btn {
+            min-width: 200px;
+            padding: 0.8rem 1.5rem;
+        }
+        
+        .destinations-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
@@ -157,12 +276,12 @@
     <div class="hero-content">
         <h1 class="glow-text">Discover Your Next Adventure</h1>
         <p class="lead">Explore amazing destinations and create unforgettable memories</p>
-        <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
-            <a asp-page="/Destinations/Index" class="btn btn-primary btn-lg px-4 me-md-2 btn-animated">
-                <i class="fas fa-search me-2"></i> Explore Destinations
+        <div class="hero-buttons">
+            <a asp-page="/Destinations/Index" class="hero-btn hero-btn-primary">
+                <i class="fas fa-search"></i> Explore Destinations
             </a>
-            <a asp-page="/Trips/Index" class="btn btn-secondary btn-lg px-4 btn-animated">
-                <i class="fas fa-plane me-2"></i> Find Trips
+            <a asp-page="/Trips/Index" class="hero-btn hero-btn-secondary">
+                <i class="fas fa-plane"></i> Find Trips
             </a>
         </div>
     </div>

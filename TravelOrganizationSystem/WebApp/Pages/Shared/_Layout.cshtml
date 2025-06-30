@@ -23,7 +23,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar modern-navbar navbar-expand-lg fixed-top">
+        <nav class="navbar modern-navbar navbar-expand-lg fixed-top" id="mainNavbar">
             <div class="container">
                 <a class="navbar-brand modern-brand" asp-area="" asp-page="/Index">
                     <i class="fas fa-plane me-2"></i>
@@ -105,6 +105,9 @@
             @RenderBody()
         </main>
     </div>
+    
+    <!-- Footer spacer for uniform spacing -->
+    <div class="footer-spacer"></div>
 
     <footer class="modern-footer">
         <div class="footer-gradient">
@@ -219,5 +222,32 @@
     }
 
     @await RenderSectionAsync("Scripts", required: false)
+    
+    <script>
+        // Modern sticky navbar with hide/show on scroll
+        let lastScrollTop = 0;
+        const navbar = document.getElementById('mainNavbar');
+        let isScrolling = false;
+
+        window.addEventListener('scroll', function() {
+            if (!isScrolling) {
+                window.requestAnimationFrame(function() {
+                    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+                    
+                    if (currentScroll > lastScrollTop && currentScroll > 100) {
+                        // Scrolling down & past threshold - hide navbar
+                        navbar.style.transform = 'translateY(-100%)';
+                    } else {
+                        // Scrolling up or at top - show navbar
+                        navbar.style.transform = 'translateY(0)';
+                    }
+                    
+                    lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // For Mobile or negative scrolling
+                    isScrolling = false;
+                });
+                isScrolling = true;
+            }
+        });
+    </script>
 </body>
 </html>
