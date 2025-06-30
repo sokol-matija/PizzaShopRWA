@@ -76,9 +76,105 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 RWA - Travel Organization System - By: Matija Sokol <a asp-area="" asp-page="/Privacy">Privacy</a>
+    <footer class="modern-footer">
+        <div class="footer-gradient">
+            <div class="container">
+                <div class="row gy-4">
+                    <!-- Company Info Section -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-brand">
+                            <h5 class="footer-title">
+                                <i class="fas fa-plane me-2"></i>
+                                Travel System
+                            </h5>
+                            <p class="footer-description">
+                                Your ultimate travel companion for discovering amazing destinations 
+                                and creating unforgettable experiences around the world.
+                            </p>
+                            <div class="social-links">
+                                <a href="#" class="social-link" title="Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="#" class="social-link" title="Twitter">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="#" class="social-link" title="Instagram">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                                <a href="#" class="social-link" title="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links Section -->
+                    <div class="col-lg-2 col-md-6">
+                        <h6 class="footer-section-title">Quick Links</h6>
+                        <ul class="footer-links">
+                            <li><a asp-area="" asp-page="/Index">Home</a></li>
+                            <li><a asp-area="" asp-page="/Destinations/Index">Destinations</a></li>
+                            <li><a asp-area="" asp-page="/Trips/Index">Trips</a></li>
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <li><a asp-area="" asp-page="/Trips/MyBookings">My Bookings</a></li>
+                            }
+                        </ul>
+                    </div>
+
+                    <!-- Support Section -->
+                    <div class="col-lg-3 col-md-6">
+                        <h6 class="footer-section-title">Support</h6>
+                        <ul class="footer-links">
+                            <li><a asp-area="" asp-page="/Privacy">Privacy Policy</a></li>
+                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of Service</a></li>
+                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#contactModal">Contact Us</a></li>
+                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#helpModal">Help Center</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Newsletter Section -->
+                    <div class="col-lg-3 col-md-6">
+                        <h6 class="footer-section-title">Stay Updated</h6>
+                        <p class="newsletter-text">
+                            Subscribe to get the latest travel deals and destination updates.
+                        </p>
+                        <div class="newsletter-form">
+                            <div class="input-group">
+                                <input type="email" class="form-control newsletter-input" 
+                                       placeholder="Enter your email" aria-label="Email">
+                                <button class="btn btn-newsletter" type="button">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Bottom -->
+                <hr class="footer-divider">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="footer-copyright">
+                            <i class="fas fa-copyright me-1"></i>
+                            2025 RWA - Travel Organization System. 
+                            <span class="text-accent">Developed by Matija Sokol</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <div class="footer-badges">
+                            <span class="badge-secure">
+                                <i class="fas fa-lock me-1"></i>
+                                Secure
+                            </span>
+                            <span class="badge-trusted">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                Trusted
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
 

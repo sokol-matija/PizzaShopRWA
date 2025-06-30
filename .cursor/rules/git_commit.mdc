@@ -1,0 +1,31 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: git commit rule
+globs: 
+alwaysApply: false
+---
+---
+Git Usage
+
+- Use the following **prefixes** for commit messages, followed by a **colon** and a **space**:
+
+  - `fix` — for bug fixes
+  - `feat` — for new features
+  - `perf` — for performance improvements
+  - `docs` — for documentation changes
+  - `style` — for formatting changes
+  - `refactor` — for code refactoring
+  - `test` — for adding missing tests
+  - `chore` — for routine tasks
+
+- When determining the commit message prefix, pick the most **relevant** option from the list above.
+
+-  Use **lowercase** for all commit messages.
+
+- If the change is not self-explanatory, include a **bullet list of changes** after a blank line below the summary.
+
+---
