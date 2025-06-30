@@ -1,0 +1,288 @@
+@page "{id:int}"
+@model WebApp.Pages.Admin.Guides.DetailsModel
+@{
+    ViewData["Title"] = $"{Model.Guide?.FullName ?? "Guide"} - Details";
+}
+
+<div class="container mt-4">
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger dark-theme-alert" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
+        </div>
+    }
+    
+    @if (Model.Guide != null)
+    {
+        <div class="row g-4">
+            <!-- Guide Photo and Core Info -->
+            <div class="col-md-4">
+                <div class="dark-theme-card p-0 overflow-hidden">
+                    <div class="position-relative">
+                        @if (!string.IsNullOrEmpty(Model.Guide.PhotoUrl))
+                        {
+                            <img src="@Model.Guide.PhotoUrl" class="img-fluid w-100" alt="@Model.Guide.FullName" style="height: 350px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="img-fluid w-100 d-flex justify-content-center align-items-center" style="height: 350px; background: linear-gradient(135deg, #3498db, #2ecc71);">
+                                <div class="text-center">
+                                    <i class="fas fa-user fa-4x mb-3" style="color: white; opacity: 0.9;"></i>
+                                    <p class="mb-0 fw-bold" style="color: white; font-size: 1.1rem;">@Model.Guide.FullName</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <div class="dark-theme-card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4 fw-bold" style="color: #3498db;">
+                            <i class="fas fa-id-card me-2"></i>Guide Information
+                        </h5>
+                        <div class="guide-info-grid">
+                            @if (!string.IsNullOrEmpty(Model.Guide.Email))
+                            {
+                                <div class="info-item mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-envelope me-3" style="color: #e74c3c; font-size: 1.2rem;"></i>
+                                        <div>
+                                            <div class="fw-medium" style="color: #ecf0f1;">Email</div>
+                                            <div style="color: #bdc3c7;">
+                                                <a href="mailto:@Model.Guide.Email" style="color: #3498db; text-decoration: none;">
+                                                    @Model.Guide.Email
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            
+                            @if (!string.IsNullOrEmpty(Model.Guide.PhoneNumber))
+                            {
+                                <div class="info-item mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-phone me-3" style="color: #f39c12; font-size: 1.2rem;"></i>
+                                        <div>
+                                            <div class="fw-medium" style="color: #ecf0f1;">Phone</div>
+                                            <div style="color: #bdc3c7;">
+                                                <a href="tel:@Model.Guide.PhoneNumber" style="color: #3498db; text-decoration: none;">
+                                                    @Model.Guide.PhoneNumber
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            
+                            @if (Model.Guide.YearsExperience.HasValue)
+                            {
+                                <div class="info-item mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-star me-3" style="color: #9b59b6; font-size: 1.2rem;"></i>
+                                        <div>
+                                            <div class="fw-medium" style="color: #ecf0f1;">Experience</div>
+                                            <div style="color: #bdc3c7;">@Model.Guide.YearsExperience years</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            
+                            @if (!string.IsNullOrEmpty(Model.Guide.Languages))
+                            {
+                                <div class="info-item">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-language me-3" style="color: #2ecc71; font-size: 1.2rem;"></i>
+                                        <div>
+                                            <div class="fw-medium" style="color: #ecf0f1;">Languages</div>
+                                            <div style="color: #bdc3c7;">@Model.Guide.Languages</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Guide Details -->
+            <div class="col-md-8">
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 10px; padding: 0.75rem 1rem;">
+                        <li class="breadcrumb-item">
+                            <a asp-page="/Index" style="color: #3498db; text-decoration: none;">
+                                <i class="fas fa-home me-1"></i>Home
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a asp-page="./Index" style="color: #3498db; text-decoration: none;">
+                                <i class="fas fa-users me-1"></i>Guides
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page" style="color: #ecf0f1;">@Model.Guide.FullName</li>
+                    </ol>
+                </nav>
+                
+                <div class="text-center mb-4">
+                    <h1 class="display-4 fw-bold mb-3" style="color: #3498db;">@Model.Guide.FullName</h1>
+                    <p class="lead" style="color: #bdc3c7;">Professional Travel Guide</p>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(Model.Guide.Bio))
+                {
+                    <div class="dark-theme-card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3 fw-bold" style="color: #2ecc71;">
+                                <i class="fas fa-user-circle me-2"></i>About @Model.Guide.FirstName
+                            </h5>
+                            <div class="guide-bio" style="color: #ecf0f1; line-height: 1.7; font-size: 1.1rem;">
+                                @Model.Guide.Bio
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+                <!-- Experience Highlight -->
+                @if (Model.Guide.YearsExperience.HasValue && Model.Guide.YearsExperience > 0)
+                {
+                    <div class="dark-theme-card mb-4">
+                        <div class="card-body">
+                            <div class="text-center p-3 rounded" style="background: rgba(155, 89, 182, 0.1); border-left: 4px solid #9b59b6;">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-award fa-2x me-3" style="color: #9b59b6;"></i>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold" style="color: #ecf0f1;">
+                                            @Model.Guide.YearsExperience Years of Experience
+                                        </h6>
+                                        <p class="mb-0" style="color: #bdc3c7;">
+                                            Trusted guide with extensive travel expertise
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+                <!-- Trip Assignments Information -->
+                <div class="dark-theme-card mb-4">
+                    <div class="card-header border-0 pb-0" style="background: rgba(52, 152, 219, 0.1);">
+                        <h5 class="mb-0 fw-bold" style="color: #3498db;">
+                            <i class="fas fa-suitcase-rolling me-2"></i>Trip Assignments
+                        </h5>
+                    </div>
+                    <div class="card-body pt-3">
+                        @if (Model.TripsCount > 0)
+                        {
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px; background: linear-gradient(135deg, #3498db, #2980b9);">
+                                    <i class="fas fa-route fa-2x" style="color: white;"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1 fw-bold" style="color: #ecf0f1;">@Model.TripsCount Active Assignment@(Model.TripsCount != 1 ? "s" : "")</h6>
+                                    <p class="mb-0" style="color: #bdc3c7;">Currently guiding @Model.TripsCount trip@(Model.TripsCount != 1 ? "s" : "")</p>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center p-4">
+                                <i class="fas fa-calendar-check fa-3x mb-3" style="color: #f39c12; opacity: 0.7;"></i>
+                                <h6 class="mb-2" style="color: #ecf0f1;">No Active Assignments</h6>
+                                <p class="mb-0" style="color: #bdc3c7;">This guide is currently available for new trip assignments</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="dark-theme-card">
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap gap-2 justify-content-center">
+                            <a asp-page="./Index" class="btn btn-outline-secondary btn-animated">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Guides
+                            </a>
+                            
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-page="./Edit" asp-route-id="@Model.Guide.Id" class="btn btn-success btn-animated">
+                                    <i class="fas fa-edit me-2"></i>Edit Guide
+                                </a>
+                                                                 <button type="button" class="btn btn-danger btn-animated" onclick="confirmDelete(@Model.Guide.Id, '@Html.Raw(Model.Guide.FullName)');">
+                                     <i class="fas fa-trash me-2"></i>Delete Guide
+                                 </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (User.IsInRole("Admin"))
+{
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content dark-theme-card">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirm Delete
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-times fa-3x mb-3" style="color: #e74c3c;"></i>
+                        <p class="mb-3">
+                            Are you sure you want to delete 
+                            <strong id="deleteGuideName">@(Model.Guide?.FullName ?? "this guide")</strong>?
+                        </p>
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            This action cannot be undone. The guide will be removed from all trip assignments.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary flex-fill" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="button" id="confirmDeleteBtn" class="btn btn-danger flex-fill">
+                        <i class="fas fa-trash me-2"></i>Delete Guide
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @if (User.IsInRole("Admin"))
+    {
+        <script>
+            function confirmDelete(guideId, guideName) {
+                const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                const guideNameElement = document.getElementById('deleteGuideName');
+                
+                guideNameElement.textContent = guideName;
+                window.guideToDelete = { id: guideId, name: guideName };
+                modal.show();
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const confirmBtn = document.getElementById('confirmDeleteBtn');
+                if (confirmBtn) {
+                    confirmBtn.addEventListener('click', async function() {
+                        if (window.guideToDelete) {
+                            // Redirect to the index page which has the full delete functionality
+                            window.location.href = `/Admin/Guides?deleteId=${window.guideToDelete.id}`;
+                        }
+                    });
+                }
+            });
+        </script>
+    }
+} 
