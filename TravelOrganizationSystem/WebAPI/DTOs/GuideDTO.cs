@@ -34,7 +34,7 @@ namespace WebAPI.DTOs
         public string Phone { get; set; } = string.Empty;
 
         [StringLength(500)]
-        public string ImageUrl { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
 
         public int? YearsOfExperience { get; set; }
     }
@@ -61,7 +61,7 @@ namespace WebAPI.DTOs
         public string Phone { get; set; } = string.Empty;
 
         [StringLength(500)]
-        public string ImageUrl { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
 
         public int? YearsOfExperience { get; set; }
     }

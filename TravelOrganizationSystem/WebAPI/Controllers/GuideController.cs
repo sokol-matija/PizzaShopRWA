@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebAPI.Models;
 using WebAPI.Services;
+using WebAPI.DTOs;
 
 namespace WebAPI.Controllers
 {
@@ -71,17 +72,29 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Create a new guide
         /// </summary>
-        /// <param name="guide">The guide details to create</param>
+        /// <param name="createGuideDto">The guide details to create</param>
         /// <remarks>
         /// This endpoint requires Admin role access
         /// </remarks>
         /// <returns>The newly created guide</returns>
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Guide>> CreateGuide(Guide guide)
+        public async Task<ActionResult<Guide>> CreateGuide(CreateGuideDTO createGuideDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            // Map DTO to entity
+            var guide = new Guide
+            {
+                Name = createGuideDto.Name,
+                Bio = createGuideDto.Bio,
+                Email = createGuideDto.Email,
+                Phone = createGuideDto.Phone,
+                ImageUrl = createGuideDto.ImageUrl,
+                YearsOfExperience = createGuideDto.YearsOfExperience,
+                TripGuides = new List<TripGuide>() // Initialize empty collection
+            };
 
             var createdGuide = await _guideService.CreateGuideAsync(guide);
             return CreatedAtAction(nameof(GetGuide), new { id = createdGuide.Id }, createdGuide);
@@ -91,20 +104,32 @@ namespace WebAPI.Controllers
         /// Update an existing guide
         /// </summary>
         /// <param name="id">The ID of the guide to update</param>
-        /// <param name="guide">The updated guide details</param>
+        /// <param name="updateGuideDto">The updated guide details</param>
         /// <remarks>
         /// This endpoint requires Admin role access
         /// </remarks>
         /// <returns>The updated guide</returns>
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Guide>> UpdateGuide(int id, Guide guide)
+        public async Task<ActionResult<Guide>> UpdateGuide(int id, UpdateGuideDTO updateGuideDto)
         {
-            if (id != guide.Id)
+            if (id != updateGuideDto.Id)
                 return BadRequest();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            // Map DTO to entity
+            var guide = new Guide
+            {
+                Id = updateGuideDto.Id,
+                Name = updateGuideDto.Name,
+                Bio = updateGuideDto.Bio,
+                Email = updateGuideDto.Email,
+                Phone = updateGuideDto.Phone,
+                ImageUrl = updateGuideDto.ImageUrl,
+                YearsOfExperience = updateGuideDto.YearsOfExperience
+            };
 
             var updatedGuide = await _guideService.UpdateGuideAsync(id, guide);
             if (updatedGuide == null)
