@@ -8,82 +8,113 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a asp-page="/Index">Home</a></li>
-                    <li class="breadcrumb-item"><a asp-page="./Index">Destinations</a></li>
-                    <li class="breadcrumb-item"><a asp-page="./Details" asp-route-id="@Model.Destination.Id">@Model.Destination.Name</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                <ol class="breadcrumb" style="background: rgba(255, 255, 255, 0.05); border-radius: 12px;">
+                    <li class="breadcrumb-item"><a asp-page="/Index" style="color: #3498db;">Home</a></li>
+                    <li class="breadcrumb-item"><a asp-page="./Index" style="color: #3498db;">Destinations</a></li>
+                    <li class="breadcrumb-item"><a asp-page="./Details" asp-route-id="@Model.Destination.Id" style="color: #3498db;">@Model.Destination.Name</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" style="color: #ecf0f1;">Edit</li>
                 </ol>
             </nav>
 
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="mb-0">@ViewData["Title"]</h2>
+            <div class="dark-theme-form-container">
+                <div class="dark-theme-form-header">
+                    <h2><i class="fas fa-edit me-2"></i>@ViewData["Title"]</h2>
                 </div>
-                <div class="card-body">
-                    @if (!string.IsNullOrEmpty(TempData["ErrorMessage"]?.ToString()))
-                    {
-                        <div class="alert alert-danger" role="alert">
-                            @TempData["ErrorMessage"]
-                        </div>
-                    }
+                
+                @if (!string.IsNullOrEmpty(TempData["ErrorMessage"]?.ToString()))
+                {
+                    <div class="alert alert-danger dark-theme-alert mb-4" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+                    </div>
+                }
 
-                    <form method="post" class="needs-validation" novalidate>
-                        <input type="hidden" asp-for="Destination.Id" />
-                        <input type="hidden" asp-for="Destination.ImageUrl" />
+                <form method="post" class="needs-validation dark-theme-form" novalidate>
+                    <input type="hidden" asp-for="Destination.Id" />
+                    <input type="hidden" asp-for="Destination.ImageUrl" id="imageUrlInput" />
 
-                        <div class="mb-3">
-                            <label asp-for="Destination.Name" class="form-label">Destination Name</label>
-                            <input asp-for="Destination.Name" class="form-control" required />
-                            <span asp-validation-for="Destination.Name" class="text-danger"></span>
-                        </div>
+                    <div class="mb-3">
+                        <label asp-for="Destination.Name" class="form-label">
+                            <i class="fas fa-map-marker-alt me-1"></i>Destination Name
+                        </label>
+                        <input asp-for="Destination.Name" class="form-control" required id="destinationName" />
+                        <span asp-validation-for="Destination.Name" class="text-danger"></span>
+                    </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Destination.Country" class="form-label">Country</label>
-                            <input asp-for="Destination.Country" class="form-control" required />
-                            <span asp-validation-for="Destination.Country" class="text-danger"></span>
-                        </div>
+                    <div class="mb-3">
+                        <label asp-for="Destination.Country" class="form-label">
+                            <i class="fas fa-flag me-1"></i>Country
+                        </label>
+                        <input asp-for="Destination.Country" class="form-control" required id="destinationCountry" />
+                        <span asp-validation-for="Destination.Country" class="text-danger"></span>
+                    </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Destination.City" class="form-label">City</label>
-                            <input asp-for="Destination.City" class="form-control" required />
-                            <span asp-validation-for="Destination.City" class="text-danger"></span>
-                        </div>
+                    <div class="mb-3">
+                        <label asp-for="Destination.City" class="form-label">
+                            <i class="fas fa-city me-1"></i>City
+                        </label>
+                        <input asp-for="Destination.City" class="form-control" required id="destinationCity" />
+                        <span asp-validation-for="Destination.City" class="text-danger"></span>
+                    </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Destination.Description" class="form-label">Description</label>
-                            <textarea asp-for="Destination.Description" class="form-control" rows="4"></textarea>
-                            <span asp-validation-for="Destination.Description" class="text-danger"></span>
-                            <div class="form-text">Optional: Add a description of the destination</div>
-                        </div>
+                    <div class="mb-3">
+                        <label asp-for="Destination.Description" class="form-label">
+                            <i class="fas fa-align-left me-1"></i>Description
+                        </label>
+                        <textarea asp-for="Destination.Description" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Destination.Description" class="text-danger"></span>
+                        <div class="form-text" style="color: #95a5a6;">Optional: Add a description of the destination</div>
+                    </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Current Image</label>
-                            @if (!string.IsNullOrEmpty(Model.Destination.ImageUrl))
-                            {
-                                <div class="image-preview-container mb-2" style="height: 200px; overflow: hidden; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
-                                    <img src="@Model.Destination.ImageUrl" alt="@Model.Destination.Name" style="max-width: 100%; max-height: 200px;">
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-image me-1"></i>Destination Image
+                        </label>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="image-preview-container mb-2" style="height: 200px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                    @if (!string.IsNullOrEmpty(Model.Destination.ImageUrl))
+                                    {
+                                        <img id="imagePreview" src="@Model.Destination.ImageUrl" alt="@Model.Destination.Name" style="max-width: 100%; max-height: 200px; border-radius: 12px;">
+                                        <div id="noImagePlaceholder" style="text-align: center; display: none;">
+                                            <i class="fas fa-image text-muted" style="font-size: 3rem; color: #95a5a6;"></i>
+                                            <p class="text-muted mb-0" style="color: #95a5a6;">No image selected</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <img id="imagePreview" src="" alt="Destination Image Preview" style="max-width: 100%; max-height: 200px; display: none; border-radius: 12px;">
+                                        <div id="noImagePlaceholder" style="text-align: center;">
+                                            <i class="fas fa-image text-muted" style="font-size: 3rem; color: #95a5a6;"></i>
+                                            <p class="text-muted mb-0" style="color: #95a5a6;">No image available</p>
+                                        </div>
+                                    }
                                 </div>
-                                <div class="form-text">To update the image, use the Update Image button on the Details page.</div>
-                            }
-                            else
-                            {
-                                <div class="image-preview-container mb-2" style="height: 200px; overflow: hidden; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
-                                    <div>
-                                        <i class="fas fa-image text-muted" style="font-size: 3rem;"></i>
-                                        <p class="text-muted mb-0">No image available</p>
-                                    </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" id="loadImageBtn" class="btn btn-outline-primary mb-2 w-100" 
+                                        style="border-color: #3498db; color: #3498db;">
+                                    <i class="fas fa-image me-1"></i> Load New Image
+                                </button>
+                                <button type="button" id="refreshImageBtn" class="btn btn-outline-secondary mb-2 w-100" disabled
+                                        style="border-color: #95a5a6; color: #95a5a6;">
+                                    <i class="fas fa-sync-alt me-1"></i> Try Another
+                                </button>
+                                <div class="form-text" style="color: #95a5a6; font-size: 0.8rem;">
+                                    Images are automatically fetched from Unsplash based on destination info.
                                 </div>
-                                <div class="form-text">You can add an image using the Update Image button on the Details page.</div>
-                            }
+                            </div>
                         </div>
+                    </div>
 
-                        <div class="d-flex justify-content-between">
-                            <a asp-page="./Details" asp-route-id="@Model.Destination.Id" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="d-flex justify-content-between mt-4 pt-3" style="border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                        <a asp-page="./Details" asp-route-id="@Model.Destination.Id" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -106,5 +137,101 @@
                 }, false)
             })
         })()
+
+        // Image handling with Unsplash
+        document.addEventListener('DOMContentLoaded', function () {
+            const loadImageBtn = document.getElementById('loadImageBtn');
+            const refreshImageBtn = document.getElementById('refreshImageBtn');
+            const imagePreview = document.getElementById('imagePreview');
+            const imageUrlInput = document.getElementById('imageUrlInput');
+            const noImagePlaceholder = document.getElementById('noImagePlaceholder');
+            const nameInput = document.getElementById('destinationName');
+            const cityInput = document.getElementById('destinationCity');
+            const countryInput = document.getElementById('destinationCountry');
+
+            // Check if we have an existing image and enable refresh button
+            if (imageUrlInput.value) {
+                refreshImageBtn.disabled = false;
+            }
+
+            // Function to get image from Unsplash
+            async function getUnsplashImage() {
+                try {
+                    loadImageBtn.disabled = true;
+                    loadImageBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Loading...';
+                    refreshImageBtn.disabled = true;
+                    
+                    // Get query from inputs
+                    const city = cityInput.value.trim();
+                    const country = countryInput.value.trim();
+                    
+                    if (!city && !country) {
+                        alert("Please enter at least a city or country name first.");
+                        loadImageBtn.disabled = false;
+                        loadImageBtn.innerHTML = '<i class="fas fa-image me-1"></i> Load New Image';
+                        return;
+                    }
+                    
+                    const query = `${city} ${country} travel destination`.trim();
+                    console.log(`Fetching image for query: ${query}`);
+                    
+                    // Create direct call to Unsplash service
+                    try {
+                        // First try the API endpoint
+                        const response = await fetch(`/api/unsplash/random?query=${encodeURIComponent(query)}&t=${Date.now()}`);
+                        console.log('API Response status:', response.status);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log('API Response data:', data);
+                            
+                            if (data && data.imageUrl) {
+                                // Success! Display the image
+                                imagePreview.src = data.imageUrl;
+                                imagePreview.style.display = 'block';
+                                imageUrlInput.value = data.imageUrl;
+                                noImagePlaceholder.style.display = 'none';
+                                refreshImageBtn.disabled = false;
+                                return;
+                            }
+                        } else {
+                            const errorText = await response.text();
+                            console.error('API error response:', errorText);
+                        }
+                        
+                        // If API fails, fallback to direct URL which always works
+                        console.log('Falling back to direct Unsplash URL');
+                        const timestamp = Date.now();
+                        const fallbackUrl = `https://source.unsplash.com/random/800x600/?${encodeURIComponent(query)}&t=${timestamp}`;
+                        
+                        // Display the fallback image
+                        imagePreview.src = fallbackUrl;
+                        imagePreview.style.display = 'block';
+                        imageUrlInput.value = fallbackUrl;
+                        noImagePlaceholder.style.display = 'none';
+                    } catch (fetchError) {
+                        console.error('Fetch error:', fetchError);
+                        // Last resort fallback
+                        const fallbackUrl = `https://source.unsplash.com/random/800x600/?${encodeURIComponent(query)}`;
+                        imagePreview.src = fallbackUrl;
+                        imagePreview.style.display = 'block';
+                        imageUrlInput.value = fallbackUrl;
+                        noImagePlaceholder.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error in getUnsplashImage:', error);
+                    alert('Failed to load image. Please try again.');
+                } finally {
+                    loadImageBtn.disabled = false;
+                    loadImageBtn.innerHTML = '<i class="fas fa-image me-1"></i> Load New Image';
+                }
+            }
+
+            // Load image button
+            loadImageBtn.addEventListener('click', getUnsplashImage);
+            
+            // Refresh image button
+            refreshImageBtn.addEventListener('click', getUnsplashImage);
+        });
     </script>
 } 
