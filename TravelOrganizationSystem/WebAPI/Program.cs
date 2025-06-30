@@ -18,11 +18,12 @@ builder.Services.AddControllers().AddJsonOptions(options => {
 // Add CORS
 builder.Services.AddCors(options =>
 {
-	options.AddPolicy("AllowAll", builder =>
+	options.AddPolicy("AllowWebApp", builder =>
 	{
-		builder.AllowAnyOrigin()
+		builder.WithOrigins("http://localhost:17001", "https://localhost:17001")
 			   .AllowAnyMethod()
-			   .AllowAnyHeader();
+			   .AllowAnyHeader()
+			   .AllowCredentials(); // Allow cookies/credentials
 	});
 });
 
@@ -157,7 +158,7 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");
+app.UseCors("AllowWebApp");
 
 app.UseAuthentication();
 app.UseAuthorization();

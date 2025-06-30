@@ -93,99 +93,99 @@
 
                         <!-- Profile form -->
                         <form id="profileForm">
-                            <div class="row mb-3">
-                                <div class="col-md-4 fw-bold">Username:</div>
-                                <div class="col-md-8">
-                                    <span class="form-control-plaintext">@Model.CurrentUser.Username</span>
-                                    <small class="text-muted">Username cannot be changed</small>
-                                </div>
+                                                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold" style="color: white;">Username:</div>
+                            <div class="col-md-8">
+                                <span style="color: white; font-weight: 500;">@Model.CurrentUser.Username</span>
+                                <br><small style="color: #ccc;">Username cannot be changed</small>
                             </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-4 fw-bold">Email:</div>
-                                <div class="col-md-8">
-                                    <div id="emailDisplay" class="form-control-plaintext">@Model.CurrentUser.Email</div>
-                                    <input type="email" id="emailInput" name="Email" class="form-control d-none" 
-                                           value="@Model.CurrentUser.Email" required />
-                                    <div class="invalid-feedback"></div>
-                                </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold" style="color: white;">Email:</div>
+                            <div class="col-md-8">
+                                <div id="emailDisplay" style="color: white; font-weight: 500;">@Model.CurrentUser.Email</div>
+                                <input type="email" id="emailInput" name="Email" class="form-control d-none" 
+                                       value="@Model.CurrentUser.Email" required />
+                                <div class="invalid-feedback"></div>
                             </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-4 fw-bold">First Name:</div>
-                                <div class="col-md-8">
-                                    <div id="firstNameDisplay" class="form-control-plaintext">
-                                        @if (string.IsNullOrEmpty(Model.CurrentUser.FirstName))
-                                        {
-                                            <span class="text-muted">Not provided</span>
-                                        }
-                                        else
-                                        {
-                                            @Model.CurrentUser.FirstName
-                                        }
-                                    </div>
-                                    <input type="text" id="firstNameInput" name="FirstName" class="form-control d-none" 
-                                           value="@Model.CurrentUser.FirstName" maxlength="100" />
-                                    <div class="invalid-feedback"></div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                            <div class="col-md-4 fw-bold" style="color: white;">First Name:</div>
+                        <div class="col-md-8">
+                                <div id="firstNameDisplay" style="color: white; font-weight: 500;">
+                                    @if (string.IsNullOrEmpty(Model.CurrentUser.FirstName))
+                            {
+                                <span style="color: #ccc;">Not provided</span>
+                            }
+                            else
+                            {
+                                        @Model.CurrentUser.FirstName
+                                    }
                                 </div>
+                                <input type="text" id="firstNameInput" name="FirstName" class="form-control d-none" 
+                                       value="@Model.CurrentUser.FirstName" maxlength="100" />
+                                <div class="invalid-feedback"></div>
                             </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-4 fw-bold">Last Name:</div>
-                                <div class="col-md-8">
-                                    <div id="lastNameDisplay" class="form-control-plaintext">
-                                        @if (string.IsNullOrEmpty(Model.CurrentUser.LastName))
-                                        {
-                                            <span class="text-muted">Not provided</span>
-                                        }
-                                        else
-                                        {
-                                            @Model.CurrentUser.LastName
-                                        }
-                                    </div>
-                                    <input type="text" id="lastNameInput" name="LastName" class="form-control d-none" 
-                                           value="@Model.CurrentUser.LastName" maxlength="100" />
-                                    <div class="invalid-feedback"></div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold" style="color: white;">Last Name:</div>
+                            <div class="col-md-8">
+                                <div id="lastNameDisplay" style="color: white; font-weight: 500;">
+                                    @if (string.IsNullOrEmpty(Model.CurrentUser.LastName))
+                                    {
+                                        <span style="color: #ccc;">Not provided</span>
+                                    }
+                                    else
+                                    {
+                                        @Model.CurrentUser.LastName
+                                    }
                                 </div>
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-4 fw-bold">Phone Number:</div>
-                                <div class="col-md-8">
-                                    <div id="phoneDisplay" class="form-control-plaintext">
-                                        @if (string.IsNullOrEmpty(Model.CurrentUser.PhoneNumber))
-                                        {
-                                            <span class="text-muted">Not provided</span>
-                                        }
-                                        else
-                                        {
-                                            @Model.CurrentUser.PhoneNumber
-                                        }
-                                    </div>
-                                    <input type="tel" id="phoneInput" name="PhoneNumber" class="form-control d-none" 
-                                           value="@Model.CurrentUser.PhoneNumber" maxlength="20" />
-                                    <div class="invalid-feedback"></div>
+                                <input type="text" id="lastNameInput" name="LastName" class="form-control d-none" 
+                                       value="@Model.CurrentUser.LastName" maxlength="100" />
+                                <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold" style="color: white;">Phone Number:</div>
+                        <div class="col-md-8">
+                                <div id="phoneDisplay" style="color: white; font-weight: 500;">
+                            @if (string.IsNullOrEmpty(Model.CurrentUser.PhoneNumber))
+                            {
+                                <span style="color: #ccc;">Not provided</span>
+                            }
+                            else
+                            {
+                                @Model.CurrentUser.PhoneNumber
+                            }
                                 </div>
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-4 fw-bold">Address:</div>
-                                <div class="col-md-8">
-                                    <div id="addressDisplay" class="form-control-plaintext">
-                                        @if (string.IsNullOrEmpty(Model.CurrentUser.Address))
-                                        {
-                                            <span class="text-muted">Not provided</span>
-                                        }
-                                        else
-                                        {
-                                            @Model.CurrentUser.Address
-                                        }
-                                    </div>
-                                    <textarea id="addressInput" name="Address" class="form-control d-none" 
-                                              rows="3" maxlength="200">@Model.CurrentUser.Address</textarea>
-                                    <div class="invalid-feedback"></div>
+                                <input type="tel" id="phoneInput" name="PhoneNumber" class="form-control d-none" 
+                                       value="@Model.CurrentUser.PhoneNumber" maxlength="20" />
+                                <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold" style="color: white;">Address:</div>
+                        <div class="col-md-8">
+                                <div id="addressDisplay" style="color: white; font-weight: 500;">
+                            @if (string.IsNullOrEmpty(Model.CurrentUser.Address))
+                            {
+                                <span style="color: #ccc;">Not provided</span>
+                            }
+                            else
+                            {
+                                @Model.CurrentUser.Address
+                            }
                                 </div>
-                            </div>
+                                <textarea id="addressInput" name="Address" class="form-control d-none" 
+                                          rows="3" maxlength="200">@Model.CurrentUser.Address</textarea>
+                                <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
                         </form>
                     </div>
                 </div>
@@ -204,250 +204,8 @@
             Unable to load your profile information. <a asp-page="/Index" class="alert-link">Go back to Home</a>.
         </div>
     }
-</div>
+</div> 
 
 @section Scripts {
-    <script>
-        let editMode = false;
-        let originalData = {};
-
-        // Toggle between view and edit mode
-        function toggleEditMode() {
-            editMode = true;
-            
-            // Store original data for cancel functionality
-            originalData = {
-                email: document.getElementById('emailInput').value,
-                firstName: document.getElementById('firstNameInput').value,
-                lastName: document.getElementById('lastNameInput').value,
-                phoneNumber: document.getElementById('phoneInput').value,
-                address: document.getElementById('addressInput').value
-            };
-
-            // Hide display elements and show input elements
-            const fields = ['email', 'firstName', 'lastName', 'phone', 'address'];
-            fields.forEach(field => {
-                document.getElementById(field + 'Display').classList.add('d-none');
-                document.getElementById(field + 'Input').classList.remove('d-none');
-            });
-
-            // Toggle buttons
-            document.getElementById('editBtn').classList.add('d-none');
-            document.getElementById('cancelBtn').classList.remove('d-none');
-            document.getElementById('saveBtn').classList.remove('d-none');
-
-            // Focus on first editable field
-            document.getElementById('emailInput').focus();
-        }
-
-        // Cancel edit and restore original values
-        function cancelEdit() {
-            editMode = false;
-
-            // Restore original values
-            document.getElementById('emailInput').value = originalData.email;
-            document.getElementById('firstNameInput').value = originalData.firstName;
-            document.getElementById('lastNameInput').value = originalData.lastName;
-            document.getElementById('phoneInput').value = originalData.phoneNumber;
-            document.getElementById('addressInput').value = originalData.address;
-
-            // Clear validation errors
-            clearValidationErrors();
-
-            // Hide input elements and show display elements
-            const fields = ['email', 'firstName', 'lastName', 'phone', 'address'];
-            fields.forEach(field => {
-                document.getElementById(field + 'Input').classList.add('d-none');
-                document.getElementById(field + 'Display').classList.remove('d-none');
-            });
-
-            // Toggle buttons
-            document.getElementById('editBtn').classList.remove('d-none');
-            document.getElementById('cancelBtn').classList.add('d-none');
-            document.getElementById('saveBtn').classList.add('d-none');
-        }
-
-        // Save profile using AJAX
-        async function saveProfile() {
-            if (!validateForm()) {
-                return;
-            }
-
-            // Show loading spinner
-            document.getElementById('loadingSpinner').classList.remove('d-none');
-            document.getElementById('saveBtn').disabled = true;
-
-            const profileData = {
-                Email: document.getElementById('emailInput').value,
-                FirstName: document.getElementById('firstNameInput').value || null,
-                LastName: document.getElementById('lastNameInput').value || null,
-                PhoneNumber: document.getElementById('phoneInput').value || null,
-                Address: document.getElementById('addressInput').value || null
-            };
-
-            try {
-                const response = await fetch('/api/user/profile', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + sessionStorage.getItem('token') // Get token from session storage
-                    },
-                    body: JSON.stringify(profileData)
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    // Update display elements with new values
-                    updateDisplayValues(result);
-                    
-                    // Exit edit mode
-                    editMode = false;
-                    exitEditMode();
-                    
-                    // Show success message
-                    showMessage('Profile updated successfully!', 'success');
-                } else {
-                    // Handle validation errors
-                    if (result.errors) {
-                        displayValidationErrors(result.errors);
-                    } else {
-                        showMessage(result.message || 'Failed to update profile. Please try again.', 'error');
-                    }
-                }
-            } catch (error) {
-                console.error('Error updating profile:', error);
-                showMessage('An error occurred while updating your profile. Please try again.', 'error');
-            } finally {
-                // Hide loading spinner
-                document.getElementById('loadingSpinner').classList.add('d-none');
-                document.getElementById('saveBtn').disabled = false;
-            }
-        }
-
-        // Update display values after successful save
-        function updateDisplayValues(userData) {
-            const updates = [
-                { display: 'emailDisplay', value: userData.email },
-                { display: 'firstNameDisplay', value: userData.firstName || '<span class="text-muted">Not provided</span>' },
-                { display: 'lastNameDisplay', value: userData.lastName || '<span class="text-muted">Not provided</span>' },
-                { display: 'phoneDisplay', value: userData.phoneNumber || '<span class="text-muted">Not provided</span>' },
-                { display: 'addressDisplay', value: userData.address || '<span class="text-muted">Not provided</span>' }
-            ];
-
-            updates.forEach(update => {
-                document.getElementById(update.display).innerHTML = update.value;
-            });
-        }
-
-        // Exit edit mode and reset UI
-        function exitEditMode() {
-            const fields = ['email', 'firstName', 'lastName', 'phone', 'address'];
-            fields.forEach(field => {
-                document.getElementById(field + 'Input').classList.add('d-none');
-                document.getElementById(field + 'Display').classList.remove('d-none');
-            });
-
-            document.getElementById('editBtn').classList.remove('d-none');
-            document.getElementById('cancelBtn').classList.add('d-none');
-            document.getElementById('saveBtn').classList.add('d-none');
-        }
-
-        // Basic form validation
-        function validateForm() {
-            clearValidationErrors();
-            let isValid = true;
-
-            const email = document.getElementById('emailInput').value;
-            if (!email || !isValidEmail(email)) {
-                showFieldError('emailInput', 'Please enter a valid email address.');
-                isValid = false;
-            }
-
-            return isValid;
-        }
-
-        // Email validation helper
-        function isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
-
-        // Show field-specific validation error
-        function showFieldError(fieldId, message) {
-            const field = document.getElementById(fieldId);
-            const feedback = field.nextElementSibling;
-            
-            field.classList.add('is-invalid');
-            feedback.textContent = message;
-        }
-
-        // Clear all validation errors
-        function clearValidationErrors() {
-            const inputs = document.querySelectorAll('.form-control');
-            inputs.forEach(input => {
-                input.classList.remove('is-invalid');
-                const feedback = input.nextElementSibling;
-                if (feedback && feedback.classList.contains('invalid-feedback')) {
-                    feedback.textContent = '';
-                }
-            });
-        }
-
-        // Display server validation errors
-        function displayValidationErrors(errors) {
-            for (const field in errors) {
-                const fieldName = field.toLowerCase();
-                const input = document.getElementById(fieldName + 'Input');
-                if (input) {
-                    showFieldError(input.id, errors[field].join(' '));
-                }
-            }
-        }
-
-        // Show success/error messages
-        function showMessage(message, type) {
-            const resultDiv = document.getElementById('updateResult');
-            const successAlert = document.getElementById('successAlert');
-            const errorAlert = document.getElementById('errorAlert');
-
-            if (type === 'success') {
-                document.getElementById('successMessage').textContent = message;
-                successAlert.classList.remove('d-none');
-                errorAlert.classList.add('d-none');
-            } else {
-                document.getElementById('errorMessage').textContent = message;
-                errorAlert.classList.remove('d-none');
-                successAlert.classList.add('d-none');
-            }
-
-            resultDiv.classList.remove('d-none');
-
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                hideAlert('updateResult');
-            }, 5000);
-        }
-
-        // Hide alert messages
-        function hideAlert(elementId) {
-            document.getElementById(elementId).classList.add('d-none');
-        }
-
-        // Get auth token (this should be implemented based on your auth system)
-        // For now, we'll try to get it from session storage
-        function getAuthToken() {
-            // Try different possible locations for the token
-            return sessionStorage.getItem('token') || 
-                   localStorage.getItem('token') || 
-                   getCookie('token');
-        }
-
-        // Simple cookie getter
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
-        }
-    </script>
-} 
+    <script src="~/js/profile.js"></script>
+}

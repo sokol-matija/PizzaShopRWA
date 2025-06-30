@@ -48,7 +48,7 @@ namespace WebApp.Pages.Trips
         /// Current page number
         /// </summary>
         [BindProperty(SupportsGet = true)]
-        public int Page { get; set; } = 1;
+        public new int Page { get; set; } = 1;
         
         /// <summary>
         /// Number of items per page
