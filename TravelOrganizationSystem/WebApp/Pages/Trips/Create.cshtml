@@ -1,0 +1,250 @@
+@page
+@model WebApp.Pages.Trips.CreateModel
+@{
+    ViewData["Title"] = "Create New Trip";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="dark-theme-form-container">
+                <div class="dark-theme-form-header">
+                    <h2><i class="fas fa-suitcase-rolling me-2"></i>@ViewData["Title"]</h2>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(TempData["ErrorMessage"]?.ToString()))
+                {
+                    <div class="alert alert-danger dark-theme-alert mb-4" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+                    </div>
+                }
+
+                <form method="post" class="needs-validation dark-theme-form" novalidate>
+                    <div class="row g-3">
+                        <!-- Trip Title -->
+                        <div class="col-md-12">
+                            <label asp-for="Trip.Title" class="form-label">
+                                <i class="fas fa-tag me-1"></i>Trip Title
+                            </label>
+                            <input asp-for="Trip.Title" class="form-control" required id="tripTitle" 
+                                   placeholder="Enter a catchy trip title..." />
+                            <span asp-validation-for="Trip.Title" class="text-danger"></span>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-md-12">
+                            <label asp-for="Trip.Description" class="form-label">
+                                <i class="fas fa-align-left me-1"></i>Description
+                            </label>
+                            <textarea asp-for="Trip.Description" class="form-control" rows="4" required
+                                      placeholder="Describe what makes this trip special..."></textarea>
+                            <span asp-validation-for="Trip.Description" class="text-danger"></span>
+                            <div class="form-text" style="color: #95a5a6;">
+                                Provide a detailed description of the trip activities, highlights, and experiences.
+                            </div>
+                        </div>
+
+                        <!-- Destination -->
+                        <div class="col-md-12">
+                            <label asp-for="Trip.DestinationId" class="form-label">
+                                <i class="fas fa-map-marker-alt me-1"></i>Destination
+                            </label>
+                            <select asp-for="Trip.DestinationId" asp-items="Model.Destinations" class="form-select" required>
+                                <option value="">-- Select a destination --</option>
+                            </select>
+                            <span asp-validation-for="Trip.DestinationId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Start and End Dates -->
+                        <div class="col-md-6">
+                            <label asp-for="Trip.StartDate" class="form-label">
+                                <i class="fas fa-calendar-alt me-1"></i>Start Date
+                            </label>
+                            <input asp-for="Trip.StartDate" class="form-control" type="date" required />
+                            <span asp-validation-for="Trip.StartDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Trip.EndDate" class="form-label">
+                                <i class="fas fa-calendar-check me-1"></i>End Date
+                            </label>
+                            <input asp-for="Trip.EndDate" class="form-control" type="date" required />
+                            <span asp-validation-for="Trip.EndDate" class="text-danger"></span>
+                        </div>
+
+                        <!-- Price and Capacity -->
+                        <div class="col-md-6">
+                            <label asp-for="Trip.Price" class="form-label">
+                                <i class="fas fa-dollar-sign me-1"></i>Price (USD)
+                            </label>
+                            <input asp-for="Trip.Price" class="form-control" type="number" step="0.01" min="0.01" required
+                                   placeholder="0.00" />
+                            <span asp-validation-for="Trip.Price" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Trip.Capacity" class="form-label">
+                                <i class="fas fa-users me-1"></i>Maximum Participants
+                            </label>
+                            <input asp-for="Trip.Capacity" class="form-control" type="number" min="1" max="500" required
+                                   placeholder="10" />
+                            <span asp-validation-for="Trip.Capacity" class="text-danger"></span>
+                        </div>
+
+                        <!-- Trip Image -->
+                        <div class="col-md-12">
+                            <label class="form-label">
+                                <i class="fas fa-image me-1"></i>Trip Image
+                            </label>
+                            <input type="hidden" asp-for="Trip.ImageUrl" id="imageUrlInput" />
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="image-preview-container mb-2" style="height: 200px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <img id="imagePreview" src="" alt="Trip Image Preview" style="max-width: 100%; max-height: 200px; display: none; border-radius: 12px;">
+                                        <div id="noImagePlaceholder" style="text-align: center;">
+                                            <i class="fas fa-image text-muted" style="font-size: 3rem; color: #95a5a6;"></i>
+                                            <p class="text-muted mb-0" style="color: #95a5a6;">No image selected</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="button" id="loadImageBtn" class="btn btn-outline-primary mb-2 w-100" 
+                                            style="border-color: #3498db; color: #3498db;">
+                                        <i class="fas fa-image me-1"></i> Load Image
+                                    </button>
+                                    <button type="button" id="refreshImageBtn" class="btn btn-outline-secondary mb-2 w-100" disabled
+                                            style="border-color: #95a5a6; color: #95a5a6;">
+                                        <i class="fas fa-sync-alt me-1"></i> Try Another
+                                    </button>
+                                    <div class="form-text" style="color: #95a5a6; font-size: 0.8rem;">
+                                        Images are automatically fetched based on the destination.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-between mt-4 pt-3" style="border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                        <a asp-page="./Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create Trip
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Enable Bootstrap form validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+
+        // Image handling with Unsplash
+        document.addEventListener('DOMContentLoaded', function () {
+            const loadImageBtn = document.getElementById('loadImageBtn');
+            const refreshImageBtn = document.getElementById('refreshImageBtn');
+            const imagePreview = document.getElementById('imagePreview');
+            const imageUrlInput = document.getElementById('imageUrlInput');
+            const noImagePlaceholder = document.getElementById('noImagePlaceholder');
+            const titleInput = document.getElementById('tripTitle');
+            const destinationSelect = document.querySelector('select[name="Trip.DestinationId"]');
+
+            // Function to get image from Unsplash
+            async function getUnsplashImage() {
+                try {
+                    loadImageBtn.disabled = true;
+                    loadImageBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Loading...';
+                    refreshImageBtn.disabled = true;
+                    
+                    // Get query from inputs
+                    const title = titleInput.value.trim();
+                    const destinationText = destinationSelect.options[destinationSelect.selectedIndex]?.text || '';
+                    
+                    if (!title && !destinationText) {
+                        alert("Please enter a trip title or select a destination first.");
+                        loadImageBtn.disabled = false;
+                        loadImageBtn.innerHTML = '<i class="fas fa-image me-1"></i> Load Image';
+                        return;
+                    }
+                    
+                    const query = `${title} ${destinationText} travel trip`.trim();
+                    console.log(`Fetching image for query: ${query}`);
+                    
+                    // Create direct call to Unsplash service
+                    try {
+                        // First try the API endpoint
+                        const response = await fetch(`/api/unsplash/random?query=${encodeURIComponent(query)}&t=${Date.now()}`);
+                        console.log('API Response status:', response.status);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log('API Response data:', data);
+                            
+                            if (data && data.imageUrl) {
+                                // Success! Display the image
+                                imagePreview.src = data.imageUrl;
+                                imagePreview.style.display = 'block';
+                                imageUrlInput.value = data.imageUrl;
+                                noImagePlaceholder.style.display = 'none';
+                                refreshImageBtn.disabled = false;
+                                return;
+                            }
+                        } else {
+                            const errorText = await response.text();
+                            console.error('API error response:', errorText);
+                        }
+                        
+                        // If API fails, fallback to direct URL which always works
+                        console.log('Falling back to direct Unsplash URL');
+                        const timestamp = Date.now();
+                        const fallbackUrl = `https://source.unsplash.com/random/800x600/?${encodeURIComponent(query)}&t=${timestamp}`;
+                        
+                        // Display the fallback image
+                        imagePreview.src = fallbackUrl;
+                        imagePreview.style.display = 'block';
+                        imageUrlInput.value = fallbackUrl;
+                        noImagePlaceholder.style.display = 'none';
+                    } catch (fetchError) {
+                        console.error('Fetch error:', fetchError);
+                        // Last resort fallback
+                        const fallbackUrl = `https://source.unsplash.com/random/800x600/?${encodeURIComponent(query)}`;
+                        imagePreview.src = fallbackUrl;
+                        imagePreview.style.display = 'block';
+                        imageUrlInput.value = fallbackUrl;
+                        noImagePlaceholder.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error in getUnsplashImage:', error);
+                    alert('Failed to load image. Please try again.');
+                } finally {
+                    loadImageBtn.disabled = false;
+                    loadImageBtn.innerHTML = '<i class="fas fa-image me-1"></i> Load Image';
+                }
+            }
+
+            // Load image button
+            loadImageBtn.addEventListener('click', getUnsplashImage);
+            
+            // Refresh image button
+            refreshImageBtn.addEventListener('click', getUnsplashImage);
+        });
+    </script>
+} 
