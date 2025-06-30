@@ -45,6 +45,9 @@ function initializeTripList() {
     
     // Add loading indicator if it doesn't exist
     addLoadingIndicator();
+    
+    // Initialize hover effects for existing cards
+    initializeCardHoverEffects();
 }
 
 // Convert existing pagination links to use AJAX
@@ -148,6 +151,9 @@ function updateTripList(trips) {
         tripContainer.appendChild(tripCard);
     });
     
+    // Reinitialize hover effects for newly created cards
+    initializeCardHoverEffects();
+    
     // Show message if no trips found
     if (trips.length === 0) {
         showNoTripsMessage();
@@ -183,17 +189,26 @@ function createTripCard(trip) {
         ? `${availableSlots} spots left`
         : 'Fully booked';
     
-    // Create image HTML
+    // Create image HTML with price badge
     const imageUrl = trip.imageUrl || trip.ImageUrl;
     const tripTitle = trip.title || trip.Title;
+    const formattedPrice = trip.formattedPrice || trip.FormattedPrice || `$${trip.price || trip.Price}`;
+    
     const imageHtml = imageUrl 
-        ? `<img src="${imageUrl}" class="card-img-top" alt="${tripTitle}" style="height: 200px; object-fit: cover;">`
-        : `<div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height: 200px;">
+        ? `<img src="${imageUrl}" class="card-img-top" alt="${tripTitle}" style="height: 250px; object-fit: cover; border-radius: 20px 20px 0 0;">`
+        : `<div class="card-img-top d-flex justify-content-center align-items-center" style="height: 250px; background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(46, 204, 113, 0.2)); border-radius: 20px 20px 0 0;">
              <div class="text-center">
-               <i class="fas fa-plane-departure text-muted" style="font-size: 3rem;"></i>
-               <p class="text-muted mb-0">No image available</p>
+               <i class="fas fa-plane-departure fa-4x mb-2" style="color: #3498db; opacity: 0.7;"></i>
+               <p class="mb-0" style="color: #bdc3c7;">No image available</p>
              </div>
            </div>`;
+    
+    const priceBadgeHtml = `
+        <div class="position-absolute top-0 end-0 m-3">
+            <span class="badge fs-6 px-3 py-2" style="background: rgba(0, 0, 0, 0.8); color: #2ecc71; backdrop-filter: blur(10px); border: 1px solid rgba(46, 204, 113, 0.3); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); font-weight: 600;">
+                <i class="fas fa-tag me-1"></i>${formattedPrice}
+            </span>
+        </div>`;
     
     // Create action buttons
     const isAuthenticated = document.body.getAttribute('data-user-authenticated') === 'true';
@@ -201,53 +216,69 @@ function createTripCard(trip) {
     
         const tripId = trip.id || trip.Id;
     let actionButtons = `
-        <a href="/Trips/Details/${tripId}" class="btn btn-primary">
+        <a href="/Trips/Details/${tripId}" class="btn btn-sm btn-primary btn-animated" onclick="event.stopPropagation();">
             <i class="fas fa-info-circle me-1"></i> Details
         </a>`;
     
     if (isAuthenticated && isAvailable) {
         actionButtons += `
-            <a href="/Trips/Book/${tripId}" class="btn btn-success">
+            <a href="/Trips/Book/${tripId}" class="btn btn-sm btn-success btn-animated" onclick="event.stopPropagation();">
                 <i class="fas fa-ticket-alt me-1"></i> Book
             </a>`;
     }
     
     if (isAdmin) {
         actionButtons += `
-            <div class="ms-auto">
-                <a href="/Trips/Edit/${tripId}" class="btn btn-sm btn-outline-primary">
+            <div class="ms-auto d-flex gap-1">
+                <a href="/Trips/Edit/${tripId}" class="btn btn-sm btn-outline-primary btn-animated" onclick="event.stopPropagation();">
                     <i class="fas fa-edit"></i>
                 </a>
-                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete(${tripId}, '${tripTitle}')">
+                <button type="button" class="btn btn-sm btn-outline-danger btn-animated" onclick="event.stopPropagation(); confirmDelete(${tripId}, '${tripTitle}');">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>`;
     }
     
     col.innerHTML = `
-        <div class="card h-100">
-            ${imageHtml}
-            <div class="card-body">
-                <h5 class="card-title">${trip.title || trip.Title}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">${trip.destinationName || trip.DestinationName}</h6>
-                <p class="card-text">${truncatedDescription}</p>
+        <div class="dark-theme-card h-100 clickable-card" onclick="navigateToTripDetails(${tripId})" style="cursor: pointer; transition: all 0.3s ease;">
+            <div class="position-relative">
+                ${imageHtml}
+                ${priceBadgeHtml}
             </div>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item">
-                    <i class="fas fa-calendar"></i> 
-                    ${startDate} - ${endDate}
-                    <span class="badge bg-secondary float-end">${trip.durationInDays || trip.DurationInDays} days</span>
-                </li>
-                <li class="list-group-item">
-                    <i class="fas fa-dollar-sign"></i> ${trip.formattedPrice || trip.FormattedPrice}</li>
-                <li class="list-group-item">
-                    <i class="fas fa-users"></i> 
-                    ${availabilityText}
-                    ${availabilityBadge}
-                </li>
-            </ul>
             <div class="card-body">
-                <div class="d-flex gap-2">
+                <h5 class="card-title fw-bold" style="color: #3498db;">${trip.title || trip.Title}</h5>
+                <h6 class="card-subtitle mb-3" style="color: #2ecc71;">
+                    <i class="fas fa-map-marker-alt me-1"></i>${trip.destinationName || trip.DestinationName}
+                </h6>
+                <p class="card-text mb-3" style="color: #bdc3c7; line-height: 1.5;">${truncatedDescription}</p>
+                
+                <!-- Trip Info Badges -->
+                <div class="row g-2 mb-3">
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge dark-theme-badge badge-warning">
+                                <i class="fas fa-calendar-alt me-1"></i>${startDate} - ${endDate}
+                            </span>
+                            <span class="badge dark-theme-badge badge-info">
+                                <i class="fas fa-clock me-1"></i>${trip.durationInDays || trip.DurationInDays} days
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        ${isAvailable ? 
+                            `<span class="badge dark-theme-badge badge-success">
+                                <i class="fas fa-users me-1"></i>${availableSlots} spots left
+                            </span>` :
+                            `<span class="badge dark-theme-badge badge-danger">
+                                <i class="fas fa-exclamation-circle me-1"></i>Fully booked
+                            </span>`
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-footer" style="background: rgba(255, 255, 255, 0.02); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <div class="d-flex gap-2 flex-wrap">
                     ${actionButtons}
                 </div>
             </div>
@@ -581,4 +612,42 @@ async function refreshAllImages() {
         button.disabled = false;
         button.innerHTML = originalText;
     }
+}
+
+// Initialize enhanced hover effects for clickable cards
+function initializeCardHoverEffects() {
+    const clickableCards = document.querySelectorAll('.clickable-card');
+    
+    clickableCards.forEach(card => {
+        // Remove any existing event listeners to prevent duplicates
+        card.removeEventListener('mouseenter', cardMouseEnter);
+        card.removeEventListener('mouseleave', cardMouseLeave);
+        card.removeEventListener('mousedown', cardMouseDown);
+        card.removeEventListener('mouseup', cardMouseUp);
+        
+        // Add event listeners
+        card.addEventListener('mouseenter', cardMouseEnter);
+        card.addEventListener('mouseleave', cardMouseLeave);
+        card.addEventListener('mousedown', cardMouseDown);
+        card.addEventListener('mouseup', cardMouseUp);
+    });
+}
+
+// Card hover event handlers
+function cardMouseEnter() {
+    this.style.transform = 'translateY(-8px) scale(1.02)';
+    this.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(52, 152, 219, 0.3)';
+}
+
+function cardMouseLeave() {
+    this.style.transform = 'translateY(0) scale(1)';
+    this.style.boxShadow = '';
+}
+
+function cardMouseDown() {
+    this.style.transform = 'translateY(-4px) scale(1.01)';
+}
+
+function cardMouseUp() {
+    this.style.transform = 'translateY(-8px) scale(1.02)';
 } 

@@ -91,7 +91,7 @@
             @foreach (var destination in Model.Destinations)
             {
                 <div class="col">
-                    <div class="dark-theme-card h-100">
+                    <div class="dark-theme-card h-100 clickable-card" onclick="navigateToDestinationDetails(@destination.Id)" style="cursor: pointer; transition: all 0.3s ease;">
                         <div class="position-relative">
                             @if (!string.IsNullOrEmpty(destination.ImageUrl))
                             {
@@ -137,20 +137,20 @@
                         </div>
                         <div class="card-footer" style="background: rgba(255, 255, 255, 0.02); border-top: 1px solid rgba(255, 255, 255, 0.1);">
                             <div class="d-flex gap-2 flex-wrap">
-                                <a asp-page="./Details" asp-route-id="@destination.Id" class="btn btn-sm btn-primary btn-animated">
+                                <a asp-page="./Details" asp-route-id="@destination.Id" class="btn btn-sm btn-primary btn-animated" onclick="event.stopPropagation();">
                                     <i class="fas fa-info-circle me-1"></i> Details
                                 </a>
-                                <a asp-page="/Trips/Index" asp-route-destinationId="@destination.Id" class="btn btn-sm btn-outline-secondary btn-animated">
+                                <a asp-page="/Trips/Index" asp-route-destinationId="@destination.Id" class="btn btn-sm btn-outline-secondary btn-animated" onclick="event.stopPropagation();">
                                     <i class="fas fa-plane-departure me-1"></i> Trips
                                 </a>
                                 @if (User.IsInRole("Admin"))
                                 {
                                     <div class="ms-auto d-flex gap-1">
-                                        <a asp-page="./Edit" asp-route-id="@destination.Id" class="btn btn-sm btn-outline-primary btn-animated">
+                                        <a asp-page="./Edit" asp-route-id="@destination.Id" class="btn btn-sm btn-outline-primary btn-animated" onclick="event.stopPropagation();">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button type="button" class="btn btn-sm btn-outline-danger btn-animated" 
-                                                onclick="confirmDelete(@destination.Id, '@destination.Name')">
+                                                onclick="event.stopPropagation(); confirmDelete(@destination.Id, '@destination.Name');">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -186,6 +186,37 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Navigate to destination details when card is clicked
+        function navigateToDestinationDetails(destinationId) {
+            window.location.href = '/Destinations/Details/' + destinationId;
+        }
+
+        // Add enhanced hover effects to clickable cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const clickableCards = document.querySelectorAll('.clickable-card');
+            
+            clickableCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                    this.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(52, 152, 219, 0.3)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                    this.style.boxShadow = '';
+                });
+                
+                card.addEventListener('mousedown', function() {
+                    this.style.transform = 'translateY(-4px) scale(1.01)';
+                });
+                
+                card.addEventListener('mouseup', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+            });
+        });
+    </script>
     @if (User.IsInRole("Admin"))
     {
         <script>
