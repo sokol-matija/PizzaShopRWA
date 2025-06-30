@@ -14,6 +14,7 @@ namespace WebAPI.Services
         Task<bool> DeleteTripAsync(int id);
         Task<bool> AssignGuideToTripAsync(int tripId, int guideId);
         Task<bool> RemoveGuideFromTripAsync(int tripId, int guideId);
+        Task<bool> UpdateTripImageAsync(int tripId, string imageUrl);
         
         // Search method with pagination support for name and description
         Task<IEnumerable<Trip>> SearchTripsAsync(string? name, string? description, int page, int count);

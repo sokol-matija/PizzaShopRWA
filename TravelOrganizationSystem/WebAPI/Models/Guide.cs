@@ -24,7 +24,7 @@ namespace WebAPI.Models
         public string Phone { get; set; }
 
         [StringLength(500)]
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
 
         public int? YearsOfExperience { get; set; }
 

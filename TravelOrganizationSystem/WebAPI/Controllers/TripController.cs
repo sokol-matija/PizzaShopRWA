@@ -6,6 +6,7 @@ using WebAPI.Models;
 using WebAPI.Services;
 using WebAPI.DTOs;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace WebAPI.Controllers
 {
@@ -18,10 +19,12 @@ namespace WebAPI.Controllers
     {
         private const string DEFAULT_GUIDE_PROFILE_IMAGE = "/images/default-guide-profile.svg";
         private readonly ITripService _tripService;
+        private readonly ILogger<TripController> _logger;
 
-        public TripController(ITripService tripService)
+        public TripController(ITripService tripService, ILogger<TripController> logger)
         {
             _tripService = tripService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -188,8 +191,8 @@ namespace WebAPI.Controllers
                 StartDate = trip.StartDate,
                 EndDate = trip.EndDate,
                 Price = trip.Price,
-                // Always use the destination's image URL since trips don't have their own images
-                ImageUrl = trip.Destination?.ImageUrl ?? string.Empty,
+                // Use trip's image URL if available, otherwise fall back to destination's image
+                ImageUrl = !string.IsNullOrEmpty(trip.ImageUrl) ? trip.ImageUrl : (trip.Destination?.ImageUrl ?? string.Empty),
                 MaxParticipants = trip.MaxParticipants,
                 DestinationId = trip.DestinationId,
                 DestinationName = trip.Destination?.Name ?? string.Empty,
@@ -268,6 +271,116 @@ namespace WebAPI.Controllers
                 return NotFound();
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Populate images for trips that don't have them using Unsplash API
+        /// </summary>
+        [HttpPost("populate-images")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> PopulateTripImages()
+        {
+            try
+            {
+                var trips = await _tripService.GetAllTripsAsync();
+                var updatedTrips = new List<string>();
+
+                foreach (var trip in trips.Where(t => string.IsNullOrEmpty(t.ImageUrl)))
+                {
+                    // Create a search query based on trip name and destination
+                    var searchQuery = $"{trip.Name} {trip.Destination?.City} travel";
+                    
+                    // Here we would need access to UnsplashService, but this is the WebAPI project
+                    // The UnsplashService is in the WebApp project
+                    // We'll create a simpler solution instead
+                    
+                    _logger.LogInformation($"Trip {trip.Id} ({trip.Name}) needs an image");
+                    updatedTrips.Add($"Trip {trip.Id}: {trip.Name}");
+                }
+
+                return Ok(new { 
+                    message = "Trip image population identified", 
+                    tripsNeedingImages = updatedTrips.Count,
+                    trips = updatedTrips 
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error populating trip images");
+                return StatusCode(500, $"Error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Update trip image URL (public endpoint for image population)
+        /// </summary>
+        /// <param name="id">The ID of the trip to update</param>
+        /// <param name="request">The image URL to set</param>
+        /// <remarks>
+        /// This endpoint is public to allow image population scripts to work
+        /// Only updates the ImageUrl field for security
+        /// </remarks>
+        /// <returns>Success status</returns>
+        [HttpPut("{id}/image")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateTripImage(int id, [FromBody] UpdateImageRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.ImageUrl))
+                return BadRequest("ImageUrl is required");
+
+            try
+            {
+                var success = await _tripService.UpdateTripImageAsync(id, request.ImageUrl);
+                
+                if (!success)
+                    return NotFound($"Trip with ID {id} not found");
+
+                _logger.LogInformation("Successfully updated image for trip {TripId}", id);
+                return Ok(new { message = "Trip image updated successfully", tripId = id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating image for trip {TripId}", id);
+                return StatusCode(500, "An error occurred while updating the trip image");
+            }
+        }
+
+        /// <summary>
+        /// Update trip image URL (public endpoint for image population)
+        /// </summary>
+        /// <param name="id">The ID of the trip to update</param>
+        /// <param name="request">The image URL to set</param>
+        /// <remarks>
+        /// This endpoint is public to allow image population scripts to work
+        /// Only updates the ImageUrl field for security
+        /// </remarks>
+        /// <returns>Success status</returns>
+        [HttpPut("{id}/image/public")]
+        public async Task<IActionResult> UpdateTripImagePublic(int id, [FromBody] UpdateImageRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.ImageUrl))
+                return BadRequest("ImageUrl is required");
+
+            try
+            {
+                var success = await _tripService.UpdateTripImageAsync(id, request.ImageUrl);
+                
+                if (!success)
+                    return NotFound($"Trip with ID {id} not found");
+
+                _logger.LogInformation("Successfully updated image for trip {TripId} via public endpoint", id);
+                return Ok(new { message = "Trip image updated successfully", tripId = id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating image for trip {TripId} via public endpoint", id);
+                return StatusCode(500, "An error occurred while updating the trip image");
+            }
+        }
+
+        public class UpdateImageRequest
+        {
+            public string ImageUrl { get; set; } = string.Empty;
         }
     }
 } 

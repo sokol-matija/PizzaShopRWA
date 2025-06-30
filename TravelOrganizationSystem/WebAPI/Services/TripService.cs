@@ -170,5 +170,17 @@ namespace WebAPI.Services
             await _logService.LogInformationAsync($"Removed guide from trip {tripId}");
             return true;
         }
+
+        public async Task<bool> UpdateTripImageAsync(int tripId, string imageUrl)
+        {
+            var trip = await _context.Trips.FindAsync(tripId);
+            if (trip == null)
+                return false;
+
+            trip.ImageUrl = imageUrl;
+            await _context.SaveChangesAsync();
+            await _logService.LogInformationAsync($"Updated image for trip {tripId}: {imageUrl}");
+            return true;
+        }
     }
 } 

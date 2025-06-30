@@ -26,7 +26,7 @@ namespace WebAPI.Models
         public decimal Price { get; set; }
 
         [StringLength(500)]
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
 
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "MaxParticipants must be greater than 0")]
