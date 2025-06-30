@@ -1,49 +1,38 @@
 @using WebApp.Services
 @inject IAuthService AuthService
 
-<ul class="navbar-nav">
+<ul class="navbar-nav ms-auto">
 @if (AuthService.IsAuthenticated())
 {
-    <li class="nav-item mx-2">
-        <a class="nav-link text-white" asp-page="/Account/Profile" title="Profile">
+    <li class="nav-item dropdown user-dropdown">
+        <a class="nav-link modern-nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
+           data-bs-toggle="dropdown" aria-expanded="false">
             <i class="fas fa-user-circle me-1"></i>
-            <span>Profile</span>
+            <span>Account</span>
         </a>
-    </li>
-    <li class="nav-item mx-2">
-        <a class="nav-link text-white" asp-page="/Account/ChangePassword" title="Change Password">
-            <i class="fas fa-key me-1"></i>
-            <span>Change Password</span>
-        </a>
-    </li>
-    @if (AuthService.IsAdmin())
-    {
-        <li class="nav-item mx-2">
-            <a class="nav-link text-white" asp-page="/Admin/Index" title="Admin">
-                <i class="fas fa-cog me-1"></i>
-                <span>Admin</span>
-            </a>
-        </li>
-    }
-    <li class="nav-item mx-2">
-        <a class="nav-link text-white" asp-page="/Account/Logout" title="Logout">
-            <i class="fas fa-sign-out-alt me-1"></i>
-            <span>Logout</span>
-        </a>
+        <ul class="dropdown-menu modern-dropdown dropdown-menu-end" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item modern-dropdown-item" asp-page="/Account/Profile">
+                <i class="fas fa-user me-2"></i>Profile</a></li>
+            <li><a class="dropdown-item modern-dropdown-item" asp-page="/Account/ChangePassword">
+                <i class="fas fa-key me-2"></i>Change Password</a></li>
+            <li><hr class="dropdown-divider modern-divider"></li>
+            <li><a class="dropdown-item modern-dropdown-item logout-item" asp-page="/Account/Logout">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+        </ul>
     </li>
 }
 else
 {
-    <li class="nav-item mx-2">
-        <a class="nav-link text-white" asp-page="/Account/Register" title="Register">
-            <i class="fas fa-user-plus me-1"></i>
-            <span>Register</span>
-        </a>
-    </li>
-    <li class="nav-item mx-2">
-        <a class="nav-link text-white" asp-page="/Account/Login" title="Login">
+    <li class="nav-item">
+        <a class="nav-link modern-nav-link" asp-page="/Account/Login">
             <i class="fas fa-sign-in-alt me-1"></i>
             <span>Login</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="btn btn-outline-primary modern-cta-btn" asp-page="/Account/Register">
+            <i class="fas fa-user-plus me-1"></i>
+            <span>Register</span>
         </a>
     </li>
 }

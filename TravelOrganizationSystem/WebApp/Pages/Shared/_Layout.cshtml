@@ -23,44 +23,71 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-toggleable-lg navbar-dark bg-dark border-bottom box-shadow mb-3">
+        <nav class="navbar modern-navbar navbar-expand-lg fixed-top">
             <div class="container">
-                <a class="navbar-brand text-white" asp-area="" asp-page="/Index">Travel System</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+                <a class="navbar-brand modern-brand" asp-area="" asp-page="/Index">
+                    <i class="fas fa-plane me-2"></i>
+                    <span class="brand-text">Travel System</span>
+                </a>
+                
+                <button class="navbar-toggler modern-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="toggler-line"></span>
+                    <span class="toggler-line"></span>
+                    <span class="toggler-line"></span>
                 </button>
-                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link modern-nav-link" asp-area="" asp-page="/Index">
+                                <i class="fas fa-home me-1"></i>
+                                <span>Home</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-page="/Destinations/Index">Destinations</a>
+                            <a class="nav-link modern-nav-link" asp-area="" asp-page="/Destinations/Index">
+                                <i class="fas fa-map-marker-alt me-1"></i>
+                                <span>Destinations</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-page="/Trips/Index">Trips</a>
+                            <a class="nav-link modern-nav-link" asp-area="" asp-page="/Trips/Index">
+                                <i class="fas fa-suitcase me-1"></i>
+                                <span>Trips</span>
+                            </a>
                         </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-white" asp-area="" asp-page="/Trips/MyBookings">My Bookings</a>
+                                <a class="nav-link modern-nav-link" asp-area="" asp-page="/Trips/MyBookings">
+                                    <i class="fas fa-calendar-check me-1"></i>
+                                    <span>My Bookings</span>
+                                </a>
                             </li>
                         }
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Admin
+                                <a class="nav-link modern-nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" 
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-cogs me-1"></i>
+                                    <span>Admin</span>
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Destinations/Index">Manage Destinations</a></li>
-                                    <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Trips/Index">Manage Trips</a></li>
-                                    <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Guides/Index">Manage Guides</a></li>
-                                    <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Bookings/Index">Manage Bookings</a></li>
-                                    <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Users/Index">Manage Users</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Logs/Index">System Logs</a></li>
+                                <ul class="dropdown-menu modern-dropdown" aria-labelledby="adminDropdown">
+                                    <li><a class="dropdown-item modern-dropdown-item" asp-area="" asp-page="/Admin/Destinations/Index">
+                                        <i class="fas fa-map me-2"></i>Manage Destinations</a></li>
+                                    <li><a class="dropdown-item modern-dropdown-item" asp-area="" asp-page="/Admin/Trips/Index">
+                                        <i class="fas fa-route me-2"></i>Manage Trips</a></li>
+                                    <li><a class="dropdown-item modern-dropdown-item" asp-area="" asp-page="/Admin/Guides/Index">
+                                        <i class="fas fa-user-tie me-2"></i>Manage Guides</a></li>
+                                    <li><a class="dropdown-item modern-dropdown-item" asp-area="" asp-page="/Admin/Bookings/Index">
+                                        <i class="fas fa-list-alt me-2"></i>Manage Bookings</a></li>
+                                    <li><a class="dropdown-item modern-dropdown-item" asp-area="" asp-page="/Admin/Users/Index">
+                                        <i class="fas fa-users me-2"></i>Manage Users</a></li>
+                                    <li><hr class="dropdown-divider modern-divider"></li>
+                                    <li><a class="dropdown-item modern-dropdown-item" asp-area="" asp-page="/Admin/Logs/Index">
+                                        <i class="fas fa-file-alt me-2"></i>System Logs</a></li>
                                 </ul>
                             </li>
                         }
@@ -70,6 +97,9 @@
             </div>
         </nav>
     </header>
+    
+    <!-- Navbar spacer for fixed positioning -->
+    <div class="navbar-spacer"></div>
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
