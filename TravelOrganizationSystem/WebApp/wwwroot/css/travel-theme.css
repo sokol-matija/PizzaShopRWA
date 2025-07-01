@@ -623,7 +623,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Modern Navbar Responsive */
-@media (max-width: 991.98px) {
+@media (max-width: 994px) {
     .navbar-spacer {
         height: 70px;
     }
@@ -1276,16 +1276,23 @@ h1, h2, h3, h4, h5, h6 {
     
     .newsletter-form .input-group {
         flex-direction: column;
+        gap: 0.5rem;
     }
     
     .newsletter-input {
-        border-radius: 8px;
-        margin-bottom: 0.5rem;
+        border-radius: 8px !important;
+        margin-bottom: 0;
+        width: 100% !important;
+        min-width: 0 !important;
+        flex: none !important;
+        box-sizing: border-box;
     }
     
     .btn-newsletter {
-        border-radius: 8px;
+        border-radius: 8px !important;
         width: 100%;
+        flex: none !important;
+        box-sizing: border-box;
     }
     
     .newsletter-text {
@@ -1899,4 +1906,264 @@ h1, h2, h3, h4, h5, h6 {
 .clickable-card .card-body,
 .clickable-card .badge {
     transition: all 0.3s ease;
+}
+
+/* ========================================
+   Guide Assignments Page - Uniform Card Heights
+   ======================================== */
+
+/* Force all cards to have uniform height - exactly like trips page */
+.guide-assignments-page .dark-theme-card.h-100 {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.guide-assignments-page .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.guide-assignments-page .guides-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.guide-assignments-page .guide-entries {
+    flex: 1;
+}
+
+/* Empty state centered layout */
+.guide-assignments-page .text-center.py-3 {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Simple guide entry styling - no hover effects, compact like trips */
+.guide-assignments-page .guide-entry {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-left: 3px solid #2ecc71;
+}
+
+.guide-assignments-page .guide-entry:last-child {
+    margin-bottom: 0;
+}
+
+.guide-assignments-page .guide-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.guide-assignments-page .guide-info .fw-bold {
+    color: #2ecc71;
+    font-size: 0.95rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.guide-assignments-page .guide-info small {
+    color: #bdc3c7;
+    font-size: 0.8rem;
+    word-break: break-word;
+}
+
+.guide-assignments-page .admin-delete-circle {
+    flex-shrink: 0;
+}
+
+/* Responsive breakpoints matching trips page exactly */
+@media (max-width: 769.98px) {
+    .guide-assignments-page .row-cols-sm-2 > * {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+@media (min-width: 770px) and (max-width: 1199.98px) {
+    .guide-assignments-page .row-cols-sm-2 > * {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .guide-assignments-page .row-cols-lg-3 > * {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+}
+
+/* ========================================
+   Manage Guides Page Mobile Fixes
+   ======================================== */
+
+/* Fix mobile spacing for guides count badge */
+@media (max-width: 768px) {
+    .guides-page .badge.fs-6 {
+        margin-top: 1rem !important;
+        margin-bottom: 1rem !important;
+        padding: 0.75rem 1rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .guides-page .row.mb-4 .col-lg-4 {
+        margin-top: 1rem;
+    }
+    
+    .guides-page .text-md-end {
+        text-align: center !important;
+    }
+    
+    /* Better spacing for search section */
+    .guides-page .dark-theme-card.p-3 {
+        padding: 1.5rem !important;
+        margin-bottom: 1rem;
+    }
+    
+    /* Guide cards responsive */
+    .guides-page .row-cols-md-3 > * {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Apply same responsive breakpoints to guides page */
+@media (max-width: 769.98px) {
+    .guides-page .row-cols-md-3 > * {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+@media (min-width: 770px) and (max-width: 1199.98px) {
+    .guides-page .row-cols-md-3 > * {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .guides-page .row-cols-md-3 > * {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+}
+
+/* ========================================
+   Trip Detail Page Mobile Fixes
+   ======================================== */
+
+/* Fix guide text flowing out of container on mobile */
+@media (max-width: 768px) {
+    .trip-detail-page .guide-info {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+    }
+    
+    .trip-detail-page .guide-info .card-text,
+    .trip-detail-page .guide-info p {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+        max-width: 100%;
+    }
+    
+    .trip-detail-page .dark-theme-card {
+        overflow: hidden;
+        word-wrap: break-word;
+    }
+    
+    .trip-detail-page .card-body {
+        padding: 1rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    /* Fix any guide assignment sections */
+    .trip-detail-page .assigned-guides {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    .trip-detail-page .assigned-guides .guide-item {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+    }
+}
+
+/* ========================================
+   General Mobile Navigation Improvements
+   ======================================== */
+
+/* Better mobile dropdown behavior */
+@media (max-width: 994px) {
+    .navbar-nav .dropdown-menu {
+        margin-top: 0.5rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+    
+    .navbar-nav .dropdown-item {
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        margin: 0.25rem 0.5rem;
+    }
+}
+
+/* Extra small screen improvements */
+@media (max-width: 576px) {
+    /* Better spacing for all dark theme section titles */
+    .dark-theme-section-title {
+        font-size: 1.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .dark-theme-section-subtitle {
+        font-size: 0.9rem !important;
+        margin-bottom: 2rem !important;
+    }
+    
+    /* Better card spacing */
+    .dark-theme-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Better button spacing */
+    .btn-group .btn,
+    .d-flex.gap-2 .btn {
+        margin: 0.25rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Extra small screens - enhanced layout */
+    .guide-assignments-page .row > .col {
+        margin-bottom: 1.25rem;
+    }
+    
+    .guide-assignments-page .fw-bold {
+        font-size: 0.9rem !important;
+        max-width: calc(100vw - 140px) !important;
+    }
+    
+    .guide-assignments-page small {
+        font-size: 0.75rem !important;
+        max-width: calc(100vw - 140px) !important;
+    }
 }
