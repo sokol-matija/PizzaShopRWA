@@ -5,6 +5,30 @@
 }
 
 <style>
+    /* PREVENT MODAL CLIPPING - AGGRESSIVE APPROACH */
+    body.modal-open {
+        overflow: visible !important;
+    }
+    
+    body.modal-open *,
+    body.modal-open .dark-theme-card,
+    body.modal-open .card,
+    body.modal-open .container,
+    body.modal-open .row,
+    body.modal-open .col,
+    body.modal-open [class*="col-"],
+    body.modal-open .card-body,
+    body.modal-open .card-header,
+    body.modal-open .card-footer {
+        overflow: visible !important;
+    }
+    
+    /* Ensure modal is always on top */
+    #removeGuideModalOverlay {
+        position: fixed !important;
+        z-index: 999999 !important;
+    }
+    
     /* DISABLE ALL HOVER EFFECTS ON DARK THEME CARDS */
     .dark-theme-card:hover,
     .dark-theme-card:hover::before,
@@ -25,13 +49,13 @@
         transform: none !important;
     }
     
-    /* Remove all transitions to make cards completely static */
-    .dark-theme-card,
-    .dark-theme-card::before,
-    .dark-theme-card::after,
-    .card,
-    .card::before,
-    .card::after {
+    /* Remove all transitions to make cards completely static - EXCEPT modals */
+    .dark-theme-card:not(.modal-content),
+    .dark-theme-card:not(.modal-content)::before,
+    .dark-theme-card:not(.modal-content)::after,
+    .card:not(.modal-content),
+    .card:not(.modal-content)::before,
+    .card:not(.modal-content)::after {
         transition: none !important;
         animation: none !important;
     }
@@ -109,6 +133,8 @@
     .admin-delete-circle:active::after {
         animation: adminRipple 0.6s ease-out;
     }
+    
+
 </style>
 
 <div class="container mt-4">
@@ -275,42 +301,48 @@
     }
 </div>
 
-<!-- Remove Guide Confirmation Modal -->
-<div class="modal fade" id="removeGuideModal" tabindex="-1" aria-labelledby="removeGuideModalLabel" aria-hidden="true" data-bs-backdrop="false" style="z-index: 1060;">
-    <div class="modal-dialog modal-dialog-centered" style="margin: 1.75rem auto; max-height: calc(100vh - 3.5rem); display: flex; align-items: center; min-height: calc(100vh - 3.5rem);">
-        <div class="modal-content dark-theme-card">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="removeGuideModalLabel">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Confirm Guide Removal
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Custom Remove Guide Confirmation Modal -->
+<div id="removeGuideModalOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 99999;">
+    <div id="removeGuideModalDialog" style="position: absolute; background: #2c3e50; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); width: 450px; max-width: 90vw; max-height: 90vh; border: 2px solid rgba(52, 152, 219, 0.4);">
+        <!-- Header -->
+        <div style="padding: 20px; border-bottom: 2px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; background: rgba(52, 152, 219, 0.1);">
+            <h5 style="margin: 0; color: #ecf0f1; font-weight: bold; font-size: 18px;">
+                <i class="fas fa-exclamation-triangle me-2" style="color: #f39c12;"></i>
+                Confirm Guide Removal
+            </h5>
+            <button onclick="closeRemoveGuideModal()" style="background: rgba(231, 76, 60, 0.2); border: 2px solid #e74c3c; color: #e74c3c; font-size: 18px; cursor: pointer; line-height: 1; padding: 5px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s; font-weight: bold;" onmouseover="this.style.backgroundColor='#e74c3c'; this.style.color='white';" onmouseout="this.style.backgroundColor='rgba(231, 76, 60, 0.2)'; this.style.color='#e74c3c';">&times;</button>
+        </div>
+        
+        <!-- Content -->
+        <div style="padding: 30px 25px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <i class="fas fa-user-times" style="color: #e74c3c; font-size: 48px; margin-bottom: 15px;"></i>
+                <p style="margin: 0; color: #ecf0f1; font-size: 17px; line-height: 1.5;">
+                    Are you sure you want to remove<br>
+                    <strong id="removeGuideName" style="color: #3498db; font-size: 18px;"></strong><br>
+                    from<br>
+                    <strong id="removeTripName" style="color: #2ecc71; font-size: 18px;"></strong>?
+                </p>
             </div>
-            <div class="modal-body">
-                <div class="text-center mb-4">
-                    <i class="fas fa-user-times fa-3x mb-3"></i>
-                    <p class="mb-3">
-                        Are you sure you want to remove <strong id="removeGuideName"></strong>
-                        from <strong id="removeTripName"></strong>?
-                    </p>
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        This will remove the guide's assignment from this trip.
-                    </div>
-                </div>
+            
+            <div style="background: linear-gradient(135deg, rgba(231, 76, 60, 0.15), rgba(231, 76, 60, 0.05)); border: 2px solid rgba(231, 76, 60, 0.4); border-radius: 8px; padding: 15px; text-align: center;">
+                <i class="fas fa-exclamation-circle me-2" style="color: #e74c3c; font-size: 16px;"></i>
+                <span style="color: #ecf0f1; font-weight: 500;">This will remove the guide's assignment from this trip.</span>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary flex-fill" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-2"></i>Cancel
+        </div>
+        
+        <!-- Footer -->
+        <div style="padding: 20px 25px; border-top: 2px solid rgba(255, 255, 255, 0.1); display: flex; gap: 15px; background: rgba(0,0,0,0.1);">
+            <button type="button" onclick="closeRemoveGuideModal()" style="flex: 1; background: #6c757d; color: white; border: none; padding: 14px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 15px; transition: background-color 0.2s; border: 2px solid transparent;" onmouseover="this.style.backgroundColor='#5a6268'; this.style.borderColor='#ffffff20';" onmouseout="this.style.backgroundColor='#6c757d'; this.style.borderColor='transparent';">
+                <i class="fas fa-times me-2"></i>Cancel
+            </button>
+            <form id="removeGuideForm" style="flex: 1;">
+                <input type="hidden" id="removeTripId" />
+                <input type="hidden" id="removeGuideId" />
+                <button type="submit" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 14px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 15px; transition: all 0.2s; border: 2px solid transparent;" onmouseover="this.style.backgroundColor='#c0392b'; this.style.borderColor='#ffffff20'; this.style.transform='translateY(-1px)';" onmouseout="this.style.backgroundColor='#e74c3c'; this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
+                    <i class="fas fa-trash me-2"></i>Remove Guide
                 </button>
-                <form id="removeGuideForm" class="flex-fill">
-                    <input type="hidden" id="removeTripId" />
-                    <input type="hidden" id="removeGuideId" />
-                    <button type="submit" class="btn btn-danger w-100">
-                        <i class="fas fa-trash me-2"></i>Remove Guide
-                    </button>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
 </div>
@@ -389,8 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (response.ok) {
                 // Close modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('removeGuideModal'));
-                modal.hide();
+                closeRemoveGuideModal();
                 
                 showMessage('Guide removed successfully!', true);
                 setTimeout(() => {
@@ -413,7 +444,47 @@ function confirmRemoveGuide(tripId, guideId, tripName, guideName) {
     document.getElementById('removeTripName').textContent = tripName || 'this trip';
     document.getElementById('removeGuideName').textContent = guideName || 'this guide';
     
-    var removeModal = new bootstrap.Modal(document.getElementById('removeGuideModal'), { backdrop: false });
-    removeModal.show();
+    showRemoveGuideModal();
 }
+
+// Custom modal functions
+function showRemoveGuideModal() {
+    var overlay = document.getElementById('removeGuideModalOverlay');
+    var dialog = document.getElementById('removeGuideModalDialog');
+    
+    // Calculate center position in current viewport (slightly higher than center)
+    var scrollTop = window.scrollY;
+    var windowHeight = window.innerHeight;
+    var modalHeight = 350; // approximate modal height
+    var centerY = scrollTop + (windowHeight - modalHeight) / 2 - 60; // 60px higher than center
+    
+    // Position modal exactly where user is looking
+    dialog.style.top = Math.max(scrollTop + 20, centerY) + 'px'; // never go above viewport + 20px
+    dialog.style.left = '50%';
+    dialog.style.transform = 'translateX(-50%)';
+    
+    // Add body class to prevent clipping and show modal
+    document.body.classList.add('modal-open');
+    overlay.style.display = 'block';
+}
+
+function closeRemoveGuideModal() {
+    // Remove body class and hide modal
+    document.body.classList.remove('modal-open');
+    document.getElementById('removeGuideModalOverlay').style.display = 'none';
+}
+
+// Close modal when clicking outside (since background is transparent)
+document.getElementById('removeGuideModalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeRemoveGuideModal();
+    }
+});
+
+// Also allow ESC key to close modal
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('removeGuideModalOverlay').style.display === 'block') {
+        closeRemoveGuideModal();
+    }
+});
 </script> 

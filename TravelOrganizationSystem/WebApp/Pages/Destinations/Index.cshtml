@@ -28,12 +28,14 @@
         box-shadow: none !important;
     }
     
-    /* Remove all transitions for static feel */
-    .dark-theme-card,
+    /* Remove all transitions for static feel - EXCEPT modals */
+    .dark-theme-card:not(.modal-content),
     .clickable-card,
-    .btn {
+    .btn:not(.modal-content .btn) {
         transition: none !important;
     }
+    
+
 </style>
 
 <div class="container mt-4">
@@ -80,41 +82,37 @@
                 </div>
             }
 
-            <!-- Delete Confirmation Modal -->
-            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="false" style="z-index: 1060;">
-                <div class="modal-dialog modal-dialog-centered" style="margin: 1.75rem auto; max-height: calc(100vh - 3.5rem); display: flex; align-items: center; min-height: calc(100vh - 3.5rem);">
-                    <div class="modal-content dark-theme-card">
-                        <div class="modal-header">
-                            <h5 class="modal-title fw-bold" id="deleteModalLabel">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
+            <!-- Custom Delete Confirmation Modal -->
+            <div id="deleteModalOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 99999;">
+                <div id="deleteModalDialog" style="position: absolute; background: #2c3e50; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); width: 450px; max-width: 90vw; max-height: 90vh; border: 2px solid rgba(52, 152, 219, 0.4);">
+                    <div style="padding: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                        <h5 style="margin: 0; color: #ecf0f1; font-weight: bold;">
+                            <i class="fas fa-exclamation-triangle me-2" style="color: #e74c3c;"></i>
                                 Confirm Delete
                             </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button onclick="closeDeleteModal()" style="float: right; margin-top: -25px; background: none; border: none; color: #bdc3c7; font-size: 20px; cursor: pointer;">&times;</button>
                         </div>
-                        <div class="modal-body">
-                            <div class="text-center mb-4">
-                                <i class="fas fa-trash-alt fa-3x mb-3"></i>
-                                <p class="mb-3">
+                    <div style="padding: 25px; text-align: center;">
+                        <i class="fas fa-trash-alt fa-3x mb-3" style="color: #e74c3c;"></i>
+                        <p style="margin-bottom: 15px; color: #ecf0f1;">
                                     Are you sure you want to delete 
-                                    <strong id="deleteDestinationName"></strong>?
+                            <strong id="deleteDestinationName" style="color: #3498db;"></strong>?
                                 </p>
-                                <div class="alert alert-danger">
-                                    <i class="fas fa-exclamation-circle me-2"></i>
-                                    This action cannot be undone and will affect all related trips.
-                                </div>
-                            </div>
+                        <div style="background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.3); border-radius: 8px; padding: 12px; margin: 15px 0;">
+                            <i class="fas fa-exclamation-circle me-2" style="color: #e74c3c;"></i>
+                            <span style="color: #ecf0f1;">This action cannot be undone and will affect all related trips.</span>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary flex-fill" data-bs-dismiss="modal">
+                    </div>
+                    <div style="padding: 15px 25px; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; gap: 10px;">
+                        <button type="button" onclick="closeDeleteModal()" style="flex: 1; background: #6c757d; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer;">
                                 <i class="fas fa-times me-2"></i>Cancel
                             </button>
-                            <form id="deleteForm" method="post" asp-page-handler="Delete" class="flex-fill">
+                        <form id="deleteForm" method="post" asp-page-handler="Delete" style="flex: 1;">
                                 <input type="hidden" id="deleteDestinationId" name="id" />
-                                <button type="submit" class="btn btn-danger w-100">
+                            <button type="submit" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer;">
                                     <i class="fas fa-trash me-2"></i>Delete
                                 </button>
                             </form>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -217,6 +215,33 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    
+    <style>
+        /* PREVENT MODAL CLIPPING - DESTINATIONS PAGE */
+        body.modal-open {
+            overflow: visible !important;
+        }
+        
+        body.modal-open *,
+        body.modal-open .dark-theme-card,
+        body.modal-open .card,
+        body.modal-open .container,
+        body.modal-open .row,
+        body.modal-open .col,
+        body.modal-open [class*="col-"],
+        body.modal-open .card-body,
+        body.modal-open .card-header,
+        body.modal-open .card-footer {
+            overflow: visible !important;
+        }
+        
+        /* Ensure modal is always on top */
+        #deleteModalOverlay {
+            position: fixed !important;
+            z-index: 999999 !important;
+        }
+    </style>
+    
     <script>
         // Navigate to destination details when card is clicked
         function navigateToDestinationDetails(destinationId) {
@@ -231,10 +256,49 @@
             function confirmDelete(id, name) {
                 document.getElementById('deleteDestinationId').value = id;
                 document.getElementById('deleteDestinationName').textContent = name;
-                
-                var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'), { backdrop: false });
-                deleteModal.show();
+                showDeleteModal();
             }
+
+            // Custom modal functions
+            function showDeleteModal() {
+                var overlay = document.getElementById('deleteModalOverlay');
+                var dialog = document.getElementById('deleteModalDialog');
+                
+                // Calculate center position in current viewport (slightly higher than center)
+                var scrollTop = window.scrollY;
+                var windowHeight = window.innerHeight;
+                var modalHeight = 350; // approximate modal height
+                var centerY = scrollTop + (windowHeight - modalHeight) / 2 - 60; // 60px higher than center
+                
+                // Position modal exactly where user is looking
+                dialog.style.top = Math.max(scrollTop + 20, centerY) + 'px'; // never go above viewport + 20px
+                dialog.style.left = '50%';
+                dialog.style.transform = 'translateX(-50%)';
+                
+                // Add body class to prevent clipping and show modal
+                document.body.classList.add('modal-open');
+                overlay.style.display = 'block';
+            }
+
+            function closeDeleteModal() {
+                // Remove body class and hide modal
+                document.body.classList.remove('modal-open');
+                document.getElementById('deleteModalOverlay').style.display = 'none';
+            }
+
+            // Close modal when clicking outside
+            document.getElementById('deleteModalOverlay').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeDeleteModal();
+                }
+            });
+
+            // Also allow ESC key to close modal
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && document.getElementById('deleteModalOverlay').style.display === 'block') {
+                    closeDeleteModal();
+                }
+            });
         </script>
     }
 } 
