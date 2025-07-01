@@ -217,28 +217,20 @@
     <partial name="_ValidationScriptsPartial" />
     
     <style>
-        /* PREVENT MODAL CLIPPING - DESTINATIONS PAGE */
-        body.modal-open {
-            overflow: visible !important;
-        }
-        
-        body.modal-open *,
-        body.modal-open .dark-theme-card,
-        body.modal-open .card,
-        body.modal-open .container,
-        body.modal-open .row,
-        body.modal-open .col,
-        body.modal-open [class*="col-"],
-        body.modal-open .card-body,
-        body.modal-open .card-header,
-        body.modal-open .card-footer {
-            overflow: visible !important;
-        }
-        
-        /* Ensure modal is always on top */
+        /* MODAL POSITIONING - DESTINATIONS PAGE */
         #deleteModalOverlay {
             position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
             z-index: 999999 !important;
+            pointer-events: auto !important;
+        }
+        
+        #deleteModalDialog {
+            position: absolute !important;
+            z-index: 1000000 !important;
         }
     </style>
     
@@ -275,14 +267,12 @@
                 dialog.style.left = '50%';
                 dialog.style.transform = 'translateX(-50%)';
                 
-                // Add body class to prevent clipping and show modal
-                document.body.classList.add('modal-open');
+                // Show modal
                 overlay.style.display = 'block';
             }
 
             function closeDeleteModal() {
-                // Remove body class and hide modal
-                document.body.classList.remove('modal-open');
+                // Hide modal
                 document.getElementById('deleteModalOverlay').style.display = 'none';
             }
 
