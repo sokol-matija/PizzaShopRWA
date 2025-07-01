@@ -4,6 +4,31 @@
     ViewData["Title"] = "Manage Guides";
 }
 
+<style>
+    /* Disable all hover effects on guides page */
+    .dark-theme-card:hover {
+        border-color: inherit !important;
+        box-shadow: inherit !important;
+        transform: none !important;
+    }
+    
+    .dark-theme-card:hover::before {
+        opacity: inherit !important;
+    }
+    
+    .btn:hover,
+    .btn:focus {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    
+    /* Remove all transitions for static feel */
+    .dark-theme-card,
+    .btn {
+        transition: none !important;
+    }
+</style>
+
 <div class="container mt-4">
     @Html.AntiForgeryToken()
     
@@ -106,19 +131,19 @@
                         <div class="mb-3">
                             @if (!string.IsNullOrEmpty(guide.Email))
                             {
-                                <p class="text-muted mb-1">
+                                <p class="mb-1" style="color: #bdc3c7;">
                                     <i class="fas fa-envelope me-2"></i>@guide.Email
                                 </p>
                             }
                             @if (!string.IsNullOrEmpty(guide.PhoneNumber))
                             {
-                                <p class="text-muted mb-1">
+                                <p class="mb-1" style="color: #bdc3c7;">
                                     <i class="fas fa-phone me-2"></i>@guide.PhoneNumber
                                 </p>
                             }
                             @if (guide.YearsExperience.HasValue)
                             {
-                                <p class="text-muted mb-1">
+                                <p class="mb-1" style="color: #bdc3c7;">
                                     <i class="fas fa-star me-2"></i>@guide.YearsExperience years experience
                                 </p>
                             }
@@ -134,14 +159,14 @@
                     
                     <div class="card-footer" style="background: rgba(255, 255, 255, 0.02); border-top: 1px solid rgba(255, 255, 255, 0.1);">
                         <div class="d-flex gap-2 flex-wrap">
-                            <a asp-page="./Details" asp-route-id="@guide.Id" class="btn btn-sm btn-primary btn-animated">
+                            <a asp-page="./Details" asp-route-id="@guide.Id" class="btn btn-sm btn-primary">
                                 <i class="fas fa-info-circle me-1"></i> Details
                             </a>
-                            <a asp-page="./Edit" asp-route-id="@guide.Id" class="btn btn-sm btn-outline-primary btn-animated">
+                            <a asp-page="./Edit" asp-route-id="@guide.Id" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-edit me-1"></i> Edit
                             </a>
                             <div class="ms-auto">
-                                <button type="button" class="btn btn-sm btn-outline-danger btn-animated" 
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
                                         onclick="confirmDelete(@guide.Id, '@guide.FullName');">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -165,7 +190,7 @@
                 <p class="mb-4" style="color: #bdc3c7; font-size: 1.1rem;">
                     <span id="emptyStateMessage">Start building your guide team by adding the first guide to your system.</span>
                 </p>
-                <a asp-page="./Create" class="btn btn-primary btn-lg btn-animated">
+                <a asp-page="./Create" class="btn btn-primary btn-lg">
                     <i class="fas fa-plus me-2"></i>Add First Guide
                 </a>
             </div>

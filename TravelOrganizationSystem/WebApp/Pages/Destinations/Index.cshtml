@@ -5,6 +5,37 @@
     ViewData["Title"] = "Destinations";
 }
 
+<style>
+    /* Disable all hover effects on destinations page */
+    .dark-theme-card:hover {
+        border-color: inherit !important;
+        box-shadow: inherit !important;
+        transform: none !important;
+    }
+    
+    .dark-theme-card:hover::before {
+        opacity: inherit !important;
+    }
+    
+    .clickable-card:hover {
+        transform: none !important;
+        box-shadow: inherit !important;
+    }
+    
+    .btn:hover,
+    .btn:focus {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    
+    /* Remove all transitions for static feel */
+    .dark-theme-card,
+    .clickable-card,
+    .btn {
+        transition: none !important;
+    }
+</style>
+
 <div class="container mt-4">
     <div class="text-center mb-5">
         <h1 class="dark-theme-section-title">
@@ -50,8 +81,8 @@
             }
 
             <!-- Delete Confirmation Modal -->
-            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="false">
-                <div class="modal-dialog modal-dialog-centered">
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="false" style="z-index: 1060;">
+                <div class="modal-dialog modal-dialog-centered" style="margin: 1.75rem auto; max-height: calc(100vh - 3.5rem); display: flex; align-items: center; min-height: calc(100vh - 3.5rem);">
                     <div class="modal-content dark-theme-card">
                         <div class="modal-header">
                             <h5 class="modal-title fw-bold" id="deleteModalLabel">
@@ -91,7 +122,7 @@
             @foreach (var destination in Model.Destinations)
             {
                 <div class="col">
-                    <div class="dark-theme-card h-100 clickable-card" onclick="navigateToDestinationDetails(@destination.Id)" style="cursor: pointer; transition: all 0.3s ease;">
+                    <div class="dark-theme-card h-100 clickable-card" onclick="navigateToDestinationDetails(@destination.Id)" style="cursor: pointer;">
                         <div class="position-relative">
                             @if (!string.IsNullOrEmpty(destination.ImageUrl))
                             {
@@ -137,19 +168,19 @@
                         </div>
                         <div class="card-footer" style="background: rgba(255, 255, 255, 0.02); border-top: 1px solid rgba(255, 255, 255, 0.1);">
                             <div class="d-flex gap-2 flex-wrap">
-                                <a asp-page="./Details" asp-route-id="@destination.Id" class="btn btn-sm btn-primary btn-animated" onclick="event.stopPropagation();">
+                                <a asp-page="./Details" asp-route-id="@destination.Id" class="btn btn-sm btn-primary" onclick="event.stopPropagation();">
                                     <i class="fas fa-info-circle me-1"></i> Details
                                 </a>
-                                <a asp-page="/Trips/Index" asp-route-destinationId="@destination.Id" class="btn btn-sm btn-outline-secondary btn-animated" onclick="event.stopPropagation();">
+                                <a asp-page="/Trips/Index" asp-route-destinationId="@destination.Id" class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();">
                                     <i class="fas fa-plane-departure me-1"></i> Trips
                                 </a>
                                 @if (User.IsInRole("Admin"))
                                 {
                                     <div class="ms-auto d-flex gap-1">
-                                        <a asp-page="./Edit" asp-route-id="@destination.Id" class="btn btn-sm btn-outline-primary btn-animated" onclick="event.stopPropagation();">
+                                        <a asp-page="./Edit" asp-route-id="@destination.Id" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button type="button" class="btn btn-sm btn-outline-danger btn-animated" 
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
                                                 onclick="event.stopPropagation(); confirmDelete(@destination.Id, '@destination.Name');">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -174,7 +205,7 @@
                     </p>
                     @if (User.IsInRole("Admin"))
                     {
-                        <a asp-page="./Create" class="btn btn-primary btn-lg btn-animated">
+                        <a asp-page="./Create" class="btn btn-primary btn-lg">
                             <i class="fas fa-plus me-2"></i>Add First Destination
                         </a>
                     }
@@ -192,30 +223,7 @@
             window.location.href = '/Destinations/Details/' + destinationId;
         }
 
-        // Add enhanced hover effects to clickable cards
-        document.addEventListener('DOMContentLoaded', function() {
-            const clickableCards = document.querySelectorAll('.clickable-card');
-            
-            clickableCards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-8px) scale(1.02)';
-                    this.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(52, 152, 219, 0.3)';
-                });
-                
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0) scale(1)';
-                    this.style.boxShadow = '';
-                });
-                
-                card.addEventListener('mousedown', function() {
-                    this.style.transform = 'translateY(-4px) scale(1.01)';
-                });
-                
-                card.addEventListener('mouseup', function() {
-                    this.style.transform = 'translateY(-8px) scale(1.02)';
-                });
-            });
-        });
+        // Hover effects disabled for cleaner UI
     </script>
     @if (User.IsInRole("Admin"))
     {

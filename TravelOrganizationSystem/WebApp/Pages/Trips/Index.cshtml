@@ -44,6 +44,57 @@
         background-size: 16px 12px !important;
         padding-right: 2.5rem !important;
     }
+    
+    /* DISABLE ALL HOVER EFFECTS ON TRIPS PAGE */
+    .dark-theme-card:hover,
+    .dark-theme-card:hover::before,
+    .dark-theme-card:hover::after,
+    .card:hover,
+    .card:hover::before,
+    .card:hover::after,
+    .clickable-card:hover {
+        border-color: inherit !important;
+        box-shadow: inherit !important;
+        transform: none !important;
+        scale: none !important;
+    }
+    
+    /* Disable any Bootstrap card hover effects */
+    .card.dark-theme-card:hover,
+    .dark-theme-card.card:hover {
+        box-shadow: inherit !important;
+        transform: none !important;
+    }
+    
+    /* Remove all transitions to make cards completely static */
+    .dark-theme-card,
+    .dark-theme-card::before,
+    .dark-theme-card::after,
+    .card,
+    .card::before,
+    .card::after,
+    .clickable-card {
+        transition: none !important;
+        animation: none !important;
+    }
+    
+    /* ALLOW admin-plus-circle animation to work */
+    .admin-plus-circle,
+    .admin-plus-circle i,
+    .admin-plus-circle::after {
+        transition: all 0.3s ease !important;
+        animation: initial !important;
+    }
+    
+    /* Enable the rotation animation on hover */
+    .admin-plus-circle:hover i {
+        transform: rotate(90deg) !important;
+    }
+    
+    /* Enable the ripple effect on click */
+    .admin-plus-circle:active::after {
+        animation: adminRipple 0.6s ease-out !important;
+    }
 </style>
 
 <div class="container mt-4">
@@ -81,16 +132,16 @@
             <div class="card-body pt-3">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <button type="button" class="btn btn-warning btn-animated w-100" onclick="populateTripImages()">
+                        <button type="button" class="btn btn-warning w-100" onclick="populateTripImages()">
                             <i class="fas fa-images me-2"></i>Populate Trip Images
                         </button>
-                        <small class="text-muted d-block mt-1">Automatically fetch images from Unsplash for trips without images</small>
+                        <small style="color: #bdc3c7;" class="d-block mt-1">Automatically fetch images from Unsplash for trips without images</small>
                     </div>
                     <div class="col-md-6">
-                        <button type="button" class="btn btn-info btn-animated w-100" onclick="refreshAllImages()">
+                        <button type="button" class="btn btn-info w-100" onclick="refreshAllImages()">
                             <i class="fas fa-sync-alt me-2"></i>Refresh All Images
                         </button>
-                        <small class="text-muted d-block mt-1">Force refresh images for all trips</small>
+                        <small style="color: #bdc3c7;" class="d-block mt-1">Force refresh images for all trips</small>
                     </div>
                 </div>
             </div>
@@ -116,10 +167,10 @@
                 </div>
                 <div class="col-md-4">
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary btn-animated flex-fill" id="filterSubmitBtn">
+                        <button type="submit" class="btn btn-primary flex-fill" id="filterSubmitBtn">
                             <i class="fas fa-search me-2"></i>Apply Filter
                         </button>
-                        <button type="button" class="btn btn-outline-secondary btn-animated" onclick="clearFilter()">
+                        <button type="button" class="btn btn-outline-secondary" onclick="clearFilter()">
                             <i class="fas fa-times me-1"></i>Clear
                         </button>
                     </div>
@@ -152,7 +203,7 @@
             @foreach (var trip in Model.Trips)
             {
                 <div class="col">
-                    <div class="dark-theme-card h-100 clickable-card" onclick="navigateToTripDetails(@trip.Id)" style="cursor: pointer; transition: all 0.3s ease;">
+                    <div class="dark-theme-card h-100 clickable-card" onclick="navigateToTripDetails(@trip.Id)" style="cursor: pointer;">
                         <div class="position-relative">
                             @if (!string.IsNullOrEmpty(trip.ImageUrl))
                             {
@@ -219,22 +270,22 @@
                         
                         <div class="card-footer" style="background: rgba(255, 255, 255, 0.02); border-top: 1px solid rgba(255, 255, 255, 0.1);">
                             <div class="d-flex gap-2 flex-wrap">
-                                <a asp-page="./Details" asp-route-id="@trip.Id" class="btn btn-sm btn-primary btn-animated" onclick="event.stopPropagation();">
+                                <a asp-page="./Details" asp-route-id="@trip.Id" class="btn btn-sm btn-primary" onclick="event.stopPropagation();">
                                     <i class="fas fa-info-circle me-1"></i> Details
                                 </a>
                                 @if (User.Identity?.IsAuthenticated == true && trip.AvailableSlots > 0)
                                 {
-                                    <a asp-page="./Book" asp-route-id="@trip.Id" class="btn btn-sm btn-success btn-animated" onclick="event.stopPropagation();">
+                                    <a asp-page="./Book" asp-route-id="@trip.Id" class="btn btn-sm btn-success" onclick="event.stopPropagation();">
                                         <i class="fas fa-ticket-alt me-1"></i> Book
                                     </a>
                                 }
                                 @if (User.IsInRole("Admin"))
                                 {
                                     <div class="ms-auto d-flex gap-1">
-                                        <a asp-page="./Edit" asp-route-id="@trip.Id" class="btn btn-sm btn-outline-primary btn-animated" onclick="event.stopPropagation();">
+                                        <a asp-page="./Edit" asp-route-id="@trip.Id" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button type="button" class="btn btn-sm btn-outline-danger btn-animated" onclick="event.stopPropagation(); confirmDelete(@trip.Id, '@trip.Title');">
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); confirmDelete(@trip.Id, '@trip.Title');">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -354,13 +405,13 @@
                     <div class="d-flex gap-2 justify-content-center flex-wrap">
                         @if (Model.DestinationId.HasValue)
                         {
-                            <a href="@Url.Page("./Index")" class="btn btn-secondary btn-lg btn-animated">
+                            <a href="@Url.Page("./Index")" class="btn btn-secondary btn-lg">
                                 <i class="fas fa-globe me-2"></i>View All Trips
                             </a>
                         }
                         @if (User.IsInRole("Admin"))
                         {
-                            <a asp-page="./Create" class="btn btn-primary btn-lg btn-animated">
+                            <a asp-page="./Create" class="btn btn-primary btn-lg">
                                 <i class="fas fa-plus me-2"></i>Add First Trip
                             </a>
                         }
@@ -421,31 +472,8 @@
             window.location.href = '/Trips/Details/' + tripId;
         }
 
-        // Add enhanced hover effects to clickable cards
-        document.addEventListener('DOMContentLoaded', function() {
-            const clickableCards = document.querySelectorAll('.clickable-card');
-            
-            clickableCards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-8px) scale(1.02)';
-                    this.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(52, 152, 219, 0.3)';
-                });
-                
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0) scale(1)';
-                    this.style.boxShadow = '';
-                });
-                
-                card.addEventListener('mousedown', function() {
-                    this.style.transform = 'translateY(-4px) scale(1.01)';
-                });
-                
-                card.addEventListener('mouseup', function() {
-                    this.style.transform = 'translateY(-8px) scale(1.02)';
-                });
-            });
-        });
-
+        // Hover effects disabled for cleaner UI
+        
         function clearFilter() {
             document.getElementById('DestinationId').value = '';
             document.getElementById('tripFilterForm').submit();

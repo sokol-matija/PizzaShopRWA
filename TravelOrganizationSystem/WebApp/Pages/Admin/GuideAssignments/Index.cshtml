@@ -1,0 +1,419 @@
+@page
+@model WebApp.Pages.Admin.GuideAssignments.IndexModel
+@{
+    ViewData["Title"] = "Manage Guide Assignments";
+}
+
+<style>
+    /* DISABLE ALL HOVER EFFECTS ON DARK THEME CARDS */
+    .dark-theme-card:hover,
+    .dark-theme-card:hover::before,
+    .dark-theme-card:hover::after,
+    .card:hover,
+    .card:hover::before,
+    .card:hover::after {
+        border-color: inherit !important;
+        box-shadow: inherit !important;
+        transform: none !important;
+        scale: none !important;
+    }
+    
+    /* Disable any Bootstrap card hover effects */
+    .card.dark-theme-card:hover,
+    .dark-theme-card.card:hover {
+        box-shadow: inherit !important;
+        transform: none !important;
+    }
+    
+    /* Remove all transitions to make cards completely static */
+    .dark-theme-card,
+    .dark-theme-card::before,
+    .dark-theme-card::after,
+    .card,
+    .card::before,
+    .card::after {
+        transition: none !important;
+        animation: none !important;
+    }
+    
+    /* ALLOW admin-plus-circle animation to work */
+    .admin-plus-circle,
+    .admin-plus-circle i,
+    .admin-plus-circle::after {
+        transition: all 0.3s ease !important;
+        animation: initial !important;
+    }
+    
+    /* Enable the rotation animation on hover */
+    .admin-plus-circle:hover i {
+        transform: rotate(90deg) !important;
+    }
+    
+    /* Enable the ripple effect on click */
+    .admin-plus-circle:active::after {
+        animation: adminRipple 0.6s ease-out !important;
+    }
+    
+    /* CIRCULAR DELETE BUTTON - inspired by admin-plus-circle */
+    .admin-delete-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        border: none;
+        color: white;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        position: relative;
+        box-shadow: 
+            0 2px 8px rgba(231, 76, 60, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Delete icon transition */
+    .admin-delete-circle i {
+        transition: transform 0.3s ease;
+    }
+    
+    /* Hover effects for delete circle */
+    .admin-delete-circle:hover {
+        box-shadow: 
+            0 4px 12px rgba(231, 76, 60, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+    }
+    
+    /* Rotation animation on hover */
+    .admin-delete-circle:hover i {
+        transform: rotate(90deg);
+    }
+    
+    /* Ripple effect on click */
+    .admin-delete-circle::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 3px;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.6);
+        opacity: 0;
+        border-radius: 100%;
+        transform: scale(1, 1) translate(-50%, -50%);
+        transform-origin: 50% 50%;
+    }
+    
+    .admin-delete-circle:active::after {
+        animation: adminRipple 0.6s ease-out;
+    }
+</style>
+
+<div class="container mt-4">
+    @Html.AntiForgeryToken()
+    
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <h1 class="dark-theme-section-title">
+            <i class="fas fa-user-tie me-3"></i>@ViewData["Title"]
+        </h1>
+        <p class="dark-theme-section-subtitle">Assign and manage guides for trips</p>
+    </div>
+    
+    <!-- Success/Error Messages -->
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"]?.ToString()))
+    {
+        <div class="alert alert-success alert-dismissible fade show dark-theme-alert" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger dark-theme-alert" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
+        </div>
+    }
+
+    <!-- Success/Error Message for AJAX operations -->
+    <div id="messageAlert" class="alert alert-dismissible fade show d-none" role="alert">
+        <span id="messageText"></span>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Guide Assignment Form -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="dark-theme-card">
+                <div class="card-header" style="background: rgba(52, 152, 219, 0.1); border-bottom: 1px solid rgba(52, 152, 219, 0.3);">
+                    <h4 class="mb-0 fw-bold" style="color: #3498db;">
+                        <i class="fas fa-plus-circle me-2"></i>Assign Guide to Trip
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form id="assignForm" class="dark-theme-form">
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label for="tripSelect" class="form-label fw-medium" style="color: #ecf0f1;">
+                                    <i class="fas fa-map-marked-alt me-2" style="color: #2ecc71;"></i>Select Trip
+                                </label>
+                                <select id="tripSelect" class="form-select" required>
+                                    <option value="">Choose a trip...</option>
+                                    @foreach (var trip in Model.Trips)
+                                    {
+                                        <option value="@trip.Id">@trip.Title</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="guideSelect" class="form-label fw-medium" style="color: #ecf0f1;">
+                                    <i class="fas fa-user-tie me-2" style="color: #9b59b6;"></i>Select Guide
+                                </label>
+                                <select id="guideSelect" class="form-select" required>
+                                    <option value="">Choose a guide...</option>
+                                    @foreach (var guide in Model.Guides)
+                                    {
+                                        <option value="@guide.Id">@guide.FullName</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end justify-content-center">
+                                <button type="submit" class="admin-plus-circle" title="Assign Guide">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Title -->
+    <div class="mb-4">
+        <h4 class="fw-bold" style="color: #2ecc71;">
+            <i class="fas fa-list me-2"></i>Trip Guide Assignments
+        </h4>
+        <p class="mb-0" style="color: #bdc3c7;">Manage guide assignments for each trip</p>
+    </div>
+
+    <!-- Trips with Assigned Guides -->
+    @if (Model.Trips.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var trip in Model.Trips)
+            {
+                <div class="col">
+                    <div class="card dark-theme-card h-100">
+                        <div class="card-header border-0 pb-0" style="background: rgba(52, 152, 219, 0.1);">
+                            <h5 class="mb-0 fw-bold" style="color: #3498db;">
+                                @trip.Title
+                            </h5>
+                            <small style="color: #bdc3c7;">
+                                <i class="fas fa-calendar me-1"></i>
+                                @trip.StartDate.ToString("MMM dd") - @trip.EndDate.ToString("MMM dd, yyyy")
+                            </small>
+                        </div>
+                        <div class="card-body pt-3">
+                            <div class="guides-section">
+                                <h6 class="mb-3 fw-bold" style="color: #ecf0f1;">
+                                    <i class="fas fa-users me-2" style="color: #9b59b6;"></i>Assigned Guides:
+                                </h6>
+                                
+                                @if (trip.Guides != null && trip.Guides.Any())
+                                {
+                                    @foreach (var guide in trip.Guides)
+                                    {
+                                        <div class="d-flex justify-content-between align-items-center mb-2 p-3 rounded-3" 
+                                             style="background: rgba(255, 255, 255, 0.05); border-left: 4px solid #2ecc71;">
+                                            <div>
+                                                <div class="fw-bold" style="color: #2ecc71;">@guide.FullName</div>
+                                                @if (!string.IsNullOrEmpty(guide.Email))
+                                                {
+                                                    <small style="color: #bdc3c7;">@guide.Email</small>
+                                                }
+                                            </div>
+                                                                                                <button type="button" 
+                                                            class="admin-delete-circle"
+                                                            onclick="confirmRemoveGuide(@trip.Id, @guide.Id, '@trip.Title', '@guide.FullName')"
+                                                            title="Remove Guide">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-center py-3">
+                                        <i class="fas fa-info-circle fa-2x mb-2" style="color: #3498db; opacity: 0.5;"></i>
+                                        <p class="mb-0" style="color: #bdc3c7;">
+                                            No guides assigned yet
+                                        </p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="dark-theme-card p-5">
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-circle fa-4x mb-3" style="color: #3498db; opacity: 0.7;"></i>
+                    <h5 style="color: #ecf0f1;">No trips found</h5>
+                    <p style="color: #bdc3c7;">Create some trips first to assign guides.</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Remove Guide Confirmation Modal -->
+<div class="modal fade" id="removeGuideModal" tabindex="-1" aria-labelledby="removeGuideModalLabel" aria-hidden="true" data-bs-backdrop="false" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered" style="margin: 1.75rem auto; max-height: calc(100vh - 3.5rem); display: flex; align-items: center; min-height: calc(100vh - 3.5rem);">
+        <div class="modal-content dark-theme-card">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="removeGuideModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Confirm Guide Removal
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-user-times fa-3x mb-3"></i>
+                    <p class="mb-3">
+                        Are you sure you want to remove <strong id="removeGuideName"></strong>
+                        from <strong id="removeTripName"></strong>?
+                    </p>
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        This will remove the guide's assignment from this trip.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary flex-fill" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <form id="removeGuideForm" class="flex-fill">
+                    <input type="hidden" id="removeTripId" />
+                    <input type="hidden" id="removeGuideId" />
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="fas fa-trash me-2"></i>Remove Guide
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const assignForm = document.getElementById('assignForm');
+    const removeGuideForm = document.getElementById('removeGuideForm');
+    const messageAlert = document.getElementById('messageAlert');
+    const messageText = document.getElementById('messageText');
+    
+    // Show message function
+    function showMessage(message, isSuccess) {
+        messageText.textContent = message;
+        messageAlert.className = isSuccess ? 
+            'alert alert-success alert-dismissible fade show dark-theme-alert' : 
+            'alert alert-danger alert-dismissible fade show dark-theme-alert';
+        messageAlert.classList.remove('d-none');
+        
+        // Auto-hide success messages
+        if (isSuccess) {
+            setTimeout(() => {
+                messageAlert.classList.add('d-none');
+            }, 5000);
+        }
+    }
+    
+    // Assign guide form submission
+    assignForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const tripId = document.getElementById('tripSelect').value;
+        const guideId = document.getElementById('guideSelect').value;
+        
+        if (!tripId || !guideId) {
+            showMessage('Please select both a trip and a guide.', false);
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/Trip/${tripId}/guides/${guideId}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            });
+            
+            if (response.ok) {
+                showMessage('Guide assigned successfully!', true);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                const errorText = await response.text();
+                showMessage(`Error: ${errorText}`, false);
+            }
+        } catch (error) {
+            showMessage('An error occurred while assigning the guide.', false);
+        }
+    });
+    
+    // Remove guide form submission (from modal)
+    removeGuideForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const tripId = document.getElementById('removeTripId').value;
+        const guideId = document.getElementById('removeGuideId').value;
+        
+        try {
+            const response = await fetch(`/api/Trip/${tripId}/guides/${guideId}`, {
+                method: 'DELETE',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            });
+            
+            if (response.ok) {
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('removeGuideModal'));
+                modal.hide();
+                
+                showMessage('Guide removed successfully!', true);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                const errorText = await response.text();
+                showMessage(`Error: ${errorText}`, false);
+            }
+        } catch (error) {
+            showMessage('An error occurred while removing the guide.', false);
+        }
+    });
+});
+
+// Confirmation function for removing guides (called from onclick)
+function confirmRemoveGuide(tripId, guideId, tripName, guideName) {
+    document.getElementById('removeTripId').value = tripId;
+    document.getElementById('removeGuideId').value = guideId;
+    document.getElementById('removeTripName').textContent = tripName || 'this trip';
+    document.getElementById('removeGuideName').textContent = guideName || 'this guide';
+    
+    var removeModal = new bootstrap.Modal(document.getElementById('removeGuideModal'), { backdrop: false });
+    removeModal.show();
+}
+</script> 
