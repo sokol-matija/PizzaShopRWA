@@ -97,9 +97,59 @@
     .admin-plus-circle:active::after {
         animation: adminRipple 0.6s ease-out !important;
     }
+    
+    /* Trip Cards Responsive Layout Improvements */
+    .trip-card-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .trip-card-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .trip-card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .trip-card-info {
+        flex: 1;
+    }
+    
+    .trip-card-footer {
+        margin-top: auto;
+        background: rgba(255, 255, 255, 0.02) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* Responsive improvements for trip cards only are handled in travel-theme.css 
+       Uses .trips-page class for specificity
+       New breakpoints: 1 column (up to 770px) → 2 columns (770px-1200px) → 3 columns (1200px+)
+       Admin controls and filter cards remain unaffected */
+    
+    /* Ensure consistent card heights */
+    .clickable-card.h-100 {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .clickable-card .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .clickable-card .card-footer {
+        margin-top: auto;
+    }
 </style>
 
-<div class="container mt-4">
+<div class="container mt-4 trips-page">
     <div class="text-center mb-5">
         <h1 class="dark-theme-section-title">
             <i class="fas fa-suitcase-rolling me-3"></i>@ViewData["Title"]
@@ -184,7 +234,7 @@
     <!-- Trip Listings -->
     @if (Model.Trips != null && Model.Trips.Any())
     {
-        <div class="row row-cols-1 row-cols-md-3 g-4">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
             @if (User.IsInRole("Admin"))
             {
                 <div class="col">
@@ -229,20 +279,22 @@
                             </div>
                         </div>
                         
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold" style="color: #3498db;">@trip.Title</h5>
-                            <h6 class="card-subtitle mb-3" style="color: #2ecc71;">
-                                <i class="fas fa-map-marker-alt me-1"></i>@trip.DestinationName
-                            </h6>
-                            @if (!string.IsNullOrEmpty(trip.Description))
-                            {
-                                <p class="card-text mb-3" style="color: #bdc3c7; line-height: 1.5;">
-                                    @(trip.Description?.Length > 120 ? trip.Description.Substring(0, 120) + "..." : trip.Description)
-                                </p>
-                            }
+                        <div class="card-body d-flex flex-column">
+                            <div class="trip-card-info flex-grow-1">
+                                <h5 class="card-title fw-bold" style="color: #3498db;">@trip.Title</h5>
+                                <h6 class="card-subtitle mb-3" style="color: #2ecc71;">
+                                    <i class="fas fa-map-marker-alt me-1"></i>@trip.DestinationName
+                                </h6>
+                                @if (!string.IsNullOrEmpty(trip.Description))
+                                {
+                                    <p class="card-text mb-3" style="color: #bdc3c7; line-height: 1.5;">
+                                        @(trip.Description?.Length > 120 ? trip.Description.Substring(0, 120) + "..." : trip.Description)
+                                    </p>
+                                }
+                            </div>
                             
-                            <!-- Trip Info Badges -->
-                            <div class="row g-2 mb-3">
+                            <!-- Trip Info Badges - positioned at bottom of card body -->
+                            <div class="row g-2 mt-auto">
                                 <div class="col-12">
                                     <div class="d-flex flex-wrap gap-2">
                                         <span class="badge dark-theme-badge badge-warning">

@@ -1,0 +1,1902 @@
+/* 
+ * Travel Organization System Theme
+ * A modern, responsive theme with animations and gradients
+ */
+
+:root {
+    /* Color Variables */
+    --primary-color: #3498db;
+    --primary-dark: #2980b9;
+    --primary-light: #85c1e9;
+    --secondary-color: #2ecc71;
+    --secondary-dark: #27ae60;
+    --secondary-light: #7dcea0;
+    --accent-color: #f39c12;
+    --danger-color: #e74c3c;
+    --success-color: #2ecc71;
+    --info-color: #3498db;
+    --warning-color: #f1c40f;
+    --dark-color: #34495e;
+    --light-color: #ecf0f1;
+    --gray-color: #95a5a6;
+    --gray-dark: #7f8c8d;
+    --gray-light: #bdc3c7;
+    --gradient-start: #3498db;
+    --gradient-end: #2ecc71;
+    
+    /* Animation Variables */
+    --transition-fast: 0.2s;
+    --transition-medium: 0.3s;
+    --transition-slow: 0.5s;
+}
+
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+}
+
+.glow-text {
+    text-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+    color: var(--primary-color);
+    animation: glow 3s infinite alternate;
+}
+
+@keyframes glow {
+    0% {
+        text-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+    }
+    100% {
+        text-shadow: 0 0 15px rgba(52, 152, 219, 0.8), 0 0 20px rgba(46, 204, 113, 0.4);
+    }
+}
+
+/* Buttons */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all var(--transition-medium) ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border: none;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, var(--secondary-color), var(--secondary-dark));
+    border: none;
+}
+
+.btn-secondary:hover, .btn-secondary:focus {
+    background: linear-gradient(135deg, var(--secondary-dark), var(--secondary-color));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+}
+
+.btn-outline-secondary {
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-outline-secondary:hover, .btn-outline-secondary:focus {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+/* Ensure icons in buttons are always visible */
+.btn i {
+    opacity: 1 !important;
+    visibility: visible !important;
+    color: inherit;
+    transition: none;
+}
+
+/* Specific styling for Find Trips button icon */
+.btn-outline-secondary i {
+    color: var(--primary-color);
+}
+
+.btn-outline-secondary:hover i,
+.btn-outline-secondary:focus i {
+    color: white;
+}
+
+.btn-animated {
+    transition: all var(--transition-medium) ease;
+}
+
+.btn-animated:hover, .btn-animated:focus {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.btn-animated:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-animated::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.4);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%, -50%);
+    transform-origin: 50% 50%;
+}
+
+.btn-animated:focus::after {
+    animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(20, 20);
+        opacity: 0;
+    }
+}
+
+/* Form Controls */
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 0.75rem 1rem;
+    transition: all var(--transition-medium) ease;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+    border-color: var(--primary-color);
+}
+
+.form-floating > .form-control {
+    padding: 1rem 0.75rem;
+}
+
+.form-floating > label {
+    padding: 1rem 0.75rem;
+}
+
+.animated-input {
+    transition: all var(--transition-medium) ease;
+}
+
+.animated-input:focus {
+    transform: translateY(-2px);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Authentication Styling */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 85vh;
+    padding: 2rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 500px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+    overflow: hidden;
+    position: relative;
+    transition: all var(--transition-medium) ease;
+}
+
+.register-card {
+    max-width: 650px;
+}
+
+.auth-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(50, 50, 93, 0.15), 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.auth-header {
+    padding: 2rem 2rem 1rem;
+    text-align: center;
+}
+
+.auth-body {
+    padding: 1rem 2rem 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+.auth-separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.5rem 0;
+    color: var(--gray-color);
+}
+
+.auth-separator::before,
+.auth-separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.auth-separator span {
+    padding: 0 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+.travel-bg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: linear-gradient(to top, rgba(52, 152, 219, 0.1), transparent);
+    z-index: 1;
+}
+
+.register-bg {
+    height: 200px;
+    background: linear-gradient(to top, rgba(46, 204, 113, 0.1), transparent);
+}
+
+.forgot-password {
+    text-decoration: none;
+    font-weight: 500;
+    transition: all var(--transition-fast) ease;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.terms-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: all var(--transition-fast) ease;
+}
+
+.terms-link:hover {
+    text-decoration: underline;
+}
+
+/* Modern Navbar - Dark Theme to Match Footer */
+.modern-navbar {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all var(--transition-medium) ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0.8rem 0;
+    z-index: 9998 !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    overflow: visible;
+    will-change: transform;
+}
+
+.modern-navbar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.02"><circle cx="30" cy="30" r="2"/></g></svg>') repeat;
+    pointer-events: none;
+}
+
+.modern-navbar.scrolled {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    padding: 0.6rem 0;
+}
+
+.navbar-spacer {
+    height: 76px;
+}
+
+/* Footer spacer for uniform spacing across all pages */
+.footer-spacer {
+    height: 40px; /* Space before footer for uniform layout */
+}
+
+/* Modern Brand - Light Colors for Dark Background */
+.modern-brand {
+    font-weight: 700;
+    color: #ecf0f1;
+    font-size: 1.5rem;
+    text-decoration: none;
+    transition: all var(--transition-medium) ease;
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.modern-brand:hover {
+    color: var(--primary-light);
+    transform: translateY(-1px);
+    text-decoration: none;
+}
+
+.modern-brand i {
+    color: var(--primary-light);
+    font-size: 1.3rem;
+    transition: all var(--transition-medium) ease;
+}
+
+.modern-brand:hover i {
+    transform: rotate(10deg) scale(1.1);
+    color: var(--secondary-light);
+}
+
+.brand-text {
+    background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+}
+
+/* Modern Navigation Links - Light Colors with Footer-style Animation */
+.modern-nav-link {
+    color: #bdc3c7;
+    font-weight: 500;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    transition: all var(--transition-medium) ease;
+    position: relative;
+    margin: 0 0.2rem;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    z-index: 2;
+}
+
+.modern-nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--primary-light);
+    transition: all var(--transition-medium) ease;
+    transform: translateX(-50%);
+    border-radius: 1px;
+}
+
+.modern-nav-link:hover {
+    color: var(--primary-light);
+    transform: translateY(-1px);
+    text-decoration: none;
+}
+
+.modern-nav-link:hover::after {
+    width: 80%;
+}
+
+.modern-nav-link.active {
+    color: var(--primary-light);
+}
+
+.modern-nav-link.active::after {
+    width: 80%;
+}
+
+.modern-nav-link i {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    transition: all var(--transition-medium) ease;
+}
+
+.modern-nav-link:hover i {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Modern Toggler - Light Colors for Dark Background */
+.modern-toggler {
+    border: none;
+    padding: 0.5rem;
+    background: transparent;
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    transition: all var(--transition-medium) ease;
+    z-index: 2;
+}
+
+.modern-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(133, 193, 233, 0.4);
+    outline: none;
+}
+
+.modern-toggler:hover {
+    background: rgba(133, 193, 233, 0.2);
+}
+
+.toggler-line {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--primary-light);
+    margin: 4px auto;
+    transition: all var(--transition-medium) ease;
+    border-radius: 2px;
+}
+
+.modern-toggler:not(.collapsed) .toggler-line:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.modern-toggler:not(.collapsed) .toggler-line:nth-child(2) {
+    opacity: 0;
+}
+
+.modern-toggler:not(.collapsed) .toggler-line:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Modern Dropdown - Consistent with Dark Theme */
+.modern-dropdown {
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    min-width: 220px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 9999 !important;
+    position: relative;
+}
+
+.modern-dropdown-item {
+    color: #bdc3c7;
+    padding: 0.7rem 1.2rem;
+    font-weight: 500;
+    transition: all var(--transition-medium) ease;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.modern-dropdown-item:hover {
+    background: rgba(133, 193, 233, 0.2);
+    color: var(--primary-light);
+    transform: translateX(5px);
+}
+
+.modern-dropdown-item i {
+    width: 20px;
+    opacity: 0.7;
+    transition: all var(--transition-medium) ease;
+}
+
+.modern-dropdown-item:hover i {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.modern-divider {
+    border-color: rgba(255, 255, 255, 0.2);
+    margin: 0.5rem 0;
+}
+
+.logout-item:hover {
+    background: rgba(231, 76, 60, 0.2);
+    color: #ff6b6b;
+}
+
+/* Modern CTA Button - Bright for Dark Background */
+.modern-cta-btn {
+    background: transparent;
+    border: 2px solid var(--primary-light);
+    color: var(--primary-light);
+    font-weight: 600;
+    padding: 0.5rem 1.2rem;
+    border-radius: 25px;
+    transition: all var(--transition-medium) ease;
+    margin-left: 0.5rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    z-index: 2;
+    position: relative;
+}
+
+.modern-cta-btn:hover {
+    background: var(--primary-light);
+    color: var(--dark-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(133, 193, 233, 0.5);
+    text-decoration: none;
+}
+
+.modern-cta-btn i {
+    transition: all var(--transition-medium) ease;
+}
+
+.modern-cta-btn:hover i {
+    transform: scale(1.1);
+}
+
+/* Cards */
+.card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all var(--transition-medium) ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.card-text {
+    color: var(--gray-dark);
+}
+
+.card-footer {
+    background-color: white;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Destinations Grid */
+.destinations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Responsive Utilities */
+@media (max-width: 576px) {
+    .auth-card {
+        margin: 0 1rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    /* Stack hero buttons on mobile */
+    .hero-section .d-grid {
+        display: block !important;
+    }
+    
+    .hero-section .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Modern Navbar Responsive */
+@media (max-width: 991.98px) {
+    .navbar-spacer {
+        height: 70px;
+    }
+    
+    .modern-navbar {
+        padding: 0.6rem 0;
+    }
+    
+    .navbar-collapse {
+        background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+        backdrop-filter: blur(20px);
+        border-radius: 12px;
+        margin-top: 1rem;
+        padding: 1rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .modern-nav-link {
+        padding: 0.8rem 1rem;
+        margin: 0.2rem 0;
+        border-radius: 10px;
+        justify-content: center;
+    }
+    
+    .modern-nav-link:hover {
+        transform: translateY(0) scale(1.02);
+    }
+    
+    .modern-dropdown {
+        position: static;
+        float: none;
+        width: auto;
+        margin: 0.5rem 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        z-index: 9999 !important;
+    }
+    
+    .modern-dropdown-item {
+        padding: 0.6rem 1rem;
+    }
+    
+    .modern-cta-btn {
+        margin: 0.5rem auto;
+        width: fit-content;
+        justify-content: center;
+    }
+    
+    .user-dropdown .dropdown-menu {
+        position: static;
+        float: none;
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .modern-brand {
+        font-size: 1.3rem;
+    }
+    
+    .brand-text {
+        font-size: 1.1rem;
+    }
+    
+    .modern-nav-link span {
+        font-size: 0.9rem;
+    }
+    
+    .navbar-spacer {
+        height: 65px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1a1a1a;
+        color: #f1f1f1;
+    }
+    
+    .auth-card,
+    .card,
+    .navbar {
+        background-color: #2a2a2a;
+    }
+    
+    .form-control {
+        background-color: #333;
+        border-color: #444;
+        color: #f1f1f1;
+    }
+    
+    .card-text {
+        color: #bbb;
+    }
+}
+
+/* Trip Details Styling */
+.table th, .table td {
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.trip-overview-table {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.trip-overview-table th {
+    font-weight: 600;
+    color: var(--light-color);
+}
+
+.trip-overview-table td {
+    color: white;
+}
+
+/* End of Trip Details Styling */ 
+
+/* Global Dark Theme Components */
+.dark-theme-page {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    color: #ecf0f1;
+}
+
+.dark-theme-container {
+    background: rgba(44, 62, 80, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 1rem 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.dark-theme-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #f1f3f4;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.dark-theme-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.3), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.dark-theme-card:hover {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+    border-color: rgba(52, 152, 219, 0.3);
+    box-shadow: 
+        0 15px 50px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(52, 152, 219, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    transform: translateY(-4px) scale(1.02);
+}
+
+.dark-theme-card:hover::before {
+    opacity: 1;
+}
+
+.dark-theme-card .card-body {
+    position: relative;
+    z-index: 2;
+}
+
+.dark-theme-card .card-title {
+    color: #ecf0f1;
+    font-weight: 600;
+}
+
+.dark-theme-card .card-text {
+    color: #bdc3c7;
+}
+
+/* Dark Theme Forms */
+.dark-theme-form .form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ecf0f1;
+    backdrop-filter: blur(10px);
+}
+
+.dark-theme-form .form-control::placeholder {
+    color: #95a5a6;
+}
+
+.dark-theme-form .form-control:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(133, 193, 233, 0.25);
+    color: #ecf0f1;
+}
+
+.dark-theme-form .form-label {
+    color: #ecf0f1;
+    font-weight: 500;
+}
+
+.dark-theme-form .form-select,
+.form-select {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ecf0f1 !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ecf0f1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+    background-position: right 0.75rem center !important;
+    background-repeat: no-repeat !important;
+    background-size: 16px 12px !important;
+    padding-right: 2.5rem !important;
+}
+
+.dark-theme-form .form-select:focus,
+.form-select:focus {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25) !important;
+    color: #ecf0f1 !important;
+}
+
+/* Dropdown options styling for dark theme */
+.dark-theme-form .form-select option,
+.form-select option {
+    background-color: #2c3e50 !important;
+    color: #ecf0f1 !important;
+    padding: 8px 12px !important;
+}
+
+.dark-theme-form .form-select option:hover,
+.dark-theme-form .form-select option:focus,
+.dark-theme-form .form-select option:checked,
+.form-select option:hover,
+.form-select option:focus,
+.form-select option:checked {
+    background-color: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+
+/* Dark Theme Tables */
+.dark-theme-table {
+    background: rgba(44, 62, 80, 0.8);
+    border-radius: 12px;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.dark-theme-table .table {
+    color: #ecf0f1;
+    margin-bottom: 0;
+}
+
+.dark-theme-table .table th {
+    background: rgba(52, 73, 94, 0.8);
+    color: var(--primary-light);
+    border-color: rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+}
+
+.dark-theme-table .table td {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #bdc3c7;
+}
+
+.dark-theme-table .table tbody tr:hover {
+    background: rgba(52, 152, 219, 0.1);
+}
+
+/* Dark Theme Section Headers */
+.dark-theme-section-title {
+    color: #ecf0f1;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.dark-theme-section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-light), var(--secondary-light));
+    transform: translateX(-50%);
+    border-radius: 1px;
+}
+
+.dark-theme-section-subtitle {
+    color: #bdc3c7;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+/* Dark Theme Alerts */
+.dark-theme-alert {
+    background: rgba(44, 62, 80, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ecf0f1;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.dark-theme-alert.alert-success {
+    background: rgba(46, 204, 113, 0.2);
+    border-color: rgba(46, 204, 113, 0.3);
+    color: var(--secondary-light);
+}
+
+.dark-theme-alert.alert-warning {
+    background: rgba(241, 196, 15, 0.2);
+    border-color: rgba(241, 196, 15, 0.3);
+    color: #f7dc6f;
+}
+
+.dark-theme-alert.alert-danger {
+    background: rgba(231, 76, 60, 0.2);
+    border-color: rgba(231, 76, 60, 0.3);
+    color: #ff6b6b;
+}
+
+.dark-theme-alert.alert-info {
+    background: rgba(52, 152, 219, 0.2);
+    border-color: rgba(52, 152, 219, 0.3);
+    color: var(--primary-light);
+}
+
+/* Dark Theme Pagination */
+.dark-theme-pagination .page-link {
+    background: rgba(44, 62, 80, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #bdc3c7;
+    transition: all var(--transition-medium) ease;
+}
+
+.dark-theme-pagination .page-link:hover {
+    background: rgba(52, 152, 219, 0.3);
+    border-color: var(--primary-light);
+    color: var(--primary-light);
+}
+
+.dark-theme-pagination .page-item.active .page-link {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+/* Dark Theme Badges */
+.dark-theme-badge {
+    background: rgba(52, 152, 219, 0.2);
+    color: var(--primary-light);
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.dark-theme-badge.badge-success {
+    background: rgba(46, 204, 113, 0.2);
+    color: var(--secondary-light);
+    border-color: rgba(46, 204, 113, 0.3);
+}
+
+.dark-theme-badge.badge-warning {
+    background: rgba(241, 196, 15, 0.2);
+    color: #f7dc6f;
+    border-color: rgba(241, 196, 15, 0.3);
+}
+
+.dark-theme-badge.badge-danger {
+    background: rgba(231, 76, 60, 0.2);
+    color: #ff6b6b;
+    border-color: rgba(231, 76, 60, 0.3);
+}
+
+/* Modern Footer Styling */
+.modern-footer {
+    margin-top: auto;
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+    color: #ecf0f1;
+    position: relative;
+    overflow: hidden;
+}
+
+.modern-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.02"><circle cx="30" cy="30" r="2"/></g></svg>') repeat;
+    pointer-events: none;
+}
+
+.footer-gradient {
+    background: linear-gradient(180deg, rgba(52, 152, 219, 0.1) 0%, transparent 100%);
+    padding: 3rem 0 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.footer-brand {
+    margin-bottom: 1.5rem;
+}
+
+.footer-title {
+    color: #ecf0f1;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+}
+
+.footer-title i {
+    color: var(--primary-light);
+    font-size: 1.2rem;
+}
+
+.footer-description {
+    color: #bdc3c7;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.footer-section-title {
+    color: #ecf0f1;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.footer-section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 30px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 1px;
+}
+
+/* Removed old footer-links styles - now using inline quick links */
+
+/* Quick Links Inline Styling */
+.footer-quick-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.footer-quick-links a {
+    color: #bdc3c7;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all var(--transition-medium) ease;
+    position: relative;
+    padding: 0.25rem 0;
+}
+
+.footer-quick-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--primary-light);
+    transition: width var(--transition-medium) ease;
+}
+
+.footer-quick-links a:hover {
+    color: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.footer-quick-links a:hover::after {
+    width: 100%;
+}
+
+/* Newsletter */
+.newsletter-text {
+    color: #bdc3c7;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.newsletter-form {
+    margin-top: 1rem;
+}
+
+.newsletter-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ecf0f1;
+    backdrop-filter: blur(10px);
+    border-radius: 8px 0 0 8px;
+}
+
+.newsletter-input::placeholder {
+    color: #95a5a6;
+}
+
+.newsletter-input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+    color: #ecf0f1;
+}
+
+.btn-newsletter {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    color: white;
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    transition: all var(--transition-medium) ease;
+}
+
+.btn-newsletter:hover {
+    background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+    color: white;
+}
+
+/* Footer Bottom */
+.footer-divider {
+    border-color: rgba(255, 255, 255, 0.1);
+    margin: 2rem 0 1.5rem;
+}
+
+.footer-copyright {
+    color: #95a5a6;
+    font-size: 0.9rem;
+}
+
+.text-accent {
+    color: var(--primary-light);
+    font-weight: 500;
+}
+
+.footer-badges {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.badge-secure,
+.badge-trusted {
+    background: rgba(46, 204, 113, 0.2);
+    color: var(--secondary-light);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.badge-trusted {
+    background: rgba(52, 152, 219, 0.2);
+    color: var(--primary-light);
+    border-color: rgba(52, 152, 219, 0.3);
+}
+
+/* Footer Responsive Design */
+@media (max-width: 768px) {
+    .footer-gradient {
+        padding: 2rem 0 1rem;
+    }
+    
+    .footer-badges {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    .footer-section-title::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .footer-copyright {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    /* Center align footer content on tablets */
+    .footer-brand {
+        text-align: center;
+    }
+    
+    .footer-quick-links {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .footer-gradient {
+        padding: 1.5rem 0 1rem;
+    }
+    
+    .footer-title {
+        font-size: 1.2rem;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .footer-description {
+        text-align: center;
+        font-size: 0.9rem;
+    }
+    
+    .footer-quick-links {
+        justify-content: center;
+        gap: 0.8rem 1rem;
+        margin-top: 1rem;
+    }
+    
+    .footer-quick-links a {
+        font-size: 0.85rem;
+    }
+    
+    .newsletter-form .input-group {
+        flex-direction: column;
+    }
+    
+    .newsletter-input {
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn-newsletter {
+        border-radius: 8px;
+        width: 100%;
+    }
+    
+    .newsletter-text {
+        font-size: 0.85rem;
+        text-align: center;
+    }
+    
+    .footer-section-title {
+        text-align: center;
+        font-size: 1rem;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 375px) {
+    .footer-quick-links {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .footer-brand, .newsletter-form {
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Newsletter Modal Styling */
+.newsletter-modal {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    border: none;
+    border-radius: 15px;
+    color: #ecf0f1;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.newsletter-modal .btn-close-white {
+    filter: brightness(0) invert(1);
+    opacity: 0.7;
+    transition: opacity var(--transition-medium) ease;
+}
+
+.newsletter-modal .btn-close-white:hover {
+    opacity: 1;
+}
+
+.newsletter-success-icon {
+    font-size: 4rem;
+    color: var(--secondary-color);
+    margin-bottom: 1.5rem;
+    animation: successPulse 2s infinite;
+}
+
+@keyframes successPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.newsletter-success-title {
+    color: #ecf0f1;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.newsletter-success-message {
+    color: #bdc3c7;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+}
+
+.newsletter-success-note {
+    color: var(--primary-light);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    padding: 0.75rem;
+    background: rgba(52, 152, 219, 0.1);
+    border-radius: 8px;
+    border-left: 3px solid var(--primary-color);
+}
+
+/* Newsletter Error Handling */
+.newsletter-input.is-invalid {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.25);
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.invalid-feedback {
+    display: block;
+    color: var(--danger-color);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(231, 76, 60, 0.1);
+    border-radius: 5px;
+    border-left: 3px solid var(--danger-color);
+}
+
+/* Newsletter Button Loading State */
+.btn-newsletter:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+.btn-newsletter .fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Fix for invalid-feedback elements appearing when they shouldn't */
+.invalid-feedback {
+    display: none !important;
+    color: #ff6b6b !important;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    background: rgba(231, 76, 60, 0.1);
+    border: 1px solid rgba(231, 76, 60, 0.3);
+    border-radius: 6px;
+    backdrop-filter: blur(10px);
+}
+
+.invalid-feedback.d-block {
+    display: block !important;
+}
+
+.form-control.is-invalid ~ .invalid-feedback {
+    display: block !important;
+}
+
+/* ========================================
+   Enhanced Admin Card Styling
+   ======================================== */
+
+/* Admin Card with Dotted Blue Outline */
+.admin-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    backdrop-filter: blur(20px);
+    border: 2px dotted rgba(52, 152, 219, 0.5);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    color: #f1f3f4;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Subtle blue glow effect on hover */
+.admin-card:hover {
+    box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(52, 152, 219, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Small Centered Plus Circle Button */
+.admin-plus-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3498db, #2ecc71);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 
+        0 4px 15px rgba(52, 152, 219, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Plus icon simple transition */
+.admin-plus-circle i {
+    transition: transform 0.3s ease;
+}
+
+/* Simple hover effects for plus circle */
+.admin-card:hover .admin-plus-circle {
+    box-shadow: 
+        0 6px 20px rgba(52, 152, 219, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Simple rotation on hover */
+.admin-card:hover .admin-plus-circle i {
+    transform: rotate(90deg);
+}
+
+/* Ripple effect on click */
+.admin-plus-circle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.6);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%, -50%);
+    transform-origin: 50% 50%;
+}
+
+.admin-plus-circle:active::after {
+    animation: adminRipple 0.6s ease-out;
+}
+
+@keyframes adminRipple {
+    0% {
+        transform: scale(0, 0) translate(-50%, -50%);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(15, 15) translate(-50%, -50%);
+        opacity: 0;
+    }
+}
+
+/* Admin card title styling */
+.admin-card .card-title {
+    color: #3498db;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+/* Admin card description styling */
+.admin-card .card-text {
+    color: #bdc3c7;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Card body styling for admin cards */
+.admin-card .card-body {
+    position: relative;
+    z-index: 2;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 280px;
+}
+
+/* Ensure proper clickable area */
+.admin-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+}
+
+.admin-card-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ========================================
+   Dark Theme Form Enhancements
+   ======================================== */
+
+/* Enhanced dark theme form container */
+.dark-theme-form-container {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    color: #f1f3f4;
+    padding: 2rem;
+}
+
+/* Form header styling */
+.dark-theme-form-header {
+    background: rgba(52, 152, 219, 0.1);
+    border-bottom: 1px solid rgba(52, 152, 219, 0.3);
+    border-radius: 20px 20px 0 0;
+    padding: 1.5rem 2rem;
+    margin: -2rem -2rem 2rem -2rem;
+}
+
+.dark-theme-form-header h2 {
+    color: #3498db;
+    font-weight: 600;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+/* Enhanced form controls for dark theme */
+.dark-theme-form .form-control,
+.dark-theme-form .form-select {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ecf0f1;
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 0.875rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.dark-theme-form .form-control:focus,
+.dark-theme-form .form-select:focus {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+    color: #ecf0f1;
+}
+
+.dark-theme-form .form-control::placeholder {
+    color: #95a5a6;
+    opacity: 0.8;
+}
+
+/* Enhanced button styling for dark forms */
+.dark-theme-form .btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border: none;
+    border-radius: 12px;
+    padding: 0.875rem 2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.dark-theme-form .btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+}
+
+.dark-theme-form .btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #bdc3c7;
+    border-radius: 12px;
+    padding: 0.875rem 2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.dark-theme-form .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #ecf0f1;
+    transform: translateY(-2px);
+}
+
+/* ========================================
+   Simple Dark Theme Modal Styling
+   ======================================== */
+
+.modal-content.dark-theme-card {
+    background: #2c3e50;
+    border: 1px solid rgba(52, 152, 219, 0.4);
+    border-radius: 12px;
+    color: #ecf0f1;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.modal-content.dark-theme-card .modal-header {
+    background: rgba(231, 76, 60, 0.1);
+    border-bottom: 1px solid rgba(231, 76, 60, 0.3);
+    padding: 1.25rem 1.5rem;
+    color: #ecf0f1;
+}
+
+.modal-content.dark-theme-card .modal-header .modal-title i {
+    color: #e74c3c;
+}
+
+.modal-content.dark-theme-card .modal-body {
+    padding: 1.5rem;
+    color: #bdc3c7;
+}
+
+.modal-content.dark-theme-card .modal-body .fas.fa-trash-alt {
+    color: #e74c3c;
+}
+
+.modal-content.dark-theme-card .modal-body strong {
+    color: #3498db;
+}
+
+.modal-content.dark-theme-card .modal-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-content.dark-theme-card .alert-danger {
+    background: rgba(231, 76, 60, 0.2);
+    border-color: rgba(231, 76, 60, 0.4);
+    color: #ff7675;
+}
+
+.modal-content.dark-theme-card .btn-secondary {
+    background: rgba(108, 117, 125, 0.2);
+    border-color: rgba(108, 117, 125, 0.4);
+    color: #adb5bd;
+}
+
+.modal-content.dark-theme-card .btn-secondary:hover {
+    background: rgba(108, 117, 125, 0.3);
+    border-color: rgba(108, 117, 125, 0.6);
+    color: #ecf0f1;
+}
+
+.modal-content.dark-theme-card .btn-danger {
+    background: #e74c3c;
+    border-color: #c0392b;
+    color: white;
+}
+
+.modal-content.dark-theme-card .btn-danger:hover {
+    background: #c0392b;
+    border-color: #a93226;
+}
+
+/* Responsive modal adjustments */
+@media (max-width: 576px) {
+    .modal-content.dark-theme-card .modal-header,
+    .modal-content.dark-theme-card .modal-body,
+    .modal-content.dark-theme-card .modal-footer {
+        padding: 1rem;
+    }
+    
+    .modal-content.dark-theme-card .modal-title {
+        font-size: 1.1rem;
+    }
+    
+    .modal-content.dark-theme-card .modal-footer .btn {
+        font-size: 0.9rem;
+        padding: 0.6rem 1rem;
+    }
+}
+
+/* ========================================
+   Trip Cards Responsive Improvements
+   ======================================== */
+
+/* Additional responsive enhancements for trip cards only */
+@media (max-width: 769.98px) {
+    /* Single column layout up to 770px - enhanced mobile styling */
+    .trips-page .dark-theme-card.clickable-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .trips-page .dark-theme-card.clickable-card .card-body {
+        padding: 1.25rem;
+    }
+    
+    .trips-page .dark-theme-card.clickable-card .badge {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.6rem;
+    }
+    
+    .trips-page .dark-theme-card.clickable-card .card-title {
+        font-size: 1.1rem;
+    }
+    
+    .trips-page .dark-theme-card.clickable-card .card-subtitle {
+        font-size: 0.95rem;
+    }
+}
+
+/* Override Bootstrap breakpoints for trip cards only */
+@media (max-width: 769.98px) {
+    /* Keep 1 column layout up to 770px to prevent cards getting smooshed */
+    .trips-page .row-cols-sm-2 > * {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+}
+
+@media (min-width: 770px) and (max-width: 1199.98px) {
+    /* 2 column layout from 770px to 1200px */
+    .trips-page .row-cols-sm-2 > * {
+        flex: 0 0 auto;
+        width: 50%;
+    }
+    
+    .trips-page .row-cols-sm-2 .dark-theme-card.clickable-card {
+        min-height: 500px;
+    }
+}
+
+@media (min-width: 1200px) {
+    /* 3 column layout from 1200px onwards */
+    .trips-page .row-cols-lg-3 > * {
+        flex: 0 0 auto;
+        width: 33.333333%;
+    }
+    
+    .trips-page .row-cols-lg-3 .dark-theme-card.clickable-card {
+        min-height: 520px;
+    }
+}
+
+/* Improved card flexbox layout for consistent heights */
+.row-cols-1 > *, 
+.row-cols-sm-2 > *, 
+.row-cols-lg-3 > * {
+    display: flex;
+    align-items: stretch;
+}
+
+.clickable-card.h-100 {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+}
+
+/* Ensure card images maintain aspect ratio across screen sizes - only for trip cards */
+.clickable-card .card-img-top {
+    object-fit: cover;
+    transition: all 0.3s ease;
+}
+
+
+/* ========================================
+   Destination Cards Responsive Improvements
+   ======================================== */
+
+/* Override Bootstrap breakpoints for destination cards - same as trips */
+@media (max-width: 769.98px) {
+    /* Keep 1 column layout up to 770px to prevent cards getting smooshed */
+    .destinations-page .row-cols-sm-2 > * {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+    
+    /* Enhanced styling for single column */
+    .destinations-page .dark-theme-card.clickable-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .destinations-page .dark-theme-card.clickable-card .card-body {
+        padding: 1.25rem;
+    }
+    
+    .destinations-page .dark-theme-card.clickable-card .badge {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.6rem;
+    }
+    
+    .destinations-page .dark-theme-card.clickable-card .card-title {
+        font-size: 1.1rem;
+    }
+    
+    .destinations-page .dark-theme-card.clickable-card .card-subtitle {
+        font-size: 0.95rem;
+    }
+}
+
+@media (min-width: 770px) and (max-width: 1199.98px) {
+    /* 2 column layout from 770px to 1200px */
+    .destinations-page .row-cols-sm-2 > * {
+        flex: 0 0 auto;
+        width: 50%;
+    }
+    
+    .destinations-page .row-cols-sm-2 .dark-theme-card.clickable-card {
+        min-height: 500px;
+    }
+}
+
+@media (min-width: 1200px) {
+    /* 3 column layout from 1200px onwards */
+    .destinations-page .row-cols-lg-3 > * {
+        flex: 0 0 auto;
+        width: 33.333333%;
+    }
+    
+    .destinations-page .row-cols-lg-3 .dark-theme-card.clickable-card {
+        min-height: 520px;
+    }
+}
+
+/* Smooth transitions for responsive changes - for both trip and destination cards */
+.row-cols-1 .dark-theme-card.clickable-card,
+.row-cols-sm-2 .dark-theme-card.clickable-card,
+.row-cols-lg-3 .dark-theme-card.clickable-card,
+.clickable-card .card-img-top,
+.clickable-card .card-body,
+.clickable-card .badge {
+    transition: all 0.3s ease;
+}

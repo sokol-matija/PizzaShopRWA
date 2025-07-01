@@ -35,10 +35,60 @@
         transition: none !important;
     }
     
+    /* Destination Cards Responsive Layout Improvements */
+    .destination-card-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .destination-card-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .destination-card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .destination-card-info {
+        flex: 1;
+    }
+    
+    .destination-card-footer {
+        margin-top: auto;
+        background: rgba(255, 255, 255, 0.02) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* Responsive improvements for destination cards only are handled in travel-theme.css
+       Uses .destinations-page class for specificity
+       Breakpoints: 1 column (up to 770px) → 2 columns (770px-1200px) → 3 columns (1200px+) */
+    
+    /* Note: Using @@media to escape Razor syntax */
+    
+    /* Ensure consistent card heights */
+    .clickable-card.h-100 {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .clickable-card .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .clickable-card .card-footer {
+        margin-top: auto;
+    }
 
 </style>
 
-<div class="container mt-4">
+<div class="container mt-4 destinations-page">
     <div class="text-center mb-5">
         <h1 class="dark-theme-section-title">
             <i class="fas fa-globe-americas me-3"></i>@ViewData["Title"]
@@ -64,7 +114,7 @@
     <!-- Destinations Grid -->
     @if (Model.Destinations.Any())
     {
-        <div class="row row-cols-1 row-cols-md-3 g-4">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
             @if (User.IsInRole("Admin"))
             {
                 <div class="col">
