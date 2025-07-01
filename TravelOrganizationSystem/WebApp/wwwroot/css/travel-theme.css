@@ -1912,11 +1912,20 @@ h1, h2, h3, h4, h5, h6 {
    Guide Assignments Page - Uniform Card Heights
    ======================================== */
 
+/* Force columns to be flex containers for proper centering */
+.guide-assignments-page .col {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: stretch !important;
+}
+
 /* Force all cards to have uniform height - exactly like trips page */
 .guide-assignments-page .dark-theme-card.h-100 {
     display: flex;
     flex-direction: column;
     height: 100%;
+    width: 100%;
+    align-self: stretch;
 }
 
 .guide-assignments-page .card-body {
