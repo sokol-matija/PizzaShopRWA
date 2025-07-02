@@ -42,6 +42,7 @@ builder.Services.AddScoped<IDestinationService, DestinationService>();
 builder.Services.AddScoped<ITripRegistrationService, TripRegistrationService>();
 builder.Services.AddScoped<IGuideService, GuideService>();
 builder.Services.AddScoped<IUnsplashService, UnsplashService>();
+builder.Services.AddScoped<ILogService, LogService>();
 
 // Add session support
 builder.Services.AddDistributedMemoryCache();

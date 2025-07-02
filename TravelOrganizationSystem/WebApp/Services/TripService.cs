@@ -667,19 +667,54 @@ namespace WebApp.Services
                 // Set authentication token
                 await SetAuthHeaderAsync();
                 
-                var json = JsonSerializer.Serialize(trip);
+                // Map TripModel to CreateTripDTO with correct property names
+                var createDto = new
+                {
+                    Name = trip.Title,  // API expects "Name" but WebApp uses "Title"
+                    Description = trip.Description,
+                    StartDate = trip.StartDate,
+                    EndDate = trip.EndDate,
+                    Price = trip.Price,
+                    ImageUrl = trip.ImageUrl ?? string.Empty,
+                    MaxParticipants = trip.Capacity,  // API expects "MaxParticipants" but WebApp uses "Capacity"
+                    DestinationId = trip.DestinationId,
+                    GuideIds = new List<int>()  // Empty list - guides will be assigned later via guide assignment page
+                };
+                
+                var json = JsonSerializer.Serialize(createDto);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
+                
+                _logger.LogInformation("Creating trip with data: {Data}", json);
                 
                 var response = await _httpClient.PostAsync($"{_apiBaseUrl}Trip", content);
                 
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    return JsonSerializer.Deserialize<TripModel>(responseContent, _jsonOptions);
+                    _logger.LogInformation("Trip created successfully: {Title}", trip.Title);
+                    
+                    // Parse the response which is a TripDTO and map it back to TripModel
+                    var jsonDoc = JsonDocument.Parse(responseContent);
+                    var createdTrip = new TripModel
+                    {
+                        Id = GetIntProperty(jsonDoc.RootElement, "id"),
+                        Title = GetStringProperty(jsonDoc.RootElement, "name") ?? string.Empty,
+                        Description = GetStringProperty(jsonDoc.RootElement, "description") ?? string.Empty,
+                        StartDate = GetDateTimeProperty(jsonDoc.RootElement, "startDate"),
+                        EndDate = GetDateTimeProperty(jsonDoc.RootElement, "endDate"),
+                        Price = GetDecimalProperty(jsonDoc.RootElement, "price"),
+                        ImageUrl = GetStringProperty(jsonDoc.RootElement, "imageUrl"),
+                        Capacity = GetIntProperty(jsonDoc.RootElement, "maxParticipants"),
+                        DestinationId = GetIntProperty(jsonDoc.RootElement, "destinationId"),
+                        DestinationName = GetStringProperty(jsonDoc.RootElement, "destinationName") ?? string.Empty
+                    };
+                    
+                    return createdTrip;
                 }
                 
-                // Handle errors
-                _logger.LogWarning("Failed to create trip: {StatusCode}", response.StatusCode);
+                // Handle errors - log the response content for debugging
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("Failed to create trip: {StatusCode}, Error: {Error}", response.StatusCode, errorContent);
                 return null;
             }
             catch (Exception ex)
