@@ -218,23 +218,11 @@
                                         <div class="guide-card guide-info p-3 rounded" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
                                             <div class="d-flex">
                                                 <div class="guide-avatar-container me-3">
-                                                    @if (!string.IsNullOrEmpty(guide.PhotoUrl))
-                                                    {
-                                                        <img src="@guide.PhotoUrl" class="rounded-circle guide-avatar" alt="@guide.FullName" 
-                                                             style="width: 70px; height: 70px; object-fit: cover; border: 2px solid #3498db;"
-                                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                                        <div class="rounded-circle guide-placeholder d-flex align-items-center justify-content-center" 
-                                                             style="width: 70px; height: 70px; background: linear-gradient(135deg, #3498db, #2ecc71); border: 2px solid #3498db; display: none;">
-                                                            <i class="fas fa-user fs-3" style="color: white;"></i>
-                                                        </div>
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="rounded-circle guide-placeholder d-flex align-items-center justify-content-center" 
-                                                             style="width: 70px; height: 70px; background: linear-gradient(135deg, #3498db, #2ecc71); border: 2px solid #3498db;">
-                                                            <i class="fas fa-user fs-3" style="color: white;"></i>
-                                                        </div>
-                                                    }
+                                                    <!-- Always use placeholder for now (no profile photos implementation) -->
+                                                    <div class="rounded-circle guide-placeholder d-flex align-items-center justify-content-center" 
+                                                         style="width: 70px; height: 70px; background: linear-gradient(135deg, #3498db, #2ecc71); border: 2px solid #3498db;">
+                                                        <i class="fas fa-user fs-3" style="color: white;"></i>
+                                                    </div>
                                                 </div>
                                                 <div class="flex-grow-1">
                                                     <h6 class="mb-2 fw-bold" style="color: #3498db;">@guide.FullName</h6>
