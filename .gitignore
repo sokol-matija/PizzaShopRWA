@@ -27,6 +27,8 @@ project.assets.json
 
 # Ignore publish output
 wwwroot/
+publish/
+*-deployment.zip
 
 # Ignore log and temporary files
 logs/
