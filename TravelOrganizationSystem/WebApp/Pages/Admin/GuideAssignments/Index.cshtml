@@ -386,21 +386,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         try {
-            const response = await fetch(`/api/Trip/${tripId}/guides/${guideId}`, {
+            // Use page handler instead of direct API call
+            const formData = new FormData();
+            formData.append('tripId', tripId);
+            formData.append('guideId', guideId);
+            formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+            
+            const response = await fetch('?handler=Assign', {
                 method: 'POST',
-                headers: {
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                }
+                body: formData
             });
             
             if (response.ok) {
-                showMessage('Guide assigned successfully!', true);
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                const result = await response.json();
+                if (result.success) {
+                    showMessage(result.message, true);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showMessage(result.message, false);
+                }
             } else {
-                const errorText = await response.text();
-                showMessage(`Error: ${errorText}`, false);
+                showMessage('An error occurred while assigning the guide.', false);
             }
         } catch (error) {
             showMessage('An error occurred while assigning the guide.', false);
@@ -415,24 +423,33 @@ document.addEventListener('DOMContentLoaded', function() {
         const guideId = document.getElementById('removeGuideId').value;
         
         try {
-            const response = await fetch(`/api/Trip/${tripId}/guides/${guideId}`, {
-                method: 'DELETE',
-                headers: {
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                }
+            // Use page handler instead of direct API call
+            const formData = new FormData();
+            formData.append('tripId', tripId);
+            formData.append('guideId', guideId);
+            formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+            
+            const response = await fetch('?handler=Remove', {
+                method: 'POST',
+                body: formData
             });
             
             if (response.ok) {
+                const result = await response.json();
+                
                 // Close modal
                 closeRemoveGuideModal();
                 
-                showMessage('Guide removed successfully!', true);
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                if (result.success) {
+                    showMessage(result.message, true);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showMessage(result.message, false);
+                }
             } else {
-                const errorText = await response.text();
-                showMessage(`Error: ${errorText}`, false);
+                showMessage('An error occurred while removing the guide.', false);
             }
         } catch (error) {
             showMessage('An error occurred while removing the guide.', false);
