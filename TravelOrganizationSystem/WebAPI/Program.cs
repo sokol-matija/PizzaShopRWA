@@ -20,10 +20,18 @@ builder.Services.AddCors(options =>
 {
 	options.AddPolicy("AllowWebApp", builder =>
 	{
-		builder.WithOrigins("http://localhost:17001", "https://localhost:17001")
+		builder.WithOrigins("http://localhost:17001", "https://localhost:17001", "https://*.vercel.app")
 			   .AllowAnyMethod()
 			   .AllowAnyHeader()
 			   .AllowCredentials(); // Allow cookies/credentials
+	});
+	
+	// Add a more permissive policy for production
+	options.AddPolicy("AllowAll", builder =>
+	{
+		builder.AllowAnyOrigin()
+			   .AllowAnyMethod()
+			   .AllowAnyHeader();
 	});
 });
 
@@ -158,7 +166,15 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowWebApp");
+// Use different CORS policies based on environment
+if (app.Environment.IsDevelopment())
+{
+	app.UseCors("AllowWebApp");
+}
+else
+{
+	app.UseCors("AllowAll"); // More permissive for production deployment
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
