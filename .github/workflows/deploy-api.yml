@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: 'your-travel-api-app'    # Replace with your app name
+  AZURE_WEBAPP_NAME: 'travel-api-sokol-2024'    
   AZURE_WEBAPP_PACKAGE_PATH: './TravelOrganizationSystem/WebAPI'
   DOTNET_VERSION: '8.x'
 
