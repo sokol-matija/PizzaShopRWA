@@ -1,6 +1,3 @@
--- CORRECT DATABASE SCHEMA FOR TRAVEL ORGANIZATION SYSTEM
--- This script creates the database exactly as it exists in the local environment
--- Generated on: 2025-07-01
 
 -- Create Destination table (1-to-N entity)
 CREATE TABLE Destination (
