@@ -257,19 +257,16 @@
                 <div class="col">
                     <div class="dark-theme-card h-100 clickable-card" onclick="navigateToTripDetails(@trip.Id)" style="cursor: pointer;">
                         <div class="position-relative">
-                            @if (!string.IsNullOrEmpty(trip.ImageUrl))
-                            {
-                                <img src="@trip.ImageUrl" class="card-img-top" alt="@trip.Title" style="height: 250px; object-fit: cover; border-radius: 20px 20px 0 0;">
-                            }
-                            else
-                            {
-                                <div class="card-img-top d-flex justify-content-center align-items-center" style="height: 250px; background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(46, 204, 113, 0.2)); border-radius: 20px 20px 0 0;">
-                                    <div class="text-center">
-                                        <i class="fas fa-plane-departure fa-4x mb-2" style="color: #3498db; opacity: 0.7;"></i>
-                                        <p class="mb-0" style="color: #bdc3c7;">No image available</p>
-                                    </div>
-                                </div>
-                            }
+                            @* Optimized image with lazy loading and compression *@
+                            @Html.OptimizedImage(
+                                imageUrl: trip.ImageUrl ?? $"{trip.DestinationName} travel destination",
+                                alt: trip.Title,
+                                cssClass: "card-img-top",
+                                style: "height: 250px; object-fit: cover; border-radius: 20px 20px 0 0;",
+                                size: "small",
+                                width: 400,
+                                height: 250
+                            )
                             
                             <!-- Price badge -->
                             <div class="position-absolute top-0 end-0 m-3">

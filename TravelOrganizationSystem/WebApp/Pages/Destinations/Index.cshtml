@@ -172,16 +172,16 @@
                 <div class="col">
                     <div class="dark-theme-card h-100 clickable-card" onclick="navigateToDestinationDetails(@destination.Id)" style="cursor: pointer;">
                         <div class="position-relative">
-                            @if (!string.IsNullOrEmpty(destination.ImageUrl))
-                            {
-                                <img src="@destination.ImageUrl" class="card-img-top" alt="@destination.Name" style="height: 250px; object-fit: cover; border-radius: 20px 20px 0 0;">
-                            }
-                            else
-                            {
-                                <div class="card-img-top d-flex justify-content-center align-items-center" style="height: 250px; background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(46, 204, 113, 0.2)); border-radius: 20px 20px 0 0;">
-                                    <i class="fas fa-mountain fa-4x" style="color: #3498db; opacity: 0.7;"></i>
-                                </div>
-                            }
+                            @* Optimized destination image with lazy loading *@
+                            @Html.OptimizedImage(
+                                imageUrl: destination.ImageUrl ?? $"{destination.Name} {destination.Country} destination",
+                                alt: destination.Name,
+                                cssClass: "card-img-top",
+                                style: "height: 250px; object-fit: cover; border-radius: 20px 20px 0 0;",
+                                size: "small",
+                                width: 400,
+                                height: 250
+                            )
                         </div>
                         <div class="card-body">
                             <h5 class="card-title fw-bold" style="color: #3498db;">@destination.Name</h5>

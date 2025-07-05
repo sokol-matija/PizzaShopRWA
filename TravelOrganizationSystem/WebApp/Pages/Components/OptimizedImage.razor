@@ -1,8 +1,15 @@
 @using WebApp.Services
-@using WebApp.Models
 @inject IUnsplashService UnsplashService
 
-@* Optimized Image Component with Lazy Loading and Responsive Sizing *@
+@* 
+    Optimized Image Component with Lazy Loading and Responsive Sizing
+    
+    This component provides basic image optimization by:
+    - Adding lazy loading for better performance
+    - Adding optimization parameters to Unsplash URLs (compression, format, sizing)
+    - Providing loading placeholders and error handling
+    - Supporting different size presets: "thumb", "small", "regular", "full"
+*@
 
 <div class="optimized-image-container @CssClass" style="@ContainerStyle">
     @if (IsLoading)
@@ -42,7 +49,7 @@
     [Parameter] public string ImageCssClass { get; set; } = "img-fluid";
     [Parameter] public string ImageStyle { get; set; } = "object-fit: cover; width: 100%;";
     [Parameter] public string ContainerStyle { get; set; } = string.Empty;
-    [Parameter] public ImageSize Size { get; set; } = ImageSize.Regular;
+    [Parameter] public string Size { get; set; } = "regular";
     [Parameter] public int Width { get; set; } = 0;
     [Parameter] public int Height { get; set; } = 0;
     [Parameter] public EventCallback OnLoad { get; set; }
@@ -83,11 +90,11 @@
             }
             else
             {
-                // Assume it's a search query or photo ID
-                var photo = await UnsplashService.GetRandomImageAsync(ImageUrl);
-                if (photo != null)
+                // Treat as search query and get image from Unsplash
+                var imageUrl = await UnsplashService.GetRandomImageUrlAsync(ImageUrl);
+                if (!string.IsNullOrEmpty(imageUrl))
                 {
-                    OptimizedImageUrl = UnsplashService.GetOptimizedImageUrl(photo, Size);
+                    OptimizedImageUrl = AddOptimizationParams(imageUrl);
                 }
             }
         }
@@ -110,20 +117,20 @@
 
         var separator = url.Contains('?') ? "&" : "?";
         var optimizedUrl = $"{url}{separator}auto=format&fit=crop&q=80";
-
+        
         // Add dimensions based on size parameter
-        switch (Size)
+        switch (Size.ToLower())
         {
-            case ImageSize.Thumb:
+            case "thumb":
                 optimizedUrl += "&w=200&h=150";
                 break;
-            case ImageSize.Small:
+            case "small":
                 optimizedUrl += "&w=400&h=300";
                 break;
-            case ImageSize.Regular:
+            case "regular":
                 optimizedUrl += "&w=800&h=600";
                 break;
-            // Full size doesn't need dimension constraints
+            // "full" doesn't add dimension constraints
         }
 
         // Override with custom dimensions if provided
