@@ -1,0 +1,172 @@
+@using WebApp.Services
+@using WebApp.Models
+@inject IUnsplashService UnsplashService
+
+@* Optimized Image Component with Lazy Loading and Responsive Sizing *@
+
+<div class="optimized-image-container @CssClass" style="@ContainerStyle">
+    @if (IsLoading)
+    {
+        <!-- Loading placeholder -->
+        <div class="image-placeholder d-flex align-items-center justify-content-center bg-light" style="@PlaceholderStyle">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading image...</span>
+            </div>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(OptimizedImageUrl))
+    {
+        <!-- Responsive image with lazy loading -->
+        <img src="@OptimizedImageUrl" 
+             class="@ImageCssClass" 
+             alt="@Alt" 
+             style="@ImageStyle"
+             loading="lazy"
+             decoding="async"
+             @onload="OnImageLoad"
+             @onerror="OnImageError" />
+    }
+    else
+    {
+        <!-- Fallback placeholder -->
+        <div class="image-placeholder d-flex align-items-center justify-content-center bg-secondary text-white" style="@PlaceholderStyle">
+            <i class="fas fa-image fa-2x"></i>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string ImageUrl { get; set; } = string.Empty;
+    [Parameter] public string Alt { get; set; } = string.Empty;
+    [Parameter] public string CssClass { get; set; } = string.Empty;
+    [Parameter] public string ImageCssClass { get; set; } = "img-fluid";
+    [Parameter] public string ImageStyle { get; set; } = "object-fit: cover; width: 100%;";
+    [Parameter] public string ContainerStyle { get; set; } = string.Empty;
+    [Parameter] public ImageSize Size { get; set; } = ImageSize.Regular;
+    [Parameter] public int Width { get; set; } = 0;
+    [Parameter] public int Height { get; set; } = 0;
+    [Parameter] public EventCallback OnLoad { get; set; }
+    [Parameter] public EventCallback OnError { get; set; }
+
+    private bool IsLoading { get; set; } = true;
+    private string OptimizedImageUrl { get; set; } = string.Empty;
+    
+    private string PlaceholderStyle => 
+        $"{(Width > 0 ? $"width: {Width}px;" : "")} " +
+        $"{(Height > 0 ? $"height: {Height}px;" : "")} " +
+        $"{ImageStyle}";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(ImageUrl))
+        {
+            await LoadOptimizedImage();
+        }
+        else
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task LoadOptimizedImage()
+    {
+        try
+        {
+            IsLoading = true;
+            StateHasChanged();
+
+            // Check if this is already an optimized URL
+            if (ImageUrl.Contains("images.unsplash.com"))
+            {
+                // Already an Unsplash URL, add optimization parameters
+                OptimizedImageUrl = AddOptimizationParams(ImageUrl);
+            }
+            else
+            {
+                // Assume it's a search query or photo ID
+                var photo = await UnsplashService.GetRandomImageAsync(ImageUrl);
+                if (photo != null)
+                {
+                    OptimizedImageUrl = UnsplashService.GetOptimizedImageUrl(photo, Size);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log error and show fallback
+            Console.WriteLine($"Error loading optimized image: {ex.Message}");
+            OptimizedImageUrl = string.Empty;
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private string AddOptimizationParams(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return url;
+
+        var separator = url.Contains('?') ? "&" : "?";
+        var optimizedUrl = $"{url}{separator}auto=format&fit=crop&q=80";
+
+        // Add dimensions based on size parameter
+        switch (Size)
+        {
+            case ImageSize.Thumb:
+                optimizedUrl += "&w=200&h=150";
+                break;
+            case ImageSize.Small:
+                optimizedUrl += "&w=400&h=300";
+                break;
+            case ImageSize.Regular:
+                optimizedUrl += "&w=800&h=600";
+                break;
+            // Full size doesn't need dimension constraints
+        }
+
+        // Override with custom dimensions if provided
+        if (Width > 0 && Height > 0)
+        {
+            optimizedUrl += $"&w={Width}&h={Height}";
+        }
+
+        return optimizedUrl;
+    }
+
+    private async Task OnImageLoad()
+    {
+        await OnLoad.InvokeAsync();
+    }
+
+    private async Task OnImageError()
+    {
+        OptimizedImageUrl = string.Empty;
+        await OnError.InvokeAsync();
+    }
+}
+
+<style>
+    .optimized-image-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .image-placeholder {
+        min-height: 150px;
+        border-radius: inherit;
+    }
+
+    .optimized-image-container img {
+        transition: opacity 0.3s ease;
+    }
+
+    .optimized-image-container img[loading="lazy"] {
+        opacity: 0;
+    }
+
+    .optimized-image-container img[loading="lazy"].loaded {
+        opacity: 1;
+    }
+</style> 
