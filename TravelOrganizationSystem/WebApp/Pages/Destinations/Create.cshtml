@@ -1,3 +1,4 @@
+
 @page
 @model WebApp.Pages.Destinations.CreateModel
 @{
@@ -133,57 +134,53 @@
                     const query = `${city} ${country} travel`;
                     console.log(`Fetching image for query: ${query}`);
                     
-                    // Create direct call to Unsplash service instead of using API endpoint
-                    // This matches how the Index page does it
-                    try {
-                        // First try the API endpoint
-                        const response = await fetch(`/api/unsplash/random?query=${encodeURIComponent(query)}&t=${Date.now()}`);
-                        console.log('API Response status:', response.status);
+                    // Use the proper Unsplash API endpoint
+                    const response = await fetch(`/api/unsplash/random?query=${encodeURIComponent(query)}&t=${Date.now()}`);
+                    console.log('API Response status:', response.status);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('API Response data:', data);
                         
-                        if (response.ok) {
-                            const data = await response.json();
-                            console.log('API Response data:', data);
-                            
-                            if (data && data.imageUrl) {
-                                // Success! Display the image
-                                imagePreview.src = data.imageUrl;
-                                imagePreview.style.display = 'block';
-                                imageUrlInput.value = data.imageUrl;
-                                noImagePlaceholder.style.display = 'none';
-                                refreshImageBtn.disabled = false;
-                                return;
-                            }
+                        if (data && data.imageUrl) {
+                            // Success! Display the image
+                            imagePreview.src = data.imageUrl;
+                            imagePreview.style.display = 'block';
+                            imageUrlInput.value = data.imageUrl;
+                            noImagePlaceholder.style.display = 'none';
+                            refreshImageBtn.disabled = false;
+                            console.log('Successfully loaded image from Unsplash API');
+                            return;
                         } else {
-                            const errorText = await response.text();
-                            console.error('API error response:', errorText);
+                            console.error('API returned success but no image URL in response');
+                            throw new Error('No image URL received from API');
                         }
-                        
-                        // If API fails, fallback to direct URL which always works
-                        console.log('Falling back to direct Unsplash URL');
-                        const timestamp = Date.now();
-                        const fallbackUrl = `https://source.unsplash.com/random/800x600/?${encodeURIComponent(query)}&t=${timestamp}`;
-                        
-                        // Display the fallback image
-                        imagePreview.src = fallbackUrl;
-                        imagePreview.style.display = 'block';
-                        imageUrlInput.value = fallbackUrl;
-                        noImagePlaceholder.style.display = 'none';
-                        refreshImageBtn.disabled = false;
-                    } catch (fetchError) {
-                        console.error('Fetch error:', fetchError);
-                        // Last resort fallback
-                        const fallbackUrl = `https://source.unsplash.com/random/800x600/?${encodeURIComponent(query)}`;
-                        imagePreview.src = fallbackUrl;
-                        imagePreview.style.display = 'block';
-                        imageUrlInput.value = fallbackUrl;
-                        noImagePlaceholder.style.display = 'none';
+                    } else {
+                        // API returned an error status
+                        const errorText = await response.text();
+                        console.error('API error response:', response.status, errorText);
+                        throw new Error(`API request failed: ${response.status} - ${errorText}`);
                     }
                 } catch (error) {
-                    console.error('Error in getUnsplashImage:', error);
-                    alert('Failed to load image. Please try again.');
+                    console.error('Error loading image from Unsplash:', error);
+                    
+                    // Show user-friendly error message
+                    let errorMessage = 'Failed to load image from Unsplash. ';
+                    
+                    if (error.message.includes('API request failed')) {
+                        errorMessage += 'The image service is currently unavailable. Please try again later.';
+                    } else if (error.message.includes('NetworkError') || error.message.includes('fetch')) {
+                        errorMessage += 'Please check your internet connection and try again.';
+                    } else {
+                        errorMessage += 'Please try again or contact support if the problem persists.';
+                    }
+                    
+                    alert(errorMessage);
                 } finally {
+                    // Always re-enable the button
                     loadImageBtn.disabled = false;
                     loadImageBtn.innerHTML = '<i class="fas fa-image me-1"></i> Load Image';
+                    refreshImageBtn.disabled = false;
                 }
             }
 
