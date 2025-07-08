@@ -46,6 +46,13 @@ The application includes GitHub Actions workflows for automated deployment:
 - API deployment workflow triggers on changes to `TravelOrganizationSystem/WebAPI/**`
 - WebApp deployment workflow triggers on changes to `TravelOrganizationSystem/WebApp/**`
 
+**Required GitHub Secrets:**
+- `AZURE_CREDENTIALS` - Azure service principal credentials (JSON format)
+- `AZURE_API_APP_NAME` - Your Azure API app name
+- `AZURE_API_PUBLISH_PROFILE` - API app publish profile
+- `AZURE_WEBAPP_APP_NAME` - Your Azure webapp app name  
+- `AZURE_WEBAPP_PUBLISH_PROFILE` - Webapp publish profile
+
 ### ⚡ Quick Deployment (Alternative)
 ```powershell
 # One-command deployment to Azure
