@@ -46,21 +46,11 @@ The application includes GitHub Actions workflows for automated deployment:
 - API deployment workflow triggers on changes to `TravelOrganizationSystem/WebAPI/**`
 - WebApp deployment workflow triggers on changes to `TravelOrganizationSystem/WebApp/**`
 
-**Setup Requirements:**
-
-1. **Configure Azure App Registration with Federated Credentials:**
-   - Create an Azure App Registration
-   - Add federated credentials for GitHub Actions
-   - Subject identifier: `repo:YOUR_USERNAME/YOUR_REPO:ref:refs/heads/master`
-
-2. **Required GitHub Secrets:**
-   - `AZURE_CLIENT_ID` - Azure service principal client ID
-   - `AZURE_TENANT_ID` - Azure tenant ID
-   - `AZURE_SUBSCRIPTION_ID` - Azure subscription ID
-   - `AZURE_API_APP_NAME` - Your Azure API app name
-   - `AZURE_API_PUBLISH_PROFILE` - API app publish profile
-   - `AZURE_WEBAPP_APP_NAME` - Your Azure webapp app name  
-   - `AZURE_WEBAPP_PUBLISH_PROFILE` - Webapp publish profile
+**Required GitHub Secrets:**
+- `AZURE_API_APP_NAME` - Your Azure API app name
+- `AZURE_API_PUBLISH_PROFILE` - API app publish profile (download from Azure portal)
+- `AZURE_WEBAPP_APP_NAME` - Your Azure webapp app name  
+- `AZURE_WEBAPP_PUBLISH_PROFILE` - Webapp publish profile (download from Azure portal)
 
 ### ⚡ Quick Deployment (Alternative)
 ```powershell
