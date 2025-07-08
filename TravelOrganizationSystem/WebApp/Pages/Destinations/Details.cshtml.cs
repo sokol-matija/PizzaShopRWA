@@ -115,7 +115,7 @@ namespace WebApp.Pages.Destinations
                 
                 _logger.LogInformation("Destination image updated: {Id}", id);
                 TempData["SuccessMessage"] = "Destination image successfully updated.";
-                return RedirectToPage(new { id });
+                return RedirectToPage("./Details", new { id });
             }
             catch (Exception ex)
             {

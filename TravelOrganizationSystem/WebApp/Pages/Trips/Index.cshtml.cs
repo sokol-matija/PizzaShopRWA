@@ -159,7 +159,7 @@ namespace WebApp.Pages.Trips
             }
 
             // Redirect to current page with current filters
-            return RedirectToPage(new { DestinationId = DestinationId, Page = Page });
+            return RedirectToPage("./Index", new { DestinationId = DestinationId, Page = Page });
         }
     }
 } 
