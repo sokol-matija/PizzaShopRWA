@@ -1,3 +1,4 @@
+// Testing deployment to new Azure endpoint: travel-web-matija.azurewebsites.net
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 using WebApp.Services;

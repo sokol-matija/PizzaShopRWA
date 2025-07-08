@@ -1,0 +1,11 @@
+{
+  "methodDisplay": "method",
+  "methodDisplayOptions": "all",
+  "preEnumerateTheories": false,
+  "diagnosticMessages": true,
+  "internalDiagnosticMessages": true,
+  "failSkips": false,
+  "stopOnFail": false,
+  "longRunningTestSeconds": 60,
+  "maxParallelThreads": 1
+}

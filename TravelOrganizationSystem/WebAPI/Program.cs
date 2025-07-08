@@ -1,3 +1,4 @@
+// Testing deployment to new Azure endpoint: travel-api-matija.azurewebsites.net
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -29,7 +30,8 @@ builder.Services.AddCors(options =>
 	options.AddPolicy("AllowProduction", builder =>
 	{
 		builder.WithOrigins(
-				"https://travel-webapp-sokol-2024.azurewebsites.net",
+				"https://travel-web-matija.azurewebsites.net", // New frontend URL
+				"https://travel-webapp-sokol-2024.azurewebsites.net", // Legacy URL for backwards compatibility
 				"https://travel-webapp-sokol.azurewebsites.net", // Legacy URL for backwards compatibility
 				"http://localhost:17001", // For local testing
 				"https://localhost:17001" // For local testing with HTTPS
