@@ -47,7 +47,9 @@ The application includes GitHub Actions workflows for automated deployment:
 - WebApp deployment workflow triggers on changes to `TravelOrganizationSystem/WebApp/**`
 
 **Required GitHub Secrets:**
-- `AZURE_CREDENTIALS` - Azure service principal credentials (JSON format)
+- `AZURE_CLIENT_ID` - Azure service principal client ID
+- `AZURE_TENANT_ID` - Azure tenant ID
+- `AZURE_SUBSCRIPTION_ID` - Azure subscription ID
 - `AZURE_API_APP_NAME` - Your Azure API app name
 - `AZURE_API_PUBLISH_PROFILE` - API app publish profile
 - `AZURE_WEBAPP_APP_NAME` - Your Azure webapp app name  
