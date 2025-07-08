@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -7,7 +7,7 @@ using WebAPI.Services;
 
 namespace WebAPI.Controllers
 {
-	// Test deployment - API workflow trigger
+	// Test deployment - API workflow triggep2
 	/// <summary>
 	/// Controller for handling authentication and user account operations
 	/// </summary>
