@@ -101,5 +101,6 @@ app.MapControllers(); // Map API controllers
 // Map Blazor components
 app.Run();
 
+// All togehte now test deploy
 // Make Program class accessible for integration testing
 public partial class Program { }

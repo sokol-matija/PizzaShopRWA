@@ -8,6 +8,8 @@ using WebAPI.Data;
 using WebAPI.Services;
 using WebAPI.Swagger;
 
+// All togehte now test deploy
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers().AddJsonOptions(options => {
