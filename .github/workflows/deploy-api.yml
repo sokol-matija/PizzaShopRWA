@@ -15,6 +15,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
