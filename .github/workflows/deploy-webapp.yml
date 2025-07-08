@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: 'travel-webapp-sokol-2024'    
+  AZURE_WEBAPP_NAME: 'travel-web-matija'    
   AZURE_WEBAPP_PACKAGE_PATH: './TravelOrganizationSystem/WebApp'
   DOTNET_VERSION: '8.x'
 
