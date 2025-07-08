@@ -9,7 +9,7 @@ using WebAPI.Services;
 using WebAPI.Swagger;
 
 // All togehte now test deploy
-
+Console.WriteLine("=== API STARTING ===");
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers().AddJsonOptions(options => {
