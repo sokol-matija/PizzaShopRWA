@@ -7,7 +7,7 @@ using WebAPI.Services;
 
 namespace WebAPI.Controllers
 {
-	// Test deployment - API workflow triggep2
+	// Test deployment - API workflow triggeer my brain
 	/// <summary>
 	/// Controller for handling authentication and user account operations
 	/// </summary>
