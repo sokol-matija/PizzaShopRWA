@@ -132,8 +132,27 @@ namespace WebApp.Pages.Admin.GuideAssignments
                 // Validate inputs
                 if (tripId <= 0 || guideId <= 0)
                 {
+                    _logger.LogWarning("Invalid inputs - TripId: {TripId}, GuideId: {GuideId}", tripId, guideId);
                     return new JsonResult(new { success = false, message = "Invalid trip or guide ID." });
                 }
+                
+                // First verify that the trip and guide exist
+                var trip = await _tripService.GetTripByIdAsync(tripId);
+                var guide = await _guideService.GetGuideByIdAsync(guideId);
+                
+                if (trip == null)
+                {
+                    _logger.LogWarning("Trip {TripId} not found", tripId);
+                    return new JsonResult(new { success = false, message = "Trip not found." });
+                }
+                
+                if (guide == null)
+                {
+                    _logger.LogWarning("Guide {GuideId} not found", guideId);
+                    return new JsonResult(new { success = false, message = "Guide not found." });
+                }
+                
+                _logger.LogInformation("Verified trip '{TripName}' and guide '{GuideName}' exist", trip.Title, guide.FullName);
                 
                 // Attempt to remove the guide
                 var success = await _tripService.RemoveGuideFromTripAsync(tripId, guideId);
@@ -142,24 +161,20 @@ namespace WebApp.Pages.Admin.GuideAssignments
                 {
                     _logger.LogInformation("Successfully removed guide {GuideId} from trip {TripId}", guideId, tripId);
                     
-                    // Get guide and trip names for success message
-                    var guide = await _guideService.GetGuideByIdAsync(guideId);
-                    var trip = await _tripService.GetTripByIdAsync(tripId);
-                    
-                    var message = $"Successfully removed {guide?.FullName ?? "guide"} from {trip?.Title ?? "trip"}.";
+                    var message = $"Successfully removed {guide.FullName} from {trip.Title}.";
                     
                     return new JsonResult(new { success = true, message });
                 }
                 else
                 {
-                    _logger.LogWarning("Failed to remove guide {GuideId} from trip {TripId}", guideId, tripId);
-                    return new JsonResult(new { success = false, message = "Failed to remove guide. The guide may not be assigned to this trip." });
+                    _logger.LogWarning("Failed to remove guide {GuideId} from trip {TripId} - service returned false", guideId, tripId);
+                    return new JsonResult(new { success = false, message = "Failed to remove guide. The guide may not be assigned to this trip or there was a server error." });
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception occurred while removing guide {GuideId} from trip {TripId}", guideId, tripId);
-                return new JsonResult(new { success = false, message = "An error occurred while removing the guide." });
+                return new JsonResult(new { success = false, message = "An error occurred while removing the guide. Please check the logs for details." });
             }
         }
 

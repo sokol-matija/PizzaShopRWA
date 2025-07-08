@@ -2,6 +2,11 @@
 @model WebApp.Pages.Admin.GuideAssignments.IndexModel
 @{
     ViewData["Title"] = "Manage Guide Assignments";
+    
+    // Force cache busting for this critical admin page
+    Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate");
+    Response.Headers.Add("Pragma", "no-cache");
+    Response.Headers.Add("Expires", "0");
 }
 
 <style>

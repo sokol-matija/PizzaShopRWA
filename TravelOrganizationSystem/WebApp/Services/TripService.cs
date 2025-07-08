@@ -855,23 +855,42 @@ namespace WebApp.Services
         {
             try
             {
+                _logger.LogInformation("Attempting to remove guide {GuideId} from trip {TripId}", guideId, tripId);
+                
                 // Set authentication token
                 await SetAuthHeaderAsync();
                 
-                var response = await _httpClient.DeleteAsync($"{_apiBaseUrl}Trip/{tripId}/guides/{guideId}");
+                // Log the URL being called and auth header status
+                var deleteUrl = $"{_apiBaseUrl}Trip/{tripId}/guides/{guideId}";
+                var hasAuthHeader = _httpClient.DefaultRequestHeaders.Authorization != null;
+                _logger.LogInformation("Making DELETE request to: {Url}, Has Auth Header: {HasAuth}", deleteUrl, hasAuthHeader);
                 
-                if (!response.IsSuccessStatusCode)
+                var response = await _httpClient.DeleteAsync(deleteUrl);
+                
+                if (response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Failed to remove guide {GuideId} from trip {TripId}: {StatusCode}", 
-                        guideId, tripId, response.StatusCode);
+                    _logger.LogInformation("Successfully removed guide {GuideId} from trip {TripId}", guideId, tripId);
+                    return true;
                 }
-                
-                return response.IsSuccessStatusCode;
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Failed to remove guide {GuideId} from trip {TripId}: {StatusCode} - {ErrorContent}", 
+                        guideId, tripId, response.StatusCode, errorContent);
+                    
+                    // Additional debugging for 404 errors
+                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        _logger.LogError("404 Not Found - URL: {Url}, TripId: {TripId}, GuideId: {GuideId}, BaseAddress: {BaseAddress}", 
+                            deleteUrl, tripId, guideId, _httpClient.BaseAddress);
+                    }
+                    
+                    return false;
+                }
             }
             catch (Exception ex)
             {
-                // Log exception
-                _logger.LogError(ex, "Exception in RemoveGuideFromTripAsync: {TripId}, {GuideId}", tripId, guideId);
+                _logger.LogError(ex, "Exception in RemoveGuideFromTripAsync: TripId={TripId}, GuideId={GuideId}", tripId, guideId);
                 return false;
             }
         }
