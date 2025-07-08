@@ -1,45 +1,40 @@
-name: Deploy API to Azure
+name: Deploy API
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [ master ]
     paths:
       - 'TravelOrganizationSystem/WebAPI/**'
+      - '.github/workflows/deploy-api.yml'
   workflow_dispatch:
 
-env:
-  AZURE_WEBAPP_NAME: 'travel-api-matija'    
-  AZURE_WEBAPP_PACKAGE_PATH: './TravelOrganizationSystem/WebAPI'
-  DOTNET_VERSION: '8.x'
-
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     
     steps:
-    - name: 'Checkout GitHub Action'
-      uses: actions/checkout@v4
-
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v3
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-
-    - name: 'Build and test'
-      run: |
-        cd ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-        dotnet restore
-        dotnet build --configuration Release --no-restore
-        dotnet publish -c Release -o ./output
-
-    - name: 'Create deployment package'
-      run: |
-        cd ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/output
-        zip -r ../../../api-deploy.zip .
-        
-    - name: 'Deploy to Azure Web App'
+        dotnet-version: '8.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore TravelOrganizationSystem/WebAPI/WebApi.csproj
+    
+    - name: Build
+      run: dotnet build TravelOrganizationSystem/WebAPI/WebApi.csproj --no-restore --configuration Release
+    
+    - name: Test
+      run: dotnet test TravelOrganizationSystem/WebAPI.Tests/WebAPI.Tests.csproj --no-build --verbosity normal --configuration Release
+    
+    - name: Publish
+      run: dotnet publish TravelOrganizationSystem/WebAPI/WebApi.csproj --no-build --configuration Release --output ./api-publish
+    
+    - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: './api-deploy.zip' 
+        app-name: ${{ secrets.AZURE_API_APP_NAME }}
+        publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
+        package: ./api-publish

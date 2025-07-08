@@ -41,14 +41,20 @@ dotnet run
 
 ## Deployment
 
-### ⚡ Quick Deployment (Recommended)
+### ⚡ Automated GitHub Actions Deployment (Recommended)
+The application includes GitHub Actions workflows for automated deployment:
+- API deployment workflow triggers on changes to `TravelOrganizationSystem/WebAPI/**`
+- WebApp deployment workflow triggers on changes to `TravelOrganizationSystem/WebApp/**`
+
+### ⚡ Quick Deployment (Alternative)
 ```powershell
 # One-command deployment to Azure
 .\deploy-both.ps1
 ```
 
 ### 📖 Deployment Documentation
-- **[Simple Deployment Guide](SIMPLE_DEPLOYMENT_GUIDE.md)** - Direct Azure deployment (recommended)
+- **GitHub Actions Workflows** - Automated CI/CD deployment (recommended)
+- **[Simple Deployment Guide](SIMPLE_DEPLOYMENT_GUIDE.md)** - Direct Azure deployment
 - **[Advanced Deployment Guide](DEPLOYMENT_GUIDE.md)** - CI/CD with GitHub Actions  
 - **[Quick Deploy Script](deploy-both.ps1)** - Automated PowerShell deployment
 
