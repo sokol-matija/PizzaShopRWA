@@ -24,12 +24,27 @@ builder.Services.AddCors(options =>
 			   .AllowCredentials(); 
 	});
 	
-	// Add a more permissive policy for production
+	// Updated production policy to allow specific origins with credentials
+	options.AddPolicy("AllowProduction", builder =>
+	{
+		builder.WithOrigins(
+				"https://travel-webapp-sokol-2024.azurewebsites.net",
+				"https://travel-webapp-sokol.azurewebsites.net", // Legacy URL for backwards compatibility
+				"http://localhost:17001", // For local testing
+				"https://localhost:17001" // For local testing with HTTPS
+			   )
+			   .AllowAnyMethod()
+			   .AllowAnyHeader()
+			   .AllowCredentials(); // Enable credentials for JWT authentication
+	});
+	
+	// Fallback permissive policy for other scenarios
 	options.AddPolicy("AllowAll", builder =>
 	{
 		builder.AllowAnyOrigin()
 			   .AllowAnyMethod()
 			   .AllowAnyHeader();
+		// Note: Cannot use AllowCredentials() with AllowAnyOrigin()
 	});
 });
 
@@ -171,7 +186,7 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-	app.UseCors("AllowAll"); // More permissive for production deployment
+	app.UseCors("AllowProduction"); // Use the new production policy
 }
 
 app.UseAuthentication();

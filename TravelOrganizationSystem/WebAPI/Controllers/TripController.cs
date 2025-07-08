@@ -256,21 +256,51 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Remove a guide from a trip
         /// </summary>
-        /// <param name="tripId">ID of the trip</param>
-        /// <param name="guideId">ID of the guide to remove</param>
-        /// <remarks>
-        /// This endpoint requires Admin role access
-        /// </remarks>
-        /// <returns>No content if removal is successful</returns>
         [HttpDelete("{tripId}/guides/{guideId}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> RemoveGuideFromTrip(int tripId, int guideId)
+        public async Task<IActionResult> RemoveGuideFromTrip(int tripId, int guideId)
         {
-            var result = await _tripService.RemoveGuideFromTripAsync(tripId, guideId);
-            if (!result)
-                return NotFound();
-
-            return NoContent();
+            try
+            {
+                _logger.LogInformation("Admin attempting to remove guide {GuideId} from trip {TripId}", guideId, tripId);
+                
+                // Validate inputs
+                if (tripId <= 0 || guideId <= 0)
+                {
+                    _logger.LogWarning("Invalid inputs - TripId: {TripId}, GuideId: {GuideId}", tripId, guideId);
+                    return BadRequest(new { message = "Invalid trip or guide ID." });
+                }
+                
+                // Check if user is authenticated and has Admin role
+                var userRole = User.FindFirst("role")?.Value ?? User.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+                _logger.LogInformation("User role: {Role}, Is Authenticated: {IsAuth}", userRole, User.Identity?.IsAuthenticated);
+                
+                // Verify the trip exists
+                var trip = await _tripService.GetTripByIdAsync(tripId);
+                if (trip == null)
+                {
+                    _logger.LogWarning("Trip {TripId} not found", tripId);
+                    return NotFound(new { message = "Trip not found." });
+                }
+                
+                var success = await _tripService.RemoveGuideFromTripAsync(tripId, guideId);
+                
+                if (success)
+                {
+                    _logger.LogInformation("Successfully removed guide {GuideId} from trip {TripId}", guideId, tripId);
+                    return Ok(new { message = "Guide removed from trip successfully." });
+                }
+                else
+                {
+                    _logger.LogWarning("Failed to remove guide {GuideId} from trip {TripId} - service returned false", guideId, tripId);
+                    return BadRequest(new { message = "Failed to remove guide from trip. The guide may not be assigned to this trip." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception occurred while removing guide {GuideId} from trip {TripId}", guideId, tripId);
+                return StatusCode(500, new { message = "An internal server error occurred." });
+            }
         }
 
         /// <summary>
@@ -375,6 +405,43 @@ namespace WebAPI.Controllers
             {
                 _logger.LogError(ex, "Error updating image for trip {TripId} via public endpoint", id);
                 return StatusCode(500, "An error occurred while updating the trip image");
+            }
+        }
+
+        /// <summary>
+        /// Diagnostic endpoint to test authentication and CORS
+        /// </summary>
+        [HttpGet("diagnostic")]
+        [Authorize]
+        public IActionResult Diagnostic()
+        {
+            try
+            {
+                var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+                var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+                var name = User.Identity?.Name ?? "Unknown";
+                var role = User.FindFirst("role")?.Value ?? User.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value ?? "No role";
+                
+                var diagnosticInfo = new
+                {
+                    IsAuthenticated = isAuthenticated,
+                    Name = name,
+                    Role = role,
+                    Claims = claims,
+                    Timestamp = DateTime.UtcNow,
+                    Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+                    Headers = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString())
+                };
+                
+                _logger.LogInformation("Diagnostic endpoint accessed by user: {Name}, Role: {Role}, Auth: {Auth}", 
+                    name, role, isAuthenticated);
+                
+                return Ok(diagnosticInfo);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in diagnostic endpoint");
+                return StatusCode(500, new { message = "Diagnostic failed", error = ex.Message });
             }
         }
 
