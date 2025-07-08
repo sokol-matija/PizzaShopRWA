@@ -27,8 +27,9 @@ jobs:
       run: dotnet build TravelOrganizationSystem/WebApp/WebApp.csproj --no-restore --configuration Release
     
     - name: Test
-      run: dotnet test TravelOrganizationSystem/WebApp.Tests/WebApp.Tests.csproj --no-build --verbosity normal --configuration Release --logger "console;verbosity=detailed"
-    
+      run: dotnet test --configuration Release --logger "console;verbosity=detailed"
+      working-directory: TravelOrganizationSystem/WebApp.Tests
+      
     - name: Publish
       run: dotnet publish TravelOrganizationSystem/WebApp/WebApp.csproj --no-build --configuration Release --output ./webapp-publish
     
