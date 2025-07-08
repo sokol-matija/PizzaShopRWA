@@ -6,13 +6,13 @@
 **Q:** Explain the overall architecture of your Web API. What design pattern did you implement and why?
 
 **A:** We implemented a **layered architecture** with the following components:
-- **Controllers**: Handle HTTP requests and responses (AuthController, TripController, etc.)
-- **Services**: Business logic layer (TripService, UserService, JwtService)
-- **Data Access**: Entity Framework with ApplicationDbContext
-- **DTOs**: Data Transfer Objects for API communication
-- **Models**: Domain entities (Trip, User, Destination, etc.)
+- **Controllers**: Handle HTTP requests and responses (7 controllers: Auth, Trip, Destination, User, Guide, TripRegistration, Logs)
+- **Services**: Business logic layer (8 services with interfaces for DI)
+- **Data Access**: Entity Framework Core with ApplicationDbContext (Database-First hybrid approach)
+- **DTOs**: Data Transfer Objects for API communication and validation
+- **Models**: Domain entities (Trip, User, Destination, Guide, etc.)
 
-This follows the **Repository/Service pattern** for separation of concerns, making the code testable, maintainable, and following SOLID principles.
+This follows the **Service Layer Pattern** (not Repository pattern) for separation of concerns, making the code testable, maintainable, and following SOLID principles. Each service directly uses DbContext for data access while implementing business logic and rules.
 
 ### **Question 2: Dependency Injection Configuration**
 **Q:** How did you configure dependency injection in your API? Show the registration pattern.
@@ -393,9 +393,26 @@ public async Task<Trip> GetTripByIdAsync(int id)
 
 ---
 
-## 📚 **Swagger & Documentation**
+## 📚 **Additional Documentation References**
 
-### **Question 21: Swagger Configuration**
+### **Question 21: Comprehensive Architecture Documentation**
+**Q:** Where can I find detailed documentation about your system architecture?
+
+**A:** We have comprehensive documentation covering all aspects:
+
+**Core Architecture:**
+- **`Controllers-Analysis.md`** - Detailed analysis of all 7 controllers, authorization patterns, and RESTful design
+- **`Services-Analysis.md`** - Complete service layer documentation with business logic patterns and ELI5 explanations
+- **`ApplicationDbContext-Analysis.md`** - Database context configuration and Entity Framework patterns
+- **`Database-First-Hybrid-Approach-Analysis.md`** - Explanation of our database-first approach with code-first benefits
+
+**Key Architectural Decisions:**
+- **Service Layer Pattern** (not Repository) - Direct DbContext usage with business logic encapsulation
+- **Interface-based DI** - All services have interfaces for testability
+- **Role-based Authorization** - Three-tier security model (Public, Authenticated, Admin)
+- **Database-First Hybrid** - SQL schema first, manual models, EF configuration for relationships
+
+### **Question 22: Swagger Configuration**
 **Q:** How did you configure Swagger for your API? What features did you implement?
 
 **A:** Swagger configuration in `Program.cs`:

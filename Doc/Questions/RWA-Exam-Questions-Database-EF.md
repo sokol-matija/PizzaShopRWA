@@ -8,20 +8,26 @@
 **A:** Our database has **7 main entities** with the following relationships:
 
 **Entities:**
-1. **Users** - System users (admin/regular)
-2. **Destinations** - Travel destinations
-3. **Trips** - Travel packages
-4. **Guides** - Tour guides
-5. **TripGuides** - Many-to-many junction table
-6. **TripRegistrations** - User bookings
-7. **Logs** - System activity logs
+1. **Users** - System users with username/email authentication and admin flags
+2. **Destinations** - Travel destinations (countries and cities)
+3. **Trips** - Travel packages with pricing and capacity
+4. **Guides** - Tour guides with experience and contact info
+5. **TripGuides** - Many-to-many junction table (explicit relationship)
+6. **TripRegistrations** - User bookings with pricing and participant counts
+7. **Logs** - System activity logs for monitoring
 
 **Relationships:**
-- **Destination → Trips** (One-to-Many)
-- **User → TripRegistrations** (One-to-Many)
-- **Trip → TripRegistrations** (One-to-Many)
-- **Trip ↔ Guide** (Many-to-Many via TripGuides)
-- **Logs** (Independent, no foreign keys)
+- **Destination → Trips** (One-to-Many) - Each destination can have multiple trips
+- **User → TripRegistrations** (One-to-Many) - Each user can book multiple trips
+- **Trip → TripRegistrations** (One-to-Many) - Each trip can have multiple bookings
+- **Trip ↔ Guide** (Many-to-Many via TripGuides) - Trips can have multiple guides, guides can lead multiple trips
+- **Logs** (Independent, no foreign keys) - System monitoring data
+
+**Key Features:**
+- **Username-based authentication** (not email-only)
+- **Boolean admin flags** (not role strings)
+- **Capacity management** in trip registrations
+- **Price calculation** with TotalPrice field
 
 ### **Question 2: Entity Relationship Design**
 **Q:** Explain the many-to-many relationship between Trips and Guides. Why did you design it this way?

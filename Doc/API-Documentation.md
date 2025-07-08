@@ -82,19 +82,13 @@ Content-Type: application/json
 GET /api/trip
 ```
 
-**Query Parameters:**
-- `page` (int): Page number (default: 1)
-- `pageSize` (int): Items per page (default: 10)
-- `search` (string): Search in title and description
-- `destinationId` (int): Filter by destination
-
 **Response:**
 ```json
 {
   "$values": [
     {
       "id": 1,
-      "title": "Amazing Paris Adventure",
+      "name": "Amazing Paris Adventure",
       "description": "Explore the City of Light",
       "startDate": "2024-06-01T00:00:00",
       "endDate": "2024-06-07T00:00:00",
@@ -102,8 +96,11 @@ GET /api/trip
       "maxParticipants": 20,
       "destinationId": 1,
       "destinationName": "Paris",
+      "country": "France",
+      "city": "Paris",
       "imageUrl": "https://images.unsplash.com/photo-123...",
-      "formattedPrice": "€1,299.99"
+      "availableSpots": 15,
+      "guides": []
     }
   ]
 }
@@ -121,7 +118,7 @@ Authorization: Bearer <admin-token>
 Content-Type: application/json
 
 {
-  "title": "New Adventure",
+  "name": "New Adventure",
   "description": "Exciting new trip",
   "startDate": "2024-07-01T00:00:00",
   "endDate": "2024-07-07T00:00:00",
@@ -140,7 +137,7 @@ Content-Type: application/json
 
 {
   "id": 1,
-  "title": "Updated Adventure",
+  "name": "Updated Adventure",
   "description": "Updated description",
   "startDate": "2024-07-01T00:00:00",
   "endDate": "2024-07-07T00:00:00",
@@ -163,10 +160,10 @@ GET /api/trip/search
 ```
 
 **Query Parameters:**
-- `query` (string): Search term
-- `page` (int): Page number
-- `count` (int): Items per page
-- `destinationId` (int): Filter by destination
+- `name` (string): Search in trip name
+- `description` (string): Search in trip description
+- `page` (int): Page number (default: 1)
+- `count` (int): Items per page (default: 10, max: 100)
 
 ### Destination Endpoints
 

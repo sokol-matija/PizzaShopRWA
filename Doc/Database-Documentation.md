@@ -31,33 +31,31 @@ UserRoles                                         Destinations (1)
 ```sql
 CREATE TABLE Users (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    FirstName NVARCHAR(50) NOT NULL,
-    LastName NVARCHAR(50) NOT NULL,
+    Username NVARCHAR(100) NOT NULL UNIQUE,
     Email NVARCHAR(100) NOT NULL UNIQUE,
-    PasswordHash NVARCHAR(255) NOT NULL,
-    Phone NVARCHAR(20),
-    Role NVARCHAR(20) NOT NULL DEFAULT 'User',
-    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
-    UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
-    IsActive BIT NOT NULL DEFAULT 1
+    PasswordHash NVARCHAR(500) NOT NULL,
+    FirstName NVARCHAR(100),
+    LastName NVARCHAR(100),
+    PhoneNumber NVARCHAR(20),
+    Address NVARCHAR(200),
+    IsAdmin BIT NOT NULL DEFAULT 0
 );
 ```
 
 **Columns:**
 - `Id`: Primary key, auto-increment
-- `FirstName`: User's first name (required)
-- `LastName`: User's last name (required)
-- `Email`: Unique email address for login
-- `PasswordHash`: Hashed password using bcrypt
-- `Phone`: Optional phone number
-- `Role`: User role (User, Admin)
-- `CreatedAt`: Account creation timestamp
-- `UpdatedAt`: Last profile update timestamp
-- `IsActive`: Account status flag
+- `Username`: Unique username for login (required)
+- `Email`: Unique email address (required)
+- `PasswordHash`: Hashed password using ASP.NET Core PasswordHasher (required)
+- `FirstName`: User's first name (optional)
+- `LastName`: User's last name (optional)
+- `PhoneNumber`: Optional phone number
+- `Address`: Optional address
+- `IsAdmin`: Boolean flag for admin role (default: false)
 
 **Indexes:**
+- `IX_Users_Username`: Unique index on username
 - `IX_Users_Email`: Unique index on email
-- `IX_Users_Role`: Index on role for admin queries
 
 ### 2. Destinations Table
 
@@ -97,17 +95,14 @@ CREATE TABLE Destinations (
 ```sql
 CREATE TABLE Trips (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Title NVARCHAR(200) NOT NULL,
-    Description NVARCHAR(1000) NOT NULL,
+    Name NVARCHAR(100) NOT NULL,
+    Description NVARCHAR(500),
     StartDate DATETIME2 NOT NULL,
     EndDate DATETIME2 NOT NULL,
-    Price DECIMAL(10,2) NOT NULL,
+    Price DECIMAL(18,2) NOT NULL,
+    ImageUrl NVARCHAR(500),
     MaxParticipants INT NOT NULL,
     DestinationId INT NOT NULL,
-    ImageUrl NVARCHAR(500),
-    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
-    UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
-    IsActive BIT NOT NULL DEFAULT 1,
     
     CONSTRAINT FK_Trips_Destinations 
         FOREIGN KEY (DestinationId) REFERENCES Destinations(Id)
@@ -116,17 +111,14 @@ CREATE TABLE Trips (
 
 **Columns:**
 - `Id`: Primary key, auto-increment
-- `Title`: Trip title (required)
-- `Description`: Detailed trip description (required)
-- `StartDate`: Trip start date and time
-- `EndDate`: Trip end date and time
-- `Price`: Trip price per person
-- `MaxParticipants`: Maximum number of participants
-- `DestinationId`: Foreign key to Destinations table
-- `ImageUrl`: URL to trip image
-- `CreatedAt`: Creation timestamp
-- `UpdatedAt`: Last update timestamp
-- `IsActive`: Trip availability flag
+- `Name`: Trip name (required)
+- `Description`: Detailed trip description (optional)
+- `StartDate`: Trip start date and time (required)
+- `EndDate`: Trip end date and time (required)
+- `Price`: Trip price per person (required)
+- `ImageUrl`: URL to trip image (optional)
+- `MaxParticipants`: Maximum number of participants (required)
+- `DestinationId`: Foreign key to Destinations table (required)
 
 **Indexes:**
 - `IX_Trips_DestinationId`: Index on destination for filtering
@@ -145,37 +137,26 @@ CREATE TABLE Trips (
 ```sql
 CREATE TABLE Guides (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    FirstName NVARCHAR(50) NOT NULL,
-    LastName NVARCHAR(50) NOT NULL,
+    Name NVARCHAR(100) NOT NULL,
+    Bio NVARCHAR(500),
     Email NVARCHAR(100) NOT NULL UNIQUE,
     Phone NVARCHAR(20),
-    Specialization NVARCHAR(100),
-    Experience INT NOT NULL DEFAULT 0,
-    Languages NVARCHAR(200),
-    Bio NVARCHAR(1000),
-    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
-    UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
-    IsActive BIT NOT NULL DEFAULT 1
+    ImageUrl NVARCHAR(500),
+    YearsOfExperience INT
 );
 ```
 
 **Columns:**
 - `Id`: Primary key, auto-increment
-- `FirstName`: Guide's first name (required)
-- `LastName`: Guide's last name (required)
-- `Email`: Unique email address
-- `Phone`: Contact phone number
-- `Specialization`: Area of expertise
-- `Experience`: Years of experience
-- `Languages`: Spoken languages
-- `Bio`: Professional biography
-- `CreatedAt`: Creation timestamp
-- `UpdatedAt`: Last update timestamp
-- `IsActive`: Guide availability flag
+- `Name`: Guide's full name (required)
+- `Bio`: Professional biography (optional)
+- `Email`: Unique email address (required)
+- `Phone`: Contact phone number (optional)
+- `ImageUrl`: URL to guide's profile image (optional)
+- `YearsOfExperience`: Years of experience (optional)
 
 **Indexes:**
 - `IX_Guides_Email`: Unique index on email
-- `IX_Guides_Specialization`: Index on specialization
 
 ### 5. TripGuides Table (M:N Bridge)
 
@@ -214,11 +195,11 @@ CREATE TABLE TripGuides (
 ```sql
 CREATE TABLE TripRegistrations (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    TripId INT NOT NULL,
     UserId INT NOT NULL,
-    NumberOfParticipants INT NOT NULL DEFAULT 1,
-    SpecialRequests NVARCHAR(500),
-    RegistrationDate DATETIME2 NOT NULL DEFAULT GETDATE(),
+    TripId INT NOT NULL,
+    RegistrationDate DATETIME2 NOT NULL,
+    NumberOfParticipants INT NOT NULL,
+    TotalPrice DECIMAL(18,2) NOT NULL,
     Status NVARCHAR(20) NOT NULL DEFAULT 'Confirmed',
     
     CONSTRAINT FK_TripRegistrations_Trips 
@@ -230,12 +211,12 @@ CREATE TABLE TripRegistrations (
 
 **Columns:**
 - `Id`: Primary key, auto-increment
-- `TripId`: Foreign key to Trips table
-- `UserId`: Foreign key to Users table
-- `NumberOfParticipants`: Number of people in booking
-- `SpecialRequests`: Additional requests or notes
-- `RegistrationDate`: Booking timestamp
-- `Status`: Booking status (Confirmed, Cancelled, Pending)
+- `UserId`: Foreign key to Users table (required)
+- `TripId`: Foreign key to Trips table (required)
+- `RegistrationDate`: Booking timestamp (required)
+- `NumberOfParticipants`: Number of people in booking (required)
+- `TotalPrice`: Total price for the registration (required)
+- `Status`: Booking status (default: 'Confirmed')
 
 **Indexes:**
 - `IX_TripRegistrations_TripId`: Index on trip ID
@@ -244,6 +225,7 @@ CREATE TABLE TripRegistrations (
 
 **Constraints:**
 - `CK_TripRegistrations_Participants`: CHECK (NumberOfParticipants > 0)
+- `CK_TripRegistrations_TotalPrice`: CHECK (TotalPrice > 0)
 
 ### 7. Logs Table
 
