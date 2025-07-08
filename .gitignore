@@ -76,3 +76,9 @@ Desktop.ini
 ClaudeApi/
 
 ClaudeWebApp/
+
+TravelOrganizationSystem/WebAPI/manual-publish/
+
+TravelOrganizationSystem/WebAPI/manual-publish-fixed/
+
+*.zip
