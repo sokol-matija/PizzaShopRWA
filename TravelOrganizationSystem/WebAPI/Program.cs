@@ -14,6 +14,7 @@ builder.Services.AddControllers().AddJsonOptions(options => {
 	options.JsonSerializerOptions.MaxDepth = 32;
 });
 
+// Configure CORS
 builder.Services.AddCors(options =>
 {
 	options.AddPolicy("AllowWebApp", builder =>
@@ -195,3 +196,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Make Program class accessible for integration testing
+public partial class Program { }

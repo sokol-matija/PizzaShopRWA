@@ -97,4 +97,8 @@ app.UseAuthorization();
 app.MapRazorPages();
 app.MapControllers(); // Map API controllers
 
+// Map Blazor components
 app.Run();
+
+// Make Program class accessible for integration testing
+public partial class Program { }
