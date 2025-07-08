@@ -15,7 +15,7 @@ builder.Services.AddControllers().AddJsonOptions(options => {
 	options.JsonSerializerOptions.MaxDepth = 32;
 });
 
-// Configure CORS
+// Configure CORS v1
 builder.Services.AddCors(options =>
 {
 	options.AddPolicy("AllowWebApp", builder =>
