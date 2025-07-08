@@ -9,13 +9,11 @@ using WebAPI.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers().AddJsonOptions(options => {
 	options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-	options.JsonSerializerOptions.MaxDepth = 32; // Set max depth to prevent over-nesting
+	options.JsonSerializerOptions.MaxDepth = 32;
 });
 
-// Add CORS
 builder.Services.AddCors(options =>
 {
 	options.AddPolicy("AllowWebApp", builder =>
@@ -23,7 +21,7 @@ builder.Services.AddCors(options =>
 		builder.WithOrigins("http://localhost:17001", "https://localhost:17001", "https://*.vercel.app")
 			   .AllowAnyMethod()
 			   .AllowAnyHeader()
-			   .AllowCredentials(); // Allow cookies/credentials
+			   .AllowCredentials(); 
 	});
 	
 	// Add a more permissive policy for production
