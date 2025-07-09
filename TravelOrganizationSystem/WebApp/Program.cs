@@ -11,7 +11,7 @@ if (builder.Environment.IsDevelopment())
 {
     // Enable runtime compilation for hot reload in development
     builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
-}
+} // Trigger build 
 else
 {
     builder.Services.AddRazorPages();

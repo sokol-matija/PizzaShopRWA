@@ -8,7 +8,7 @@ using WebAPI.Data;
 using WebAPI.Services;
 using WebAPI.Swagger;
 
-// All togehte now test deploy
+// All togehte now test deploy v2
 Console.WriteLine("=== API STARTING ===");
 var builder = WebApplication.CreateBuilder(args);
 
