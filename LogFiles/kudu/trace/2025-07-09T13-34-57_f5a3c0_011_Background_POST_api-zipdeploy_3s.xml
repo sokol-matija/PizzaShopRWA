@@ -1,0 +1,108 @@
+<step title="BackgroundTrace" date="2025-07-09T13:34:57.108" instance="f5a3c0" url="/api/zipdeploy" method="POST" >
+  <step title="Updating shutdown sentinel last write time" date="2025-07-09T13:34:57.124" SemaphoreCount="7" /><!-- duration: 0ms -->
+  <step title="LockFile &apos;C:\home\site\locks\deployments.lock&apos; acquired" date="2025-07-09T13:34:57.124" /><!-- duration: 0ms -->
+  <step title="Creating temporary deployment" date="2025-07-09T13:34:57.124" /><!-- duration: 31ms -->
+  <step title="Performing fetch based deployment" date="2025-07-09T13:34:57.155" >
+    <step title="Fetching changes." date="2025-07-09T13:34:57.186" /><!-- duration: 17ms -->
+    <step title="Starting LocalZipHandler" date="2025-07-09T13:34:57.203" /><!-- duration: 0ms -->
+    <step title="Cleaning up temp folders from previous zip deployments and extracting pushed zip file C:\local\Temp\zipdeploy\rsigor2f.zip (7.58 MB) to C:\local\Temp\zipdeploy\extracted" date="2025-07-09T13:34:57.218" /><!-- duration: 0ms -->
+    <step title="Cleaning up temp folders from previous zip deployments and extracting pushed zip file C:\local\Temp\zipdeploy\rsigor2f.zip (7.58 MB) to C:\local\Temp\zipdeploy\extracted" date="2025-07-09T13:34:57.234" >
+      <step title="Renaming extractTargetDirectory(C:\local\Temp\zipdeploy\extracted) to tempDirectory(C:\local\Temp\zipdeploy\l4cutzvs.1oh)" date="2025-07-09T13:34:57.234" /><!-- duration: 0ms -->
+      <step title="Extracting 86 entries to C:\local\Temp\zipdeploy\extracted directory" date="2025-07-09T13:34:57.234" >
+        <step title="Extracting to C:\local\Temp\zipdeploy\extracted\Azure.Core.dll ..." date="2025-07-09T13:34:57.234" /><!-- duration: 16ms -->
+        <step title="Extracting to C:\local\Temp\zipdeploy\extracted\Azure.Identity.dll ..." date="2025-07-09T13:34:57.250" /><!-- duration: 16ms -->
+        <step title="Extracting to C:\local\Temp\zipdeploy\extracted\Microsoft.AspNetCore.Authentication.JwtBearer.dll ..." date="2025-07-09T13:34:57.265" /><!-- duration: 0ms -->
+        <step title="Extracting to C:\local\Temp\zipdeploy\extracted\Microsoft.Bcl.AsyncInterfaces.dll ..." date="2025-07-09T13:34:57.265" /><!-- duration: 16ms -->
+        <step title="Extracting to C:\local\Temp\zipdeploy\extracted\Microsoft.Data.SqlClient.dll ..." date="2025-07-09T13:34:57.281" /><!-- duration: 0ms -->
+        <step title="Omitting extracting file traces ..." date="2025-07-09T13:34:57.297" /><!-- duration: 0ms -->
+      </step><!-- duration: 328ms -->
+    </step><!-- duration: 328ms -->
+    <step title="Before sending BuildRequestReceived status to /api/updatedeploystatus" date="2025-07-09T13:34:57.562" /><!-- duration: 0ms -->
+    <step title="DeploymentManager.Deploy(id:1923221da1a24baea7cc11a5bbb6a62c)" date="2025-07-09T13:34:57.578" >
+      <step title="Collecting changeset information" date="2025-07-09T13:34:57.578" /><!-- duration: 31ms -->
+      <step title="Updating submodules" date="2025-07-09T13:34:57.609" >
+        <step title="Updating submodules." date="2025-07-09T13:34:57.640" /><!-- duration: 0ms -->
+      </step><!-- duration: 31ms -->
+      <step title="Preparing deployment for commit id &apos;1923221da1&apos;." date="2025-07-09T13:34:57.672" /><!-- duration: 0ms -->
+      <step title="Determining deployment builder" date="2025-07-09T13:34:57.703" >
+        <step title="Builder is BasicBuilder" date="2025-07-09T13:34:57.703" /><!-- duration: 0ms -->
+      </step><!-- duration: 16ms -->
+      <step title="Copying SSH keys" date="2025-07-09T13:34:57.718" /><!-- duration: 0ms -->
+      <step title="Building" date="2025-07-09T13:34:57.718" >
+        <step title="Generating deployment script." date="2025-07-09T13:34:57.750" /><!-- duration: 0ms -->
+        <step title="Generating deployment script" date="2025-07-09T13:34:57.750" >
+          <step title="Using cached version of the deployment script for command: -y --no-dot-deployment -r &quot;C:\local\Temp\zipdeploy\extracted&quot; -o &quot;C:\home\site\deployments\tools&quot; --basic --sitePath &quot;C:\local\Temp\zipdeploy\extracted&quot;" date="2025-07-09T13:34:57.765" /><!-- duration: 0ms -->
+          <step title="Using cached version of deployment script (command: &apos;azure -y --no-dot-deployment -r &quot;C:\local\Temp\zipdeploy\extracted&quot; -o &quot;C:\home\site\deployments\tools&quot; --basic --sitePath &quot;C:\local\Temp\zipdeploy\extracted&quot;&apos;)." date="2025-07-09T13:34:57.765" /><!-- duration: 0ms -->
+        </step><!-- duration: 16ms -->
+        <step title="Running deployment command..." date="2025-07-09T13:34:57.797" /><!-- duration: 16ms -->
+        <step title="Command: &quot;C:\home\site\deployments\tools\deploy.cmd&quot;" date="2025-07-09T13:34:57.829" /><!-- duration: 0ms -->
+        <step title="Executing external process" date="2025-07-09T13:34:57.829" type="process" path="starter.cmd" arguments="&quot;C:\home\site\deployments\tools\deploy.cmd&quot;" >
+          <step title="Handling Basic Web Site deployment." date="2025-07-09T13:34:57.953" /><!-- duration: 0ms -->
+          <step title="Creating app_offline.htm" date="2025-07-09T13:34:58.109" /><!-- duration: 0ms -->
+          <step title="KuduSync.NET from: &apos;C:\local\Temp\zipdeploy\extracted&apos; to: &apos;C:\home\site\wwwroot&apos;" date="2025-07-09T13:34:58.109" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;cs\Microsoft.CodeAnalysis.CSharp.resources.dll&apos;" date="2025-07-09T13:34:58.140" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;cs\Microsoft.CodeAnalysis.resources.dll&apos;" date="2025-07-09T13:34:58.156" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;cs&apos;" date="2025-07-09T13:34:58.156" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;de\Microsoft.CodeAnalysis.CSharp.resources.dll&apos;" date="2025-07-09T13:34:58.172" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;de\Microsoft.CodeAnalysis.resources.dll&apos;" date="2025-07-09T13:34:58.172" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;de&apos;" date="2025-07-09T13:34:58.187" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;es\Microsoft.CodeAnalysis.CSharp.resources.dll&apos;" date="2025-07-09T13:34:58.187" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;es\Microsoft.CodeAnalysis.resources.dll&apos;" date="2025-07-09T13:34:58.203" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;es&apos;" date="2025-07-09T13:34:58.203" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;fr\Microsoft.CodeAnalysis.CSharp.resources.dll&apos;" date="2025-07-09T13:34:58.218" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;fr\Microsoft.CodeAnalysis.resources.dll&apos;" date="2025-07-09T13:34:58.218" /><!-- duration: 16ms -->
+          <step title="Deleting directory: &apos;fr&apos;" date="2025-07-09T13:34:58.234" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;it\Microsoft.CodeAnalysis.CSharp.resources.dll&apos;" date="2025-07-09T13:34:58.234" /><!-- duration: 16ms -->
+          <step title="Deleting file: &apos;it\Microsoft.CodeAnalysis.resources.dll&apos;" date="2025-07-09T13:34:58.250" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;it&apos;" date="2025-07-09T13:34:58.265" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;ja\Microsoft.CodeAnalysis.CSharp.resources.dll&apos;" date="2025-07-09T13:34:58.265" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;ja\Microsoft.CodeAnalysis.resources.dll&apos;" date="2025-07-09T13:34:58.281" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;ja&apos;" date="2025-07-09T13:34:58.281" /><!-- duration: 16ms -->
+          <step title="Deleting file: &apos;ko\Microsoft.CodeAnalysis.CSharp.resources.dll&apos;" date="2025-07-09T13:34:58.297" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;ko\Microsoft.CodeAnalysis.resources.dll&apos;" date="2025-07-09T13:34:58.297" /><!-- duration: 16ms -->
+          <step title="Deleting directory: &apos;ko&apos;" date="2025-07-09T13:34:58.312" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;manual-publish\appsettings.json&apos;" date="2025-07-09T13:34:58.328" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;manual-publish\appsettings.Production.json&apos;" date="2025-07-09T13:34:58.328" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;manual-publish\web.config&apos;" date="2025-07-09T13:34:58.343" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;manual-publish\WebApp.deps.json&apos;" date="2025-07-09T13:34:58.343" /><!-- duration: 16ms -->
+          <step title="Deleting file: &apos;manual-publish\WebApp.runtimeconfig.json&apos;" date="2025-07-09T13:34:58.359" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;manual-publish\WebApp.staticwebassets.endpoints.json&apos;" date="2025-07-09T13:34:58.375" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;manual-publish&apos;" date="2025-07-09T13:34:58.375" /><!-- duration: 16ms -->
+          <step title="Deleting file: &apos;pl\Microsoft.CodeAnalysis.CSharp.resources.dll&apos;" date="2025-07-09T13:34:58.390" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;pl\Microsoft.CodeAnalysis.resources.dll&apos;" date="2025-07-09T13:34:58.406" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;pl&apos;" date="2025-07-09T13:34:58.406" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;pt-BR\Microsoft.CodeAnalysis.CSharp.resources.dll&apos;" date="2025-07-09T13:34:58.422" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;pt-BR\Microsoft.CodeAnalysis.resources.dll&apos;" date="2025-07-09T13:34:58.422" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;pt-BR&apos;" date="2025-07-09T13:34:58.437" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;refs\Microsoft.AspNetCore.Antiforgery.dll&apos;" date="2025-07-09T13:34:58.437" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;refs\Microsoft.AspNetCore.Authentication.Abstractions.dll&apos;" date="2025-07-09T13:34:58.453" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;refs\Microsoft.AspNetCore.Authentication.BearerToken.dll&apos;" date="2025-07-09T13:34:58.453" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;refs\Microsoft.AspNetCore.Authentication.Cookies.dll&apos;" date="2025-07-09T13:34:58.468" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;refs\Microsoft.AspNetCore.Authentication.Core.dll&apos;" date="2025-07-09T13:34:58.468" /><!-- duration: 16ms -->
+          <step title="Deleting file: &apos;refs\Microsoft.AspNetCore.Authentication.dll&apos;" date="2025-07-09T13:34:58.484" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;refs\Microsoft.AspNetCore.Authentication.OAuth.dll&apos;" date="2025-07-09T13:34:58.500" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;refs\Microsoft.AspNetCore.Authorization.dll&apos;" date="2025-07-09T13:34:58.500" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;refs\Microsoft.AspNetCore.Authorization.Policy.dll&apos;" date="2025-07-09T13:34:58.515" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;refs\Microsoft.AspNetCore.Components.Authorization.dll&apos;" date="2025-07-09T13:34:58.515" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;refs\Microsoft.AspNetCore.Components.dll&apos;" date="2025-07-09T13:34:58.531" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;refs\Microsoft.AspNetCore.Components.Endpoints.dll&apos;" date="2025-07-09T13:34:58.531" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;refs\Microsoft.AspNetCore.Components.Forms.dll&apos;" date="2025-07-09T13:34:58.547" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;refs\Microsoft.AspNetCore.Components.Server.dll&apos;" date="2025-07-09T13:34:58.547" /><!-- duration: 0ms -->
+          <step title="Omitting next output lines..." date="2025-07-09T13:34:58.562" /><!-- duration: 0ms -->
+          <step title="Finished successfully." date="2025-07-09T13:34:59.954" /><!-- duration: 16ms -->
+        </step><!-- duration: 2141ms -->
+        <step title="Running post deployment command(s)..." date="2025-07-09T13:35:00.001" /><!-- duration: 0ms -->
+        <step title="Triggering recycle (preview mode disabled)." date="2025-07-09T13:35:00.079" /><!-- duration: 0ms -->
+        <step title="Ignoring FS watcher based recycle request as this is a classic Windows app." date="2025-07-09T13:35:00.079" /><!-- duration: 0ms -->
+        <step title="Deployment successful. DEPLOYMENTINFO: deploymentPath = ZipDeploy. Extract zip. , deployer = GITHUB_ZIP_DEPLOY, os = windows, sku = Free, siteName = travel-api-matija, siteHostName = travel-api-matija.azurewebsites.net, deploymentStatus = Success" date="2025-07-09T13:35:00.110" /><!-- duration: 0ms -->
+        <step title="Purge deployment items" date="2025-07-09T13:35:00.173" >
+          <step title="Remove f6c791d43, Success, received at 7/8/2025 9:41:37 PM" date="2025-07-09T13:35:00.235" /><!-- duration: 0ms -->
+        </step><!-- duration: 62ms -->
+      </step><!-- duration: 2532ms -->
+    </step><!-- duration: 2673ms -->
+    <step title="Cleaning up temp files" date="2025-07-09T13:35:00.266" /><!-- duration: 0ms -->
+    <step title="Skip function trigger and logicapp sync because function is not enabled." date="2025-07-09T13:35:00.266" /><!-- duration: 0ms -->
+  </step><!-- duration: 3142ms -->
+  <step title="LockFile &apos;C:\home\site\locks\deployments.lock&apos; released" date="2025-07-09T13:35:00.313" /><!-- duration: 0ms -->
+  <step title="Deleting shutdown sentinel file" date="2025-07-09T13:35:00.313" SemaphoreCount="8" /><!-- duration: 0ms -->
+</step><!-- duration: 3221ms -->

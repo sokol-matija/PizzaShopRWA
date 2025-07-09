@@ -1,0 +1,108 @@
+<step title="BackgroundTrace" date="2025-07-09T10:04:35.928" instance="f5a3c0" url="/api/zipdeploy" method="POST" >
+  <step title="Updating shutdown sentinel last write time" date="2025-07-09T10:04:35.928" SemaphoreCount="7" /><!-- duration: 0ms -->
+  <step title="LockFile &apos;C:\home\site\locks\deployments.lock&apos; acquired" date="2025-07-09T10:04:35.943" /><!-- duration: 0ms -->
+  <step title="Creating temporary deployment" date="2025-07-09T10:04:35.943" /><!-- duration: 31ms -->
+  <step title="Performing fetch based deployment" date="2025-07-09T10:04:35.975" >
+    <step title="Fetching changes." date="2025-07-09T10:04:36.037" /><!-- duration: 16ms -->
+    <step title="Starting LocalZipHandler" date="2025-07-09T10:04:36.053" /><!-- duration: 0ms -->
+    <step title="Cleaning up temp folders from previous zip deployments and extracting pushed zip file C:\local\Temp\zipdeploy\ayk1nbxe.zip (11.30 MB) to C:\local\Temp\zipdeploy\extracted" date="2025-07-09T10:04:36.084" /><!-- duration: 0ms -->
+    <step title="Cleaning up temp folders from previous zip deployments and extracting pushed zip file C:\local\Temp\zipdeploy\ayk1nbxe.zip (11.30 MB) to C:\local\Temp\zipdeploy\extracted" date="2025-07-09T10:04:36.084" >
+      <step title="Renaming extractTargetDirectory(C:\local\Temp\zipdeploy\extracted) to tempDirectory(C:\local\Temp\zipdeploy\u20kjt33.k5y)" date="2025-07-09T10:04:36.084" /><!-- duration: 0ms -->
+      <step title="Extracting 369 entries to C:\local\Temp\zipdeploy\extracted directory" date="2025-07-09T10:04:36.100" >
+        <step title="Extracting to C:\local\Temp\zipdeploy\extracted\Microsoft.AspNetCore.Mvc.Razor.Extensions.dll ..." date="2025-07-09T10:04:36.100" /><!-- duration: 0ms -->
+        <step title="Extracting to C:\local\Temp\zipdeploy\extracted\Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation.dll ..." date="2025-07-09T10:04:36.115" /><!-- duration: 0ms -->
+        <step title="Extracting to C:\local\Temp\zipdeploy\extracted\Microsoft.AspNetCore.Razor.Language.dll ..." date="2025-07-09T10:04:36.115" /><!-- duration: 16ms -->
+        <step title="Extracting to C:\local\Temp\zipdeploy\extracted\Microsoft.CodeAnalysis.CSharp.dll ..." date="2025-07-09T10:04:36.131" /><!-- duration: 78ms -->
+        <step title="Extracting to C:\local\Temp\zipdeploy\extracted\Microsoft.CodeAnalysis.Razor.dll ..." date="2025-07-09T10:04:36.209" /><!-- duration: 0ms -->
+        <step title="Omitting extracting file traces ..." date="2025-07-09T10:04:36.225" /><!-- duration: 31ms -->
+      </step><!-- duration: 547ms -->
+    </step><!-- duration: 563ms -->
+    <step title="Before sending BuildRequestReceived status to /api/updatedeploystatus" date="2025-07-09T10:04:36.662" /><!-- duration: 0ms -->
+    <step title="DeploymentManager.Deploy(id:a1577e9f988d49f4bdb52775c3df617e)" date="2025-07-09T10:04:36.662" >
+      <step title="Collecting changeset information" date="2025-07-09T10:04:36.678" /><!-- duration: 31ms -->
+      <step title="Updating submodules" date="2025-07-09T10:04:36.709" >
+        <step title="Updating submodules." date="2025-07-09T10:04:36.740" /><!-- duration: 0ms -->
+      </step><!-- duration: 31ms -->
+      <step title="Preparing deployment for commit id &apos;a1577e9f98&apos;." date="2025-07-09T10:04:36.787" /><!-- duration: 0ms -->
+      <step title="Determining deployment builder" date="2025-07-09T10:04:36.818" >
+        <step title="Builder is BasicBuilder" date="2025-07-09T10:04:36.818" /><!-- duration: 16ms -->
+      </step><!-- duration: 16ms -->
+      <step title="Copying SSH keys" date="2025-07-09T10:04:36.850" /><!-- duration: 62ms -->
+      <step title="Building" date="2025-07-09T10:04:36.912" >
+        <step title="Generating deployment script." date="2025-07-09T10:04:36.943" /><!-- duration: 0ms -->
+        <step title="Generating deployment script" date="2025-07-09T10:04:36.943" >
+          <step title="Using cached version of the deployment script for command: -y --no-dot-deployment -r &quot;C:\local\Temp\zipdeploy\extracted&quot; -o &quot;C:\home\site\deployments\tools&quot; --basic --sitePath &quot;C:\local\Temp\zipdeploy\extracted&quot;" date="2025-07-09T10:04:36.975" /><!-- duration: 0ms -->
+          <step title="Using cached version of deployment script (command: &apos;azure -y --no-dot-deployment -r &quot;C:\local\Temp\zipdeploy\extracted&quot; -o &quot;C:\home\site\deployments\tools&quot; --basic --sitePath &quot;C:\local\Temp\zipdeploy\extracted&quot;&apos;)." date="2025-07-09T10:04:36.990" /><!-- duration: 0ms -->
+        </step><!-- duration: 47ms -->
+        <step title="Running deployment command..." date="2025-07-09T10:04:37.021" /><!-- duration: 0ms -->
+        <step title="Command: &quot;C:\home\site\deployments\tools\deploy.cmd&quot;" date="2025-07-09T10:04:37.037" /><!-- duration: 0ms -->
+        <step title="Executing external process" date="2025-07-09T10:04:37.053" type="process" path="starter.cmd" arguments="&quot;C:\home\site\deployments\tools\deploy.cmd&quot;" >
+          <step title="Handling Basic Web Site deployment." date="2025-07-09T10:04:37.193" /><!-- duration: 0ms -->
+          <step title="Creating app_offline.htm" date="2025-07-09T10:04:37.350" /><!-- duration: 0ms -->
+          <step title="KuduSync.NET from: &apos;C:\local\Temp\zipdeploy\extracted&apos; to: &apos;C:\home\site\wwwroot&apos;" date="2025-07-09T10:04:37.350" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll&apos;" date="2025-07-09T10:04:37.365" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;runtimes\browser\lib\net8.0&apos;" date="2025-07-09T10:04:37.365" /><!-- duration: 16ms -->
+          <step title="Deleting directory: &apos;runtimes\browser\lib&apos;" date="2025-07-09T10:04:37.381" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;runtimes\browser&apos;" date="2025-07-09T10:04:37.396" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll&apos;" date="2025-07-09T10:04:37.396" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;runtimes\unix\lib\net6.0\System.Drawing.Common.dll&apos;" date="2025-07-09T10:04:37.412" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;runtimes\unix\lib\net6.0&apos;" date="2025-07-09T10:04:37.428" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;runtimes\unix\lib&apos;" date="2025-07-09T10:04:37.428" /><!-- duration: 16ms -->
+          <step title="Deleting directory: &apos;runtimes\unix&apos;" date="2025-07-09T10:04:37.459" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll&apos;" date="2025-07-09T10:04:37.459" /><!-- duration: 16ms -->
+          <step title="Deleting file: &apos;runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll&apos;" date="2025-07-09T10:04:37.475" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;runtimes\win\lib\net6.0\System.Drawing.Common.dll&apos;" date="2025-07-09T10:04:37.490" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;runtimes\win\lib\net6.0\System.Runtime.Caching.dll&apos;" date="2025-07-09T10:04:37.490" /><!-- duration: 16ms -->
+          <step title="Deleting file: &apos;runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll&apos;" date="2025-07-09T10:04:37.506" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;runtimes\win\lib\net6.0\System.Windows.Extensions.dll&apos;" date="2025-07-09T10:04:37.521" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;runtimes\win\lib\net6.0&apos;" date="2025-07-09T10:04:37.521" /><!-- duration: 16ms -->
+          <step title="Deleting directory: &apos;runtimes\win\lib&apos;" date="2025-07-09T10:04:37.553" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;runtimes\win&apos;" date="2025-07-09T10:04:37.553" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll&apos;" date="2025-07-09T10:04:37.568" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;runtimes\win-arm\native&apos;" date="2025-07-09T10:04:37.568" /><!-- duration: 16ms -->
+          <step title="Deleting directory: &apos;runtimes\win-arm&apos;" date="2025-07-09T10:04:37.584" /><!-- duration: 16ms -->
+          <step title="Deleting file: &apos;runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll&apos;" date="2025-07-09T10:04:37.615" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;runtimes\win-arm64\native&apos;" date="2025-07-09T10:04:37.615" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;runtimes\win-arm64&apos;" date="2025-07-09T10:04:37.631" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll&apos;" date="2025-07-09T10:04:37.646" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;runtimes\win-x64\native&apos;" date="2025-07-09T10:04:37.646" /><!-- duration: 16ms -->
+          <step title="Deleting directory: &apos;runtimes\win-x64&apos;" date="2025-07-09T10:04:37.662" /><!-- duration: 16ms -->
+          <step title="Deleting file: &apos;runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll&apos;" date="2025-07-09T10:04:37.678" /><!-- duration: 16ms -->
+          <step title="Deleting directory: &apos;runtimes\win-x86\native&apos;" date="2025-07-09T10:04:37.693" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;runtimes\win-x86&apos;" date="2025-07-09T10:04:37.709" /><!-- duration: 0ms -->
+          <step title="Deleting directory: &apos;runtimes&apos;" date="2025-07-09T10:04:37.709" /><!-- duration: 16ms -->
+          <step title="Deleting file: &apos;Azure.Core.dll&apos;" date="2025-07-09T10:04:37.725" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;Azure.Identity.dll&apos;" date="2025-07-09T10:04:37.740" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;Microsoft.AspNetCore.Authentication.JwtBearer.dll&apos;" date="2025-07-09T10:04:37.756" /><!-- duration: 16ms -->
+          <step title="Deleting file: &apos;Microsoft.Bcl.AsyncInterfaces.dll&apos;" date="2025-07-09T10:04:37.771" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;Microsoft.Data.SqlClient.dll&apos;" date="2025-07-09T10:04:37.787" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;Microsoft.EntityFrameworkCore.Abstractions.dll&apos;" date="2025-07-09T10:04:37.787" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;Microsoft.EntityFrameworkCore.dll&apos;" date="2025-07-09T10:04:37.803" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;Microsoft.EntityFrameworkCore.Relational.dll&apos;" date="2025-07-09T10:04:37.818" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;Microsoft.EntityFrameworkCore.SqlServer.dll&apos;" date="2025-07-09T10:04:37.834" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;Microsoft.Extensions.Caching.Abstractions.dll&apos;" date="2025-07-09T10:04:37.834" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;Microsoft.Extensions.Caching.Memory.dll&apos;" date="2025-07-09T10:04:37.850" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;Microsoft.Extensions.Configuration.Abstractions.dll&apos;" date="2025-07-09T10:04:37.850" /><!-- duration: 16ms -->
+          <step title="Deleting file: &apos;Microsoft.Extensions.DependencyInjection.Abstractions.dll&apos;" date="2025-07-09T10:04:37.865" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;Microsoft.Extensions.DependencyInjection.dll&apos;" date="2025-07-09T10:04:37.881" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;Microsoft.Extensions.Logging.Abstractions.dll&apos;" date="2025-07-09T10:04:37.881" /><!-- duration: 16ms -->
+          <step title="Deleting file: &apos;Microsoft.Extensions.Logging.dll&apos;" date="2025-07-09T10:04:37.896" /><!-- duration: 0ms -->
+          <step title="Deleting file: &apos;Microsoft.Extensions.Options.dll&apos;" date="2025-07-09T10:04:37.912" /><!-- duration: 0ms -->
+          <step title="Omitting next output lines..." date="2025-07-09T10:04:37.912" /><!-- duration: 0ms -->
+          <step title="Finished successfully." date="2025-07-09T10:04:40.397" /><!-- duration: 0ms -->
+        </step><!-- duration: 3360ms -->
+        <step title="Running post deployment command(s)..." date="2025-07-09T10:04:40.444" /><!-- duration: 0ms -->
+        <step title="Triggering recycle (preview mode disabled)." date="2025-07-09T10:04:40.475" /><!-- duration: 0ms -->
+        <step title="Ignoring FS watcher based recycle request as this is a classic Windows app." date="2025-07-09T10:04:40.491" /><!-- duration: 16ms -->
+        <step title="Deployment successful. DEPLOYMENTINFO: deploymentPath = ZipDeploy. Extract zip. , deployer = GITHUB_ZIP_DEPLOY, os = windows, sku = Free, siteName = travel-api-matija, siteHostName = travel-api-matija.azurewebsites.net, deploymentStatus = Success" date="2025-07-09T10:04:40.538" /><!-- duration: 0ms -->
+        <step title="Purge deployment items" date="2025-07-09T10:04:40.616" >
+          <step title="Remove 5295dacc7, Success, received at 7/8/2025 9:04:37 PM" date="2025-07-09T10:04:40.663" /><!-- duration: 0ms -->
+        </step><!-- duration: 47ms -->
+      </step><!-- duration: 3766ms -->
+    </step><!-- duration: 4016ms -->
+    <step title="Cleaning up temp files" date="2025-07-09T10:04:40.694" /><!-- duration: 0ms -->
+    <step title="Skip function trigger and logicapp sync because function is not enabled." date="2025-07-09T10:04:40.710" /><!-- duration: 0ms -->
+  </step><!-- duration: 4766ms -->
+  <step title="LockFile &apos;C:\home\site\locks\deployments.lock&apos; released" date="2025-07-09T10:04:40.741" /><!-- duration: 0ms -->
+  <step title="Deleting shutdown sentinel file" date="2025-07-09T10:04:40.756" SemaphoreCount="8" /><!-- duration: 0ms -->
+</step><!-- duration: 4829ms -->

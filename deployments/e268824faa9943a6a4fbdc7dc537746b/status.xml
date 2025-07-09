@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<deployment>
+  <id>e268824faa9943a6a4fbdc7dc537746b</id>
+  <author>N/A</author>
+  <deployer>GITHUB_ZIP_DEPLOY</deployer>
+  <authorEmail>N/A</authorEmail>
+  <message>{"type":"deployment","sha":"e54f746ebf2116271d9697c7efe25921ccb0a090","repoName":"sokol-matija/PizzaShopRWA","actor":"sokol-matija","slotName":"production","commitMessage":"fix: harder is smarter"}</message>
+  <progress></progress>
+  <status>Success</status>
+  <statusText></statusText>
+  <lastSuccessEndTime>2025-07-08T21:44:41.1083114Z</lastSuccessEndTime>
+  <receivedTime>2025-07-08T21:44:37.9674606Z</receivedTime>
+  <startTime>2025-07-08T21:44:38.0612159Z</startTime>
+  <endTime>2025-07-08T21:44:41.1083114Z</endTime>
+  <complete>True</complete>
+  <is_temp>False</is_temp>
+  <is_readonly>True</is_readonly>
+  <project_type>BASIC</project_type>
+  <vsproject_id></vsproject_id>
+</deployment>

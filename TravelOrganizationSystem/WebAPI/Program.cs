@@ -1,4 +1,4 @@
-// Testing deployment to new Azure endpoint: travel-api-matija.azurewebsites.net
+// Fixed SQL connection string - deploying to Azure endpoint: travel-api-matija.azurewebsites.net
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

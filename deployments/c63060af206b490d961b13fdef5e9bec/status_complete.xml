@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<deployment>
+  <id>c63060af206b490d961b13fdef5e9bec</id>
+  <author>N/A</author>
+  <deployer>GITHUB_ZIP_DEPLOY</deployer>
+  <authorEmail>N/A</authorEmail>
+  <message>{"type":"deployment","sha":"b2a4effc4722a0e6153404bd1157836e4766b6a3","repoName":"sokol-matija/PizzaShopRWA","actor":"sokol-matija","slotName":"production","commitMessage":"test: trigger build"}</message>
+  <progress></progress>
+  <status>Success</status>
+  <statusText></statusText>
+  <lastSuccessEndTime>2025-07-09T09:24:18.2957375Z</lastSuccessEndTime>
+  <receivedTime>2025-07-09T09:24:15.7772027Z</receivedTime>
+  <startTime>2025-07-09T09:24:15.8709512Z</startTime>
+  <endTime>2025-07-09T09:24:18.2957375Z</endTime>
+  <complete>True</complete>
+  <is_temp>False</is_temp>
+  <is_readonly>True</is_readonly>
+  <project_type>BASIC</project_type>
+  <vsproject_id></vsproject_id>
+</deployment>

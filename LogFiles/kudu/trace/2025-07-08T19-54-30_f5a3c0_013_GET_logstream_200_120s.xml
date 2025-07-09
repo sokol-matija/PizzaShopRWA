@@ -1,0 +1,9 @@
+<step title="Incoming Request" date="2025-07-08T19:54:30.887" instance="f5a3c0" url="/logstream" method="GET" type="request" pid="9712,2,46" Accept-Encoding="identity" Authorization="Bas..." Host="travel-api-matija.scm.azurewebsites.net" User-Agent="AZURECLI/2.74.0 (HOMEBREW)" x-ms-client-request-id="57f81c74-5c35-11f0-ac5a-9ee72fe48f67" X-ARR-LOG-ID="57f81c74-5c35-11f0-ac5a-9ee72fe48f67" CLIENT-IP="95.168.120.13:9146" X-SITE-DEPLOYMENT-ID="travel-api-matija" WAS-DEFAULT-HOSTNAME="travel-api-matija.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/logstream" >
+  <step title="Cleanup Xml Logs" date="2025-07-08T19:54:30.887" /><!-- duration: 16ms -->
+  <step title="LogStreamHandler.BeginProcessRequest" date="2025-07-08T19:54:30.903" >
+    <step title="LockFile &apos;C:\home\site\locks\hooks.lock&apos; acquired" date="2025-07-08T19:54:30.918" /><!-- duration: 0ms -->
+    <step title="LockFile &apos;C:\home\site\locks\hooks.lock&apos; released" date="2025-07-08T19:54:30.950" /><!-- duration: 0ms -->
+  </step><!-- duration: 63ms -->
+  <step title="LogStreamHandler.EndProcessRequest" date="2025-07-08T19:56:30.940" /><!-- duration: 0ms -->
+  <step title="Outgoing response" date="2025-07-08T19:56:30.940" type="response" statusCode="200" statusText="OK" Server="Microsoft-IIS/10.0" Cache-Control="private" X-AspNet-Version="4.0.30319" Content-Type="text/plain; charset=utf-8" /><!-- duration: 0ms -->
+</step><!-- duration: 120053ms -->
